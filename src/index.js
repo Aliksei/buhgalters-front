@@ -1,12 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Editable from './js/module/clientsTable';
+import Clients from './js/module/clientsTable';
+import TabPanel from './js/module/navigationTab';
+import Main from "./js/module/main";
 // import * as serviceWorker from './serviceWorker';
 
 
 
-ReactDOM.render(<Editable />, document.getElementById('root'));
+ReactDOM.render(<Main />, document.getElementById('root'));
 
 
 

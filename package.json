@@ -5,14 +5,14 @@
   "dependencies": {
     "@material-ui/core": "^4.4.2",
     "@material-ui/icons": "^4.4.1",
+    "clsx": "latest",
     "material-table": "^1.50.0",
     "material-ui": "^1.0.0-beta.47",
+    "prop-types": "latest",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-scripts": "3.1.1",
-    "typeface-roboto": "0.0.75",
-    "prop-types": "latest",
-    "clsx": "latest"
+    "typeface-roboto": "0.0.75"
   },
   "scripts": {
     "start": "react-scripts start",
