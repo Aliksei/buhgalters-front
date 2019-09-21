@@ -17,11 +17,6 @@ import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
-import {string} from "prop-types";
-import Reports from "./reportsTable";
-import {Fragment} from "react";
-import Greetings from "./Greetings";
-import Acts from "./actsTable";
 
 
 const tableIcons = {
@@ -44,94 +39,41 @@ const tableIcons = {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref}/>)
 };
 
-export default class Clients extends React.Component {
+export default class Reports extends React.Component {
     constructor(props) {
         super(props);
+
         this.state = {
             columns: [
-                {title: 'Имя', field: 'name'},
-                {title: 'УНП', field: 'ynp'},
-                {title: 'Директор', field: 'director'},
-                {title: 'Уставновной Фонд $', field: 'fond', type: 'numeric'},
-                {title: 'Юр. Адрес', field: 'address'},
-                {title: 'Имнс', field: 'imns'},
-                {title: 'ОКПО', field: 'okpo'},
-                {title: 'ФСЗН', field: 'fszn'},
+                {title: 'Номер Отчетности', field: 'ynp'},
+                {title: 'Статус', field: 'name'},
+                {title: 'Дата отправки', field: 'ynp'},
+                {title: 'Дедлайн', field: 'director'},
             ],
-            data: [
-                {
-                    id: 111,
-                    name: 'Ип Ткачук Алексей Алексеевич',
-                    ynp: '443454354534',
-                    director: "cvhjk",
-                    fond: '5678',
-                    address: 'masherova',
-                    imns: '6789',
-                    okpo: 't789',
-                    fszn: '5678'
-                },
-                {
-                    id: 222,
-                    name: 'Ип Парфимович Артем Жанович',
-                    ynp: '768474765745',
-                    director: "cvhjk",
-                    fond: '5678',
-                    address: 'Ждановичи',
-                    imns: '6789',
-                    okpo: 't789',
-                    fszn: '5678'
-                },
-                {
-                    id: 333,
-                    name: 'Ип Григорович Андрей Валерьевич',
-                    ynp: '97085464',
-                    director: "cvhjk",
-                    fond: '5678',
-                    address: 'masherova',
-                    imns: '6789',
-                    okpo: 't789',
-                    fszn: '5678'
-                }
-            ],
-            clickedClient : undefined
+            data: [this.props.client]
+        }
+        console.log("dfghjk")
+        console.log(this.state.data)
+
     }
 
-    // componentDidMount() {
-    //     const url = 'http://localhost:8080';
-    //     fetch(url, {
-    //         method: "GET"
-    //     }).then(response => response.json())
-    //         .then(clients => {
-    //             this.setState({data: clients})
-    //             console.log(clients)
-    //         })
-    // }
+    render() {
+        if (this.props.client === undefined) {
+            return null;
+        }
 
-}
-
-render()
-{
-    return (
-        <Fragment>
+        return (
             <MaterialTable
-                title="Клиенты"
+                title={'Отчетность по клиенту : ' + this.props.client.name}
                 columns={this.state.columns}
                 icons={tableIcons}
-                data={this.state.data}
+                data={[this.props.client]}
                 options={{pageSizeOptions: [5, 10, 15]}}
-                onRowClick={(
-                    (evt, selectedRow) => {
-                        this.setState((state, props) => {
-                            return state.clickedClient = selectedRow
-                        })
-                    })
-                }
-
                 localization={{
                     body: {
                         emptyDataSourceMessage: 'Поиск не дал результатов',
-                        addTooltip: 'Добавить Клиента',
-                        deleteTooltip: 'Удалить Клиента',
+                        addTooltip: 'Добавить Отчетность',
+                        deleteTooltip: 'Удалить Отчетность',
                         editTooltip: 'Редактировать'
                     },
                     toolbar: {
@@ -184,11 +126,8 @@ render()
                         }),
                 }}
             />
-            <td><Reports client={this.state.clickedClient}/></td>
-            <td><Acts client={this.state.clickedClient}/></td>
 
-        </Fragment>
 
-    )
-}
+        )
+    }
 }

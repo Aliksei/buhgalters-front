@@ -1,16 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Clients from './js/module/clientsTable';
-import TabPanel from './js/module/navigationTab';
-import Main from "./js/module/main";
-// import * as serviceWorker from './serviceWorker';
+import VerticalTabs from "./js/module/verticalTabs";
 
-
-
-ReactDOM.render(<Main />, document.getElementById('root'));
-
-
+ReactDOM.render(<VerticalTabs />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
