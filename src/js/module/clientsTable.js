@@ -17,11 +17,7 @@ import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
-import {string} from "prop-types";
-import Reports from "./reportsTable";
 import {Fragment} from "react";
-import Greetings from "./Greetings";
-import Acts from "./actsTable";
 
 
 const tableIcons = {
@@ -48,147 +44,174 @@ export default class Clients extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            loader: true,
             columns: [
-                {title: 'Имя', field: 'name'},
-                {title: 'УНП', field: 'ynp'},
+                {
+                    title: 'Имя', field: 'name',
+                },
+                {title: 'УНП', field: 'ynp', type: 'numeric'},
                 {title: 'Директор', field: 'director'},
                 {title: 'Уставновной Фонд $', field: 'fond', type: 'numeric'},
                 {title: 'Юр. Адрес', field: 'address'},
                 {title: 'Имнс', field: 'imns'},
+                {title: 'Почта', field: 'email'},
                 {title: 'ОКПО', field: 'okpo'},
                 {title: 'ФСЗН', field: 'fszn'},
             ],
-            data: [
-                {
-                    id: 111,
-                    name: 'Ип Ткачук Алексей Алексеевич',
-                    ynp: '443454354534',
-                    director: "cvhjk",
-                    fond: '5678',
-                    address: 'masherova',
-                    imns: '6789',
-                    okpo: 't789',
-                    fszn: '5678'
-                },
-                {
-                    id: 222,
-                    name: 'Ип Парфимович Артем Жанович',
-                    ynp: '768474765745',
-                    director: "cvhjk",
-                    fond: '5678',
-                    address: 'Ждановичи',
-                    imns: '6789',
-                    okpo: 't789',
-                    fszn: '5678'
-                },
-                {
-                    id: 333,
-                    name: 'Ип Григорович Андрей Валерьевич',
-                    ynp: '97085464',
-                    director: "cvhjk",
-                    fond: '5678',
-                    address: 'masherova',
-                    imns: '6789',
-                    okpo: 't789',
-                    fszn: '5678'
-                }
-            ],
-            clickedClient : undefined
+            key: 0,
+            data: [],
+            clickedClient: undefined
+        }
     }
 
-    // componentDidMount() {
-    //     const url = 'http://localhost:8080';
-    //     fetch(url, {
-    //         method: "GET"
-    //     }).then(response => response.json())
-    //         .then(clients => {
-    //             this.setState({data: clients})
-    //             console.log(clients)
-    //         })
-    // }
+    async componentDidMount() {
+        this.getClients()
+    }
 
-}
+    async getClients() {
+        const response = await fetch("http://localhost:8080/clients");
+        const json = await response.json();
+        this.setState({data: json, loader: false});
+    }
 
-render()
-{
-    return (
-        <Fragment>
-            <MaterialTable
-                title="Клиенты"
-                columns={this.state.columns}
-                icons={tableIcons}
-                data={this.state.data}
-                options={{pageSizeOptions: [5, 10, 15]}}
-                onRowClick={(
-                    (evt, selectedRow) => {
-                        this.setState((state, props) => {
-                            return state.clickedClient = selectedRow
+    async updateClient(data) {
+        this.setState({loader: true});
+        return await fetch('http://localhost:8080/clients/update/' + data.id, {
+            method: 'put',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+    }
+
+    async addClient(data) {
+        this.setState({loader: true});
+        return await fetch('http://localhost:8080/clients/create', {
+            method: 'post',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+    }
+
+    async deleteClient(data) {
+        this.setState({loader: true});
+        return await fetch('http://localhost:8080/clients/delete/' + data.id, {
+            method: 'delete',
+        });
+    }
+
+    render() {
+        return (
+            <Fragment>
+                <MaterialTable
+                    title="Таблица Клиенты"
+                    columns={this.state.columns}
+                    isLoading={this.state.loader}
+                    icons={tableIcons}
+                    data={this.state.data}
+                    options={{
+                        doubleHorizontalScroll:true,
+                        pageSizeOptions: [5, 10, 15],
+                        paginationType: 'stepped',
+                        exportButton: true,
+                        columnsButton: true,
+                        exportAllData: true,
+                        grouping: true,
+                        showFirstLastPageButtons: true,
+                        toolbar: true,
+                        draggable: true,
+                        headerStyle: {
+                            backgroundColor: 'rgba(95,96,99,0.32)',
+                            fontSize: 12,
+                            fontWeight: 'bolder'
+                        }
+                    }}
+                    onRowClick={(
+                        (evt, selectedRow) => {
+                            this.setState((state, props) => {
+                                return state.clickedClient = selectedRow
+                            })
                         })
-                    })
-                }
+                    }
+                    localization={{
+                        body: {
+                            emptyDataSourceMessage: 'Поиск не дал результатов',
+                            addTooltip: 'Добавить Клиента',
+                            deleteTooltip: 'Удалить Клиента',
+                            editTooltip: 'Редактировать',
+                            editRow: {
+                                deleteText: 'Удалить выбранного клиента?',
+                            }
+                        },
+                        toolbar: {
+                            searchPlaceholder: 'Поиск',
+                            addRemoveColumns: 'Поля для отображения',
+                            showColumnsTitle: 'Настройки колонок',
+                            exportTitle: 'Выгрузка в CSV файл'
+                        },
+                        pagination: {
+                            labelRowsSelect: 'элементов на странице',
+                            labelDisplayedRows: '{count} страница {from}-{to} старниц',
+                            // labelDisplayedRows: '{count} страница {from}-{to} старниц',
+                            firstTooltip: 'В начало',
+                            previousTooltip: 'Назад',
+                            nextTooltip: 'Вперед',
+                            lastTooltip: 'В Конец'
+                        },
+                    }}
+                    editable={{
+                        onRowAdd: newData =>
+                            new Promise((resolve, reject) => {
+                                setTimeout(() => {
+                                    {
+                                        this.addClient(newData)
+                                            .then(res => res.json())
+                                            .then(res => {
+                                                const data = this.state.data;
+                                                data.push(res);
+                                                (this.setState({data: data, loader: false}, () => resolve()))
+                                            })
 
-                localization={{
-                    body: {
-                        emptyDataSourceMessage: 'Поиск не дал результатов',
-                        addTooltip: 'Добавить Клиента',
-                        deleteTooltip: 'Удалить Клиента',
-                        editTooltip: 'Редактировать'
-                    },
-                    toolbar: {
-                        searchPlaceholder: 'Поиск'
-                    },
-                    pagination: {
-                        labelRowsSelect: 'элементов',
-                        labelDisplayedRows: '{count} страница {from}-{to} старниц',
-                        firstTooltip: 'В начало',
-                        previousTooltip: 'Назад',
-                        nextTooltip: 'Вперед',
-                        lastTooltip: 'В Конец'
-                    },
-                }}
-                editable={{
-                    onRowAdd: newData =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                {
-                                    const data = this.state.data;
-                                    data.push(newData);
-                                    this.setState({data}, () => resolve());
-                                }
-                                resolve()
-                            }, 1000)
-                        }),
-                    onRowUpdate: (newData, oldData) =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                {
-                                    const data = this.state.data;
-                                    const index = data.indexOf(oldData);
-                                    data[index] = newData;
-                                    this.setState({data}, () => resolve());
-                                }
-                                resolve()
-                            }, 1000)
-                        }),
-                    onRowDelete: oldData =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                {
-                                    let data = this.state.data;
-                                    const index = data.indexOf(oldData);
-                                    data.splice(index, 1);
-                                    this.setState({data}, () => resolve());
-                                }
-                                resolve()
-                            }, 1000)
-                        }),
-                }}
-            />
-            <td><Reports client={this.state.clickedClient}/></td>
-            <td><Acts client={this.state.clickedClient}/></td>
+                                    }
+                                    resolve()
+                                }, 1000)
+                            }),
+                        onRowUpdate: (newData, oldData) =>
+                            new Promise((resolve, reject) => {
+                                setTimeout(() => {
+                                    {
+                                        this.updateClient(newData)
+                                            .then(res => res.json())
+                                            .then(res => {
+                                                const data = this.state.data;
+                                                const index = data.indexOf(oldData);
+                                                data[index] = res;
+                                                this.setState({data: data, loader: false}, () => resolve())
+                                            })
+                                    }
+                                    resolve()
+                                }, 1000)
+                            }),
+                        onRowDelete: oldData =>
+                            new Promise((resolve, reject) => {
+                                setTimeout(() => {
+                                    {
+                                        this.deleteClient(oldData)
+                                            .then(resp => {
+                                                let data = this.state.data;
+                                                const index = data.indexOf(oldData);
+                                                data.splice(index, 1);
+                                                this.setState({data: data, loader: false}, () => resolve())
+                                            });
+                                    }
+                                    resolve()
+                                }, 1000)
+                            }),
+                    }}
+                />
+                {/*<td><Reports client={this.state.clickedClient}/></td>*/}
+                {/*<td><Acts client={this.state.clickedClient}/></td>*/}
+            </Fragment>
 
-        </Fragment>
-
-    )
-}
+        )
+    }
 }

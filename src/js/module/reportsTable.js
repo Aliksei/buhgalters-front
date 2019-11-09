@@ -54,17 +54,15 @@ export default class Reports extends React.Component {
         }
         console.log("dfghjk")
         console.log(this.state.data)
-
     }
 
     render() {
         if (this.props.client === undefined) {
             return null;
         }
-
         return (
             <MaterialTable
-                title={'Отчетность по клиенту : ' + this.props.client.name}
+                title={'Отчетность по клиенту \n: ' + this.props.client.name}
                 columns={this.state.columns}
                 icons={tableIcons}
                 data={[this.props.client]}

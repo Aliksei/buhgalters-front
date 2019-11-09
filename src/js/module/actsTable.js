@@ -42,7 +42,6 @@ const tableIcons = {
 export default class Reports extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = {
             columns: [
                 {title: 'Номер Отчетности', field: 'ynp'},
@@ -50,11 +49,9 @@ export default class Reports extends React.Component {
                 {title: 'Дата отправки', field: 'ynp'},
                 {title: 'Дедлайн', field: 'director'},
             ],
-            data: [this.props.client]
+            client: {},
+            data: []
         }
-        console.log("dfghjk")
-        console.log(this.state.data)
-
     }
 
     render() {

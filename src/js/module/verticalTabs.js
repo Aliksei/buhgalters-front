@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, {func} from 'prop-types';
 import {makeStyles} from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -57,28 +57,30 @@ export default function VerticalTabs() {
         setValue(newValue);
     }
 
+    function updateKey(newValue) {
+        if (newValue === 0 ) {
+            return newValue + 1;
+        }
+    }
+
     return (
-        <div className={classes.root}>
-            <Tabs
-                orientation="vertical"
-                variant="standard"
-                value={value}
-                onChange={handleChange}
-                className={classes.tabs}
-            >
-                <Tab label="Клиенты" {...a11yProps(0)} />
-                <Tab label="Отчетности" {...a11yProps(1)} />
-                <Tab label="Акты" {...a11yProps(2)} />
-                <Tab label="Задания" {...a11yProps(3)} />
-            </Tabs>
-            <TabPanel value={value} index={0}>
-                <Clients/>
-            </TabPanel>
-            <TabPanel value={value} index={1}>
-            </TabPanel>
-            <TabPanel value={value} index={2}>
-                <Clients/>
-            </TabPanel>
+        <div>
+            <div className={classes.root}>
+                <Tabs orientation="vertical" variant="standard" value={value} onChange={handleChange} className={classes.tabs} >
+                    <Tab label="Клиенты" {...a11yProps(0)} />
+                    <Tab label="Отчетности" {...a11yProps(1)} />
+                    <Tab label="Акты" {...a11yProps(2)} />
+                    <Tab label="Задания" {...a11yProps(3)} />
+                </Tabs>
+                <TabPanel value={value} index={0}>
+                    <Clients key={updateKey(value)}/>
+                </TabPanel>
+                <TabPanel value={value} index={1}>
+                </TabPanel>
+                <TabPanel value={value} index={2}>
+                </TabPanel>
+            </div>
         </div>
+
     );
 }
