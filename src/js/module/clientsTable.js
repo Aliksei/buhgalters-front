@@ -109,7 +109,7 @@ export default class Clients extends React.Component {
                     icons={tableIcons}
                     data={this.state.data}
                     options={{
-                        doubleHorizontalScroll:true,
+                        doubleHorizontalScroll: true,
                         pageSizeOptions: [5, 10, 15],
                         paginationType: 'stepped',
                         exportButton: true,
@@ -168,7 +168,20 @@ export default class Clients extends React.Component {
                                             .then(res => res.json())
                                             .then(res => {
                                                 const data = this.state.data;
-                                                data.push(res);
+                                                data.push({
+                                                    id: res.id,
+                                                    director: res.director,
+                                                    email: res.email,
+                                                    fond: res.fond,
+                                                    fszn: res.fszn,
+                                                    name: res.name,
+                                                    okpo: res.okpo,
+                                                    ynp: res.ynp,
+                                                    imns: res.imns,
+                                                    address: res.address
+                                            }
+                                            )
+                                                ;
                                                 (this.setState({data: data, loader: false}, () => resolve()))
                                             })
 

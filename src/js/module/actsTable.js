@@ -49,111 +49,29 @@ function sleep(delay = 0) {
     });
 }
 
-function Asynchronous() {
-    const [open, setOpen] = React.useState(false);
-    const [options, setOptions] = React.useState([]);
-    const loading = open && options.length === 0;
-
-    React.useEffect(() => {
-        let active = true;
-
-        if (!loading) {
-            return undefined;
-        }
-
-        (async () => {
-            const response = await fetch('https://country.register.gov.uk/records.json?page-size=5000');
-            await sleep(1e3); // For demo purposes.
-            const countries = await response.json();
-
-            if (active) {
-                setOptions(Object.keys(countries).map(key => countries[key].item[0]));
-            }
-        })();
-
-        return () => {
-            active = false;
-        };
-    }, [loading]);
-
-    React.useEffect(() => {
-        if (!open) {
-            setOptions([]);
-        }
-    }, [open]);
-
-    return (
-        <Autocomplete
-            id="asynchronous-demo"
-            style={{width: 300}}
-            open={open}
-            onOpen={() => {
-                setOpen(true);
-            }}
-            onClose={() => {
-                setOpen(false);
-            }}
-            getOptionLabel={option => option.name}
-            options={options}
-            loading={loading}
-            renderInput={params => (
-                <TextField
-                    {...params}
-                    label="Asynchronous"
-                    fullWidth
-                    variant="outlined"
-                    InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                            <React.Fragment>
-                                {loading ? <CircularProgress color="inherit" size={20}/> : null}
-                                {params.InputProps.endAdornment}
-                            </React.Fragment>
-                        ),
-                    }}
-                />
-            )}
-        />
-    );
-}
-
 export default class Acts extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            clients: [
-                {clientId: 323, name: 'JOKER'},
-                {clientId: 1, name: 'OUUU'},
-                {clientId: 2, name: 'OLLL'},
-                {clientId: 32, name: 'KIKI'}
-            ],
-            client: {},
+            clients: [],
+            clientId: null,
+            clientName: null,
             columns: [
                 {title: 'Номер Акта', field: 'actNumber'},
                 {
                     title: 'Клиент', field: 'clientId',
-                    editComponent: props => (<Autocomplete
-                        options={this.state.clients}
-                        value= {this.state.clients[1]}
-                        getOptionLabel={option => option.name}
-                        onChange={(event, newValue) => {
-                            console.log(event);
-                            this.setState({client: newValue})
-                        }}
-                        renderInput={params => <TextField {...params} margin="normal"
-                        />
-                        }
-                    />)
+                    editComponent: this.getEditComponent
                 }
                 ,
                 {
                     title: 'Статус',
                     field: 'status',
-                    lookup: {1: 'ВЫСТАВЛЕН', 2: 'ОПЛАЧЕН'}
+                    lookup: {0: 'ВЫСТАВЛЕН', 1: 'ОПЛАЧЕН'}
                 },
                 {
                     title: 'Сумма',
-                    field: 'summ'
+                    field: 'summ',
+                    type: 'numeric'
                 },
                 {title: 'Дата отправки', field: 'actDate', type: 'date'},
                 {
@@ -181,30 +99,64 @@ export default class Acts extends React.Component {
         }
     }
 
+    getEditComponent = props => {
+
+        let options = !!this.state.clients ? this.state.clients : [];
+
+        let selectedOption = options && options.length > 0 && !!this.state.clientId
+            ? options.filter(opt => opt.name == this.state.clientName)[0]
+            : props.rowData.clientId;
+
+
+        console.log(props.rowData);
+        console.log(selectedOption);
+
+        // let cur = props.rowData === {} ? '' : props.rowData.clientId;
+
+
+        return (
+            <Autocomplete
+                style={{width: '100px'}}
+                options={options}
+                getOptionLabel={option => option.name}
+                onChange={(event, opt) => {
+                    console.log('CЕЛЕКТ');
+                    this.setState({clientId: opt.id, clientName: opt.name});
+                }}
+                renderInput={params => {
+                    // console.log('ВЫЗВАЛОСЬ');
+                    // console.log(selectedOption);
+                    params.inputProps.value = selectedOption.name;
+                    return (<TextField {...params}
+                                       style={{width: '100px'}}
+                                       margin="normal"
+                    />)
+                }
+                }
+            />
+        )
+    };
+
+
     async componentDidMount() {
-        // this.getClients()
-        //     .then(res => {
-        //         this.setState({clients: res})
-        //     })
+        Promise.all([
+            this.getClients(),
+            this.getAllActs()
+        ]).then(([clientList, actList]) => {
+            console.log(clientList);
+            console.log(actList);
+            actList.map(act => {
 
-        // fetch("http://localhost:8080/clients")
-        //     .then(res => res.json())
-        //     .then(c => {
-        //         this.setState({
-        //             clients: c.map(client => {
-        //                 return (
-        //                     <MenuItem value={client.id}>{client.name}</MenuItem>
-        //                 )
-        //             })
-        //         });
-        //     })
+                act.clientId = clientList.filter(c => c.id === act.clientId)[0].name;
 
+            });
+            this.setState({clients: clientList, data: actList, loader: false})
+        });
     }
 
     async getAllActs() {
         const response = await fetch("http://localhost:8080/acts");
-        const json = await response.json();
-        this.setState({data: json, loader: false});
+        return await response.json();
     }
 
     async editAct(clientId, act) {
@@ -238,18 +190,15 @@ export default class Acts extends React.Component {
         this.setState({data: json, loader: false});
     }
 
-
     render() {
-        // if (this.props.client === undefined) {
-        //     return null;
-        // }
-
         return (
             <MaterialTable
+                style={{width:'120%'}}
                 title={'Таблица Актов'}
                 columns={this.state.columns}
                 icons={tableIcons}
                 data={this.state.data}
+                isLoading={this.state.loader}
                 options={{
                     pageSizeOptions: [5, 10, 15],
                     paginationType: 'stepped',
@@ -285,13 +234,14 @@ export default class Acts extends React.Component {
                         new Promise((resolve, reject) => {
                             setTimeout(() => {
                                 {
+                                    this.setState({loader: true});
+                                    newData.clientId = this.state.clientId;
                                     this.createAct(newData)
                                         .then(res => res.json())
                                         .then(res => {
                                             const data = this.state.data;
                                             data.push(res);
                                             this.setState({data, loader: false}, () => resolve());
-                                            this.setState({client: {}})
                                         });
                                 }
                                 resolve()
@@ -299,12 +249,13 @@ export default class Acts extends React.Component {
                         }),
                     onRowUpdate: (newData, oldData) =>
                         new Promise((resolve, reject) => {
+                            this.setState({loader: true});
                             setTimeout(() => {
                                 {
                                     const data = this.state.data;
                                     const index = data.indexOf(oldData);
                                     data[index] = newData;
-                                    this.setState({data}, () => resolve());
+                                    this.setState({data, loader: false}, () => resolve());
                                 }
                                 resolve()
                             }, 1000)
