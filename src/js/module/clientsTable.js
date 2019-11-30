@@ -51,7 +51,7 @@ export default class Clients extends React.Component {
                 },
                 {title: 'УНП', field: 'ynp', type: 'numeric'},
                 {title: 'Директор', field: 'director'},
-                {title: 'Уставновной Фонд $', field: 'fond', type: 'numeric'},
+                {title: 'Фонд $', field: 'fond', type: 'numeric'},
                 {title: 'Юр. Адрес', field: 'address'},
                 {title: 'Имнс', field: 'imns'},
                 {title: 'Почта', field: 'email'},
@@ -120,7 +120,7 @@ export default class Clients extends React.Component {
                         toolbar: true,
                         draggable: true,
                         headerStyle: {
-                            backgroundColor: 'rgba(95,96,99,0.32)',
+                            // backgroundColor: 'rgba(95,96,99,0.32)',
                             fontSize: 12,
                             fontWeight: 'bolder'
                         }
@@ -132,6 +132,7 @@ export default class Clients extends React.Component {
                             })
                         })
                     }
+                    style={{width: '99%'}}
                     localization={{
                         body: {
                             emptyDataSourceMessage: 'Поиск не дал результатов',

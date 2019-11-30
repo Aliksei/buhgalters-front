@@ -6,6 +6,7 @@ import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Clients from "./clientsTable";
+import Acts from "./actsTable";
 
 function TabPanel(props) {
     const {children, value, index, ...other} = props;
@@ -66,8 +67,14 @@ export default function VerticalTabs() {
     return (
         <div>
             <div className={classes.root}>
-                <Tabs orientation="vertical" variant="standard" value={value} onChange={handleChange} className={classes.tabs} >
-                    <Tab label="Клиенты" {...a11yProps(0)} />
+                <Tabs orientation="vertical"
+                      variant="standard"
+                      value={value}
+                      onChange={handleChange}
+                      className={classes.tabs}
+                      style={{overflow: 'visible'}}
+                >
+                    <Tab label="Клиенты" {...a11yProps(0)}/>
                     <Tab label="Отчетности" {...a11yProps(1)} />
                     <Tab label="Акты" {...a11yProps(2)} />
                     <Tab label="Задания" {...a11yProps(3)} />
@@ -78,6 +85,7 @@ export default function VerticalTabs() {
                 <TabPanel value={value} index={1}>
                 </TabPanel>
                 <TabPanel value={value} index={2}>
+                    <Acts key={updateKey(value)} />
                 </TabPanel>
             </div>
         </div>
