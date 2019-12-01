@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Clients from "./clientsTable";
 import Acts from "./actsTable";
+import Otchets from "./othcetnosti";
 
 function TabPanel(props) {
     const {children, value, index, ...other} = props;
@@ -83,6 +84,7 @@ export default function VerticalTabs() {
                     <Clients key={updateKey(value)}/>
                 </TabPanel>
                 <TabPanel value={value} index={1}>
+                    <Otchets key={updateKey(value)} />
                 </TabPanel>
                 <TabPanel value={value} index={2}>
                     <Acts key={updateKey(value)} />

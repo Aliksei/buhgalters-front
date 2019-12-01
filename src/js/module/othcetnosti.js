@@ -43,119 +43,56 @@ const tableIcons = {
 };
 
 
-function sleep(delay = 0) {
-    return new Promise(resolve => {
-        setTimeout(resolve, delay);
-    });
-}
-
-export default class Acts extends React.Component {
+export default class Otchets extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            clients: [],
-            clientId: null,
-            clientName: null,
+            client: this.props.client,
             columns: [
-                {title: 'Номер Акта', field: 'actNumber'},
+                {title: 'Наименование', field: 'name'},
                 {
-                    title: 'Клиент', field: 'clientId',
-                    editComponent: this.getEditComponent
+                    title: 'Тип',
+                    field: 'type',
+                    lookup: {0: 'Налоги', 1: 'Фсзн', 2: 'Статисктика', 3: 'БелгосСтрах'}
                 }
                 ,
                 {
                     title: 'Статус',
                     field: 'status',
-                    lookup: {0: 'ВЫСТАВЛЕН', 1: 'ОПЛАЧЕН'}
+                    lookup: {0: 'ОТПРАВЛЕН', 1: 'ПРИНЯТ', 2: 'ПРОСРОЧЕН'}
                 },
+                {title: 'Клиент', field: 'clientName'},
                 {
-                    title: 'Сумма',
-                    field: 'summ',
-                    type: 'numeric'
+                    title: 'Дата',
+                    field: 'date',
+                    type: 'date'
                 },
-                {title: 'Дата отправки', field: 'actDate', type: 'date'},
-                {
-                    title: 'Месяц',
-                    field: 'month',
-                    lookup: {
-                        1: 'Январь',
-                        2: 'Февраль',
-                        3: 'Март',
-                        4: 'Апрель',
-                        5: 'Май',
-                        6: 'Июнь',
-                        7: 'Июль',
-                        8: 'Август',
-                        9: 'Сентябрь',
-                        10: 'Октябрь',
-                        11: 'Ноябрь',
-                        12: 'Декабрь',
-                    },
-                }
+                {title: 'Дедлайн', field: 'actDate', type: 'date'},
             ],
             key: 0,
             data: [],
-            loader: true
+            loader: false
         }
     }
 
-    getEditComponent = props => {
+    // async componentDidMount() {
+    //     Promise.all([
+    //         this.getClients(),
+    //         this.getAllActs()
+    //     ]).then(([clientList, actList]) => {
+    //         console.log(clientList);
+    //         console.log(actList);
+    //         actList.map(act => {
+    //
+    //             act.clientId = clientList.filter(c => c.id === act.clientId)[0].name;
+    //
+    //         });
+    //         this.setState({clients: clientList, data: actList, loader: false})
+    //     });
+    // }
 
-        let options = !!this.state.clients ? this.state.clients : [];
-
-        let selectedOption = options && options.length > 0 && !!this.state.clientId
-            ? options.filter(opt => opt.name == this.state.clientName)[0]
-            : 'props.rowData.clientId';
-
-
-        console.log(props.rowData);
-        console.log(selectedOption);
-
-        // let cur = props.rowData === {} ? '' : props.rowData.clientId;
-
-
-        return (
-            <Autocomplete
-                style={{width: '100px'}}
-                options={options}
-                getOptionLabel={option => option.name}
-                onChange={(event, opt) => {
-                    console.log('CЕЛЕКТ');
-                    this.setState({clientId: opt.id, clientName: opt.name});
-                }}
-                renderInput={params => {
-                    // console.log('ВЫЗВАЛОСЬ');
-                    // console.log(selectedOption);
-                    params.inputProps.value = selectedOption.name;
-                    return (<TextField {...params}
-                                       style={{width: '100px'}}
-                                       margin="normal"
-                    />)
-                }
-                }
-            />
-        )
-    };
-
-
-    async componentDidMount() {
-        Promise.all([
-            this.getClients(),
-            this.getAllActs()
-        ]).then(([clientList, actList]) => {
-            console.log(clientList);
-            console.log(actList);
-            actList.map(act => {
-
-                act.clientId = clientList.filter(c => c.id === act.clientId)[0].name;
-
-            });
-            this.setState({clients: clientList, data: actList, loader: false})
-        });
-    }
-
-    async getAllActs() {
-        const response = await fetch("http://localhost:8080/acts");
+    async getAllReports() {
+        const response = await fetch("http://localhost:8080/reports");
         return await response.json();
     }
 
@@ -184,18 +121,17 @@ export default class Acts extends React.Component {
         });
     }
 
-    async deleteAct(data) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/clients/delete/' + data.id, {
-            method: 'delete',
-        });
+    async deleteAct(client) {
+        const response = await fetch("http://localhost:8080/acts");
+        const json = await response.json();
+        this.setState({data: json, loader: false});
     }
 
     render() {
         return (
             <MaterialTable
-                style={{width:'120%'}}
-                title={'Таблица Актов'}
+                style={{width: '120%'}}
+                title={'Таблица Отчетностей'}
                 columns={this.state.columns}
                 icons={tableIcons}
                 data={this.state.data}
@@ -214,9 +150,9 @@ export default class Acts extends React.Component {
                 localization={{
                     body: {
                         emptyDataSourceMessage: 'Поиск не дал результатов',
-                        addTooltip: 'Добавить Акт',
-                        deleteTooltip: 'Удалить Акт',
-                        editTooltip: 'Редактировать Акт'
+                        addTooltip: 'Добавить Отчетность',
+                        deleteTooltip: 'Удалить Отчетность',
+                        editTooltip: 'Редактировать'
                     },
                     toolbar: {
                         searchPlaceholder: 'Поиск'
@@ -265,8 +201,6 @@ export default class Acts extends React.Component {
                         new Promise((resolve, reject) => {
                             setTimeout(() => {
                                 {
-                                    this.deleteAct(oldData)
-                                        .then()
                                     let data = this.state.data;
                                     const index = data.indexOf(oldData);
                                     data.splice(index, 1);
@@ -277,6 +211,8 @@ export default class Acts extends React.Component {
                         }),
                 }}
             />
+
+
         )
     }
 }

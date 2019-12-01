@@ -18,6 +18,7 @@ import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import {Fragment} from "react";
+import OtchetsPoClienty from "./otchetnostiPoClienty";
 
 
 const tableIcons = {
@@ -222,7 +223,8 @@ export default class Clients extends React.Component {
                             }),
                     }}
                 />
-                {/*<td><Reports client={this.state.clickedClient}/></td>*/}
+                {this.state.clickedClient === undefined ? true :  <td><OtchetsPoClienty client={this.state.clickedClient}/></td>}
+
                 {/*<td><Acts client={this.state.clickedClient}/></td>*/}
             </Fragment>
 
