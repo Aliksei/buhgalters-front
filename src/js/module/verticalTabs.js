@@ -1,27 +1,26 @@
 import React from 'react';
-import PropTypes, {func} from 'prop-types';
-import {makeStyles} from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
+import { makeStyles } from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Clients from "./clientsTable";
-import Acts from "./actsTable";
-import Otchets from "./othcetnosti";
 
 function TabPanel(props) {
-    const {children, value, index, ...other} = props;
+    const { children, value, index, ...other } = props;
 
     return (
         <Typography
             component="div"
             role="tabpanel"
             hidden={value !== index}
-            id={`vertical-tabpanel-${index}`}
-            aria-labelledby={`vertical-tab-${index}`}
+            id={`nav-tabpanel-${index}`}
+            aria-labelledby={`nav-tab-${index}`}
             {...other}
         >
-            <Box p={3}>{children}</Box>
+            {value === index && <Box p={3}>{children}</Box>}
         </Typography>
     );
 }
@@ -34,63 +33,64 @@ TabPanel.propTypes = {
 
 function a11yProps(index) {
     return {
-        id: `vertical-tab-${index}`,
-        'aria-controls': `vertical-tabpanel-${index}`,
+        id: `nav-tab-${index}`,
+        'aria-controls': `nav-tabpanel-${index}`,
     };
+}
+
+function LinkTab(props) {
+    return (
+        <Tab
+            component="a"
+            onClick={event => {
+                event.preventDefault();
+            }}
+            {...props}
+        />
+    );
 }
 
 const useStyles = makeStyles(theme => ({
     root: {
-        flexGrow: 1,
-        backgroundColor: theme.palette.background.paper,
-        display: 'flex',
-        height: 224,
-    },
-    tabs: {
-        borderRight: `1px solid ${theme.palette.divider}`,
+        // flexGrow: 1,
+        // backgroundColor: theme.palette.background.paper,
     },
 }));
 
-export default function VerticalTabs() {
+export default function NavTabs() {
     const classes = useStyles();
     const [value, setValue] = React.useState(0);
 
-    function handleChange(event, newValue) {
+    const handleChange = (event, newValue) => {
         setValue(newValue);
-    }
-
-    function updateKey(newValue) {
-        if (newValue === 0 ) {
-            return newValue + 1;
-        }
-    }
+    };
 
     return (
-        <div>
-            <div className={classes.root}>
-                <Tabs orientation="vertical"
-                      variant="standard"
-                      value={value}
-                      onChange={handleChange}
-                      className={classes.tabs}
-                      style={{overflow: 'visible'}}
+        <div className={classes.root}>
+            <AppBar position="static">
+                <Tabs
+                    variant="fullWidth"
+                    value={value}
+                    onChange={handleChange}
+                    aria-label="nav tabs example"
                 >
-                    <Tab label="Клиенты" {...a11yProps(0)}/>
-                    <Tab label="Отчетности" {...a11yProps(1)} />
-                    <Tab label="Акты" {...a11yProps(2)} />
-                    <Tab label="Задания" {...a11yProps(3)} />
+                    <LinkTab label="Page One" href="/drafts" {...a11yProps(0)} />
+                    <LinkTab label="Page Two" href="/trash" {...a11yProps(1)} />
+                    <LinkTab label="Page Three" href="/spam" {...a11yProps(2)} />
                 </Tabs>
-                <TabPanel value={value} index={0}>
-                    <Clients key={updateKey(value)}/>
-                </TabPanel>
-                <TabPanel value={value} index={1}>
-                    <Otchets key={updateKey(value)} />
-                </TabPanel>
-                <TabPanel value={value} index={2}>
-                    <Acts key={updateKey(value)} />
-                </TabPanel>
-            </div>
+            </AppBar>
+            <TabPanel value={value} index={0}>
+                Page One
+                <Clients/>
+            </TabPanel>
+            <TabPanel value={value} index={1}>
+                Page Two
+                <Clients/>
+            </TabPanel>
+            <TabPanel value={value} index={2}>
+                <Clients/>
+                Page Three
+            </TabPanel>
         </div>
-
     );
 }

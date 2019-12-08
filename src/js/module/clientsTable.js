@@ -18,7 +18,6 @@ import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import {Fragment} from "react";
-import OtchetsPoClienty from "./otchetnostiPoClienty";
 
 
 const tableIcons = {
@@ -59,9 +58,7 @@ export default class Clients extends React.Component {
                 {title: 'ОКПО', field: 'okpo'},
                 {title: 'ФСЗН', field: 'fszn'},
             ],
-            key: 0,
             data: [],
-            clickedClient: undefined
         }
     }
 
@@ -100,6 +97,13 @@ export default class Clients extends React.Component {
         });
     }
 
+    openClientView(clickedClient) {
+        let {history} = this.props;
+        history.push({
+            pathname: '/clients/' + clickedClient.id,
+        });
+    }
+
     render() {
         return (
             <Fragment>
@@ -120,20 +124,19 @@ export default class Clients extends React.Component {
                         showFirstLastPageButtons: true,
                         toolbar: true,
                         draggable: true,
+                        padding: 'dense',
                         headerStyle: {
-                            // backgroundColor: 'rgba(95,96,99,0.32)',
                             fontSize: 12,
                             fontWeight: 'bolder'
                         }
                     }}
                     onRowClick={(
-                        (evt, selectedRow) => {
-                            this.setState((state, props) => {
-                                return state.clickedClient = selectedRow
-                            })
+                        (evt, clickedClient) => {
+                            this.openClientView.bind(this);
+                            this.openClientView(clickedClient);
                         })
                     }
-                    style={{width: '99%'}}
+                    style={{width: '95%'}}
                     localization={{
                         body: {
                             emptyDataSourceMessage: 'Поиск не дал результатов',
@@ -170,22 +173,21 @@ export default class Clients extends React.Component {
                                             .then(res => {
                                                 const data = this.state.data;
                                                 data.push({
-                                                    id: res.id,
-                                                    director: res.director,
-                                                    email: res.email,
-                                                    fond: res.fond,
-                                                    fszn: res.fszn,
-                                                    name: res.name,
-                                                    okpo: res.okpo,
-                                                    ynp: res.ynp,
-                                                    imns: res.imns,
-                                                    address: res.address
-                                            }
-                                            )
+                                                        id: res.id,
+                                                        director: res.director,
+                                                        email: res.email,
+                                                        fond: res.fond,
+                                                        fszn: res.fszn,
+                                                        name: res.name,
+                                                        okpo: res.okpo,
+                                                        ynp: res.ynp,
+                                                        imns: res.imns,
+                                                        address: res.address
+                                                    }
+                                                )
                                                 ;
                                                 (this.setState({data: data, loader: false}, () => resolve()))
                                             })
-
                                     }
                                     resolve()
                                 }, 1000)
@@ -223,9 +225,6 @@ export default class Clients extends React.Component {
                             }),
                     }}
                 />
-                {this.state.clickedClient === undefined ? true :  <td><OtchetsPoClienty client={this.state.clickedClient}/></td>}
-
-                {/*<td><Acts client={this.state.clickedClient}/></td>*/}
             </Fragment>
 
         )

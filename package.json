@@ -9,10 +9,13 @@
     "clsx": "latest",
     "material-table": "^1.50.0",
     "material-ui": "^1.0.0-beta.47",
+    "moment": "^2.24.0",
     "prop-types": "latest",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
-    "react-router": "latest",
+    "react-redux": "^7.1.3",
+    "react-router": "^5.1.2",
+    "react-router-transition": "^2.0.0",
     "react-scripts": "3.1.1",
     "react-swipeable-views": "^0.13.3",
     "typeface-roboto": "0.0.75"
@@ -41,7 +44,7 @@
   "devDependencies": {
     "@reach/router": "^1.2.1",
     "mdbreact": "^4.20.0",
-    "react-router-dom": "^5.0.1",
+    "react-router-dom": "^5.1.2",
     "react-virtualized": "^9.21.1"
   }
 }

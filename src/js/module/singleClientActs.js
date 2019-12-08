@@ -1,5 +1,6 @@
 import * as React from "react";
 import {forwardRef} from "react";
+import Moment from 'moment';
 
 import AddBox from '@material-ui/icons/AddBox';
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
@@ -19,7 +20,6 @@ import ViewColumn from '@material-ui/icons/ViewColumn';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import MaterialTable from "material-table";
 import TextField from "@material-ui/core/TextField";
-import CircularProgress from "@material-ui/core/CircularProgress";
 
 
 const tableIcons = {
@@ -42,44 +42,109 @@ const tableIcons = {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref}/>)
 };
 
-
-export default class OtchetsPoClienty extends React.Component {
+export default class ClientsAct extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            client: this.props.client,
             columns: [
-                {title: 'Наименование', field: 'name'},
+                {title: 'Номер Акта', field: 'actNumber'},
                 {
-                    title: 'Тип',
-                    field: 'type',
-                    lookup: {0: 'Налоги', 1: 'Фсзн', 2: 'Статисктика', 3: 'БелгосСтрах'}
+                    title: 'Клиент', field: 'clientId',
+                    hidden: true
                 }
                 ,
                 {
                     title: 'Статус',
                     field: 'status',
-                    lookup: {0: 'ОТПРАВЛЕН', 1: 'ПРИНЯТ', 2: 'ПРОСРОЧЕН'}
+                    lookup: {0: 'ВЫСТАВЛЕН', 1: 'ОПЛАЧЕН'}
                 },
-                {title: 'Клиент', field: 'clientName'},
                 {
-                    title: 'Дата',
-                    field: 'date',
-                    type: 'date'
+                    title: 'Сумма',
+                    field: 'summ',
+                    type: 'numeric'
                 },
-                {title: 'Дедлайн', field: 'actDate', type: 'date'},
+                {
+                    title: 'Дата отправки',
+                    field: 'actDate',
+                    type: 'date',
+                    render: (data, type) => {
+                        let moment = Moment(data);
+                        moment.locale();
+                        return (<div>{moment.format('DD-MMM-YYYY')}</div>)
+                    }
+                },
+                {
+                    title: 'Месяц',
+                    field: 'month',
+                    lookup: {
+                        1: 'Январь',
+                        2: 'Февраль',
+                        3: 'Март',
+                        4: 'Апрель',
+                        5: 'Май',
+                        6: 'Июнь',
+                        7: 'Июль',
+                        8: 'Август',
+                        9: 'Сентябрь',
+                        10: 'Октябрь',
+                        11: 'Ноябрь',
+                        12: 'Декабрь',
+                    },
+                }
             ],
-            key: 0,
             data: [],
-            loader: false
+            loader: true
         }
+    }
+
+    async componentDidMount() {
+        Promise.all([
+            this.getAllActs()
+        ]).then(([actList]) => {
+            this.setState({data: actList, loader: false})
+        });
+    }
+
+    async getAllActs() {
+        const response = await fetch("http://localhost:8080/acts");
+        return await response.json();
+    }
+
+    async editAct(actId, data) {
+        this.setState({loader: true});
+        return await fetch('http://localhost:8080/acts/update/' + actId, {
+            method: 'put',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+    }
+
+    async getClients() {
+        const response = await fetch("http://localhost:8080/clients");
+        return await response.json();
+    }
+
+    async createAct(act) {
+        this.setState({loader: true});
+        return await fetch('http://localhost:8080/acts/createAct', {
+            method: 'post',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(act)
+        });
+    }
+
+    async deleteAct(data) {
+        this.setState({loader: true});
+        return await fetch('http://localhost:8080/acts/' + data.id, {
+            method: 'delete',
+        });
     }
 
     render() {
         return (
             <MaterialTable
-                style={{width: '120%'}}
-                title={'Таблица Отчетностей'}
+                style={{width: '95%'}}
+                title={'Таблица aктов клиента :  ' + this.props.owner.name}
                 columns={this.state.columns}
                 icons={tableIcons}
                 data={this.state.data}
@@ -87,20 +152,15 @@ export default class OtchetsPoClienty extends React.Component {
                 options={{
                     pageSizeOptions: [5, 10, 15],
                     paginationType: 'stepped',
-                    exportButton: true,
-                    columnsButton: true,
-                    exportAllData: true,
-                    grouping: true,
+                    padding: 'dense',
                     showFirstLastPageButtons: true,
-                    toolbar: true,
-                    draggable: true,
                 }}
                 localization={{
                     body: {
                         emptyDataSourceMessage: 'Поиск не дал результатов',
-                        addTooltip: 'Добавить Отчетность',
-                        deleteTooltip: 'Удалить Отчетность',
-                        editTooltip: 'Редактировать'
+                        addTooltip: 'Добавить Акт',
+                        deleteTooltip: 'Удалить Акт',
+                        editTooltip: 'Редактировать Акт'
                     },
                     toolbar: {
                         searchPlaceholder: 'Поиск'
@@ -120,7 +180,8 @@ export default class OtchetsPoClienty extends React.Component {
                             setTimeout(() => {
                                 {
                                     this.setState({loader: true});
-                                    newData.clientId = this.state.clientId;
+                                    console.log('JOEKR');
+                                    newData.clientId = this.props.owner.id;
                                     this.createAct(newData)
                                         .then(res => res.json())
                                         .then(res => {
@@ -130,25 +191,30 @@ export default class OtchetsPoClienty extends React.Component {
                                         });
                                 }
                                 resolve()
-                            }, 1000)
+                            }, 1)
                         }),
                     onRowUpdate: (newData, oldData) =>
                         new Promise((resolve, reject) => {
-                            this.setState({loader: true});
                             setTimeout(() => {
                                 {
-                                    const data = this.state.data;
-                                    const index = data.indexOf(oldData);
-                                    data[index] = newData;
-                                    this.setState({data, loader: false}, () => resolve());
+                                    newData.clientId = this.props.owner.id;
+                                    this.editAct(newData.id, newData)
+                                        .then(res => {
+                                            const data = this.state.data;
+                                            const index = data.indexOf(oldData);
+                                            data[index] = res;
+                                            this.setState({data, loader: false}, () => resolve());
+                                        })
                                 }
                                 resolve()
-                            }, 1000)
+                            }, 1)
                         }),
                     onRowDelete: oldData =>
                         new Promise((resolve, reject) => {
                             setTimeout(() => {
                                 {
+                                    this.deleteAct(oldData)
+                                        .then()
                                     let data = this.state.data;
                                     const index = data.indexOf(oldData);
                                     data.splice(index, 1);
@@ -159,8 +225,6 @@ export default class OtchetsPoClienty extends React.Component {
                         }),
                 }}
             />
-
-
         )
     }
 }

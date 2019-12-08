@@ -17,6 +17,7 @@ import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
+import {Fragment} from "react";
 
 
 const tableIcons = {
@@ -39,92 +40,197 @@ const tableIcons = {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref}/>)
 };
 
-export default class Reports extends React.Component {
+export default class ReportsTable extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = {
+            loader: true,
             columns: [
-                {title: 'Номер Отчетности', field: 'ynp'},
-                {title: 'Статус', field: 'name'},
-                {title: 'Дата отправки', field: 'ynp'},
-                {title: 'Дедлайн', field: 'director'},
+                {
+                    title: 'Имя', field: 'name',
+                    // render: this.getClientLink
+                },
+                {title: 'УНП', field: 'ynp', type: 'numeric'},
+                {title: 'Директор', field: 'director'},
+                {title: 'Фонд $', field: 'fond', type: 'numeric'},
+                {title: 'Юр. Адрес', field: 'address'},
+                {title: 'Имнс', field: 'imns'},
+                {title: 'Почта', field: 'email'},
+                {title: 'ОКПО', field: 'okpo'},
+                {title: 'ФСЗН', field: 'fszn'},
             ],
-            data: [this.props.client]
+            key: 0,
+            data: [],
+            clickedClient: undefined
         }
-        console.log("dfghjk")
-        console.log(this.state.data)
+    }
+
+    async componentDidMount() {
+        this.getClients()
+    }
+
+    // getClientLink = (data, type) => {
+    //     return (
+    //         <Link href="#">{data.name} color="inherit"</Link>
+    //     );
+    // };
+
+    async getClients() {
+        const response = await fetch("http://localhost:8080/clients");
+        const json = await response.json();
+        this.setState({data: json, loader: false});
+    }
+
+    async updateClient(data) {
+        this.setState({loader: true});
+        return await fetch('http://localhost:8080/clients/update/' + data.id, {
+            method: 'put',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+    }
+
+    async addClient(data) {
+        this.setState({loader: true});
+        return await fetch('http://localhost:8080/clients/create', {
+            method: 'post',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+    }
+
+    async deleteClient(data) {
+        this.setState({loader: true});
+        return await fetch('http://localhost:8080/clients/delete/' + data.id, {
+            method: 'delete',
+        });
     }
 
     render() {
-        if (this.props.client === undefined) {
-            return null;
-        }
         return (
-            <MaterialTable
-                title={'Отчетность по клиенту \n: ' + this.props.client.name}
-                columns={this.state.columns}
-                icons={tableIcons}
-                data={[this.props.client]}
-                options={{pageSizeOptions: [5, 10, 15]}}
-                localization={{
-                    body: {
-                        emptyDataSourceMessage: 'Поиск не дал результатов',
-                        addTooltip: 'Добавить Отчетность',
-                        deleteTooltip: 'Удалить Отчетность',
-                        editTooltip: 'Редактировать'
-                    },
-                    toolbar: {
-                        searchPlaceholder: 'Поиск'
-                    },
-                    pagination: {
-                        labelRowsSelect: 'элементов',
-                        labelDisplayedRows: '{count} страница {from}-{to} старниц',
-                        firstTooltip: 'В начало',
-                        previousTooltip: 'Назад',
-                        nextTooltip: 'Вперед',
-                        lastTooltip: 'В Конец'
-                    },
-                }}
-                editable={{
-                    onRowAdd: newData =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                {
-                                    const data = this.state.data;
-                                    data.push(newData);
-                                    this.setState({data}, () => resolve());
-                                }
-                                resolve()
-                            }, 1000)
-                        }),
-                    onRowUpdate: (newData, oldData) =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                {
-                                    const data = this.state.data;
-                                    const index = data.indexOf(oldData);
-                                    data[index] = newData;
-                                    this.setState({data}, () => resolve());
-                                }
-                                resolve()
-                            }, 1000)
-                        }),
-                    onRowDelete: oldData =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                {
-                                    let data = this.state.data;
-                                    const index = data.indexOf(oldData);
-                                    data.splice(index, 1);
-                                    this.setState({data}, () => resolve());
-                                }
-                                resolve()
-                            }, 1000)
-                        }),
-                }}
-            />
+            <Fragment>
+                <MaterialTable
+                    title="Таблица Отчетностей"
+                    columns={this.state.columns}
+                    isLoading={this.state.loader}
+                    icons={tableIcons}
+                    data={this.state.data}
+                    options={{
+                        doubleHorizontalScroll: true,
+                        pageSizeOptions: [5, 10, 15],
+                        paginationType: 'stepped',
+                        exportButton: true,
+                        columnsButton: true,
+                        exportAllData: true,
+                        grouping: true,
+                        showFirstLastPageButtons: true,
+                        toolbar: true,
+                        draggable: true,
+                        padding: 'dense',
+                        headerStyle: {
+                            // backgroundColor: 'rgba(95,96,99,0.32)',
+                            fontSize: 12,
+                            fontWeight: 'bolder'
+                        }
+                    }}
+                    onRowClick={(
+                        (evt, selectedRow) => {
+                            this.setState((state, props) => {
+                                return state.clickedClient = selectedRow
+                            })
+                        })
+                    }
+                    style={{width: '95%'}}
+                    localization={{
+                        body: {
+                            emptyDataSourceMessage: 'Поиск не дал результатов',
+                            addTooltip: 'Добавить Клиента',
+                            deleteTooltip: 'Удалить Клиента',
+                            editTooltip: 'Редактировать',
+                            editRow: {
+                                deleteText: 'Удалить выбранного клиента?',
+                            }
+                        },
+                        toolbar: {
+                            searchPlaceholder: 'Поиск',
+                            addRemoveColumns: 'Поля для отображения',
+                            showColumnsTitle: 'Настройки колонок',
+                            exportTitle: 'Выгрузка в CSV файл'
+                        },
+                        pagination: {
+                            labelRowsSelect: 'элементов на странице',
+                            labelDisplayedRows: '{count} страница {from}-{to} старниц',
+                            // labelDisplayedRows: '{count} страница {from}-{to} старниц',
+                            firstTooltip: 'В начало',
+                            previousTooltip: 'Назад',
+                            nextTooltip: 'Вперед',
+                            lastTooltip: 'В Конец'
+                        },
+                    }}
+                    editable={{
+                        onRowAdd: newData =>
+                            new Promise((resolve, reject) => {
+                                setTimeout(() => {
+                                    {
+                                        this.addClient(newData)
+                                            .then(res => res.json())
+                                            .then(res => {
+                                                const data = this.state.data;
+                                                data.push({
+                                                        id: res.id,
+                                                        director: res.director,
+                                                        email: res.email,
+                                                        fond: res.fond,
+                                                        fszn: res.fszn,
+                                                        name: res.name,
+                                                        okpo: res.okpo,
+                                                        ynp: res.ynp,
+                                                        imns: res.imns,
+                                                        address: res.address
+                                                    }
+                                                )
+                                                ;
+                                                (this.setState({data: data, loader: false}, () => resolve()))
+                                            })
 
+                                    }
+                                    resolve()
+                                }, 1000)
+                            }),
+                        onRowUpdate: (newData, oldData) =>
+                            new Promise((resolve, reject) => {
+                                setTimeout(() => {
+                                    {
+                                        this.updateClient(newData)
+                                            .then(res => res.json())
+                                            .then(res => {
+                                                const data = this.state.data;
+                                                const index = data.indexOf(oldData);
+                                                data[index] = res;
+                                                this.setState({data: data, loader: false}, () => resolve())
+                                            })
+                                    }
+                                    resolve()
+                                }, 1000)
+                            }),
+                        onRowDelete: oldData =>
+                            new Promise((resolve, reject) => {
+                                setTimeout(() => {
+                                    {
+                                        this.deleteClient(oldData)
+                                            .then(resp => {
+                                                let data = this.state.data;
+                                                const index = data.indexOf(oldData);
+                                                data.splice(index, 1);
+                                                this.setState({data: data, loader: false}, () => resolve())
+                                            });
+                                    }
+                                    resolve()
+                                }, 1000)
+                            }),
+                    }}
+                />
+            </Fragment>
 
         )
     }

@@ -19,7 +19,6 @@ import ViewColumn from '@material-ui/icons/ViewColumn';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import MaterialTable from "material-table";
 import TextField from "@material-ui/core/TextField";
-import CircularProgress from "@material-ui/core/CircularProgress";
 
 
 const tableIcons = {
@@ -41,13 +40,6 @@ const tableIcons = {
     ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref}/>),
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref}/>)
 };
-
-
-function sleep(delay = 0) {
-    return new Promise(resolve => {
-        setTimeout(resolve, delay);
-    });
-}
 
 export default class Acts extends React.Component {
     constructor(props) {
@@ -100,7 +92,6 @@ export default class Acts extends React.Component {
     }
 
     getEditComponent = props => {
-
         let options = !!this.state.clients ? this.state.clients : [];
 
         let selectedOption = options && options.length > 0 && !!this.state.clientId
@@ -120,12 +111,9 @@ export default class Acts extends React.Component {
                 options={options}
                 getOptionLabel={option => option.name}
                 onChange={(event, opt) => {
-                    console.log('CЕЛЕКТ');
                     this.setState({clientId: opt.id, clientName: opt.name});
                 }}
                 renderInput={params => {
-                    // console.log('ВЫЗВАЛОСЬ');
-                    // console.log(selectedOption);
                     params.inputProps.value = selectedOption.name;
                     return (<TextField {...params}
                                        style={{width: '100px'}}
@@ -137,7 +125,6 @@ export default class Acts extends React.Component {
         )
     };
 
-
     async componentDidMount() {
         Promise.all([
             this.getClients(),
@@ -146,9 +133,7 @@ export default class Acts extends React.Component {
             console.log(clientList);
             console.log(actList);
             actList.map(act => {
-
                 act.clientId = clientList.filter(c => c.id === act.clientId)[0].name;
-
             });
             this.setState({clients: clientList, data: actList, loader: false})
         });
@@ -186,7 +171,7 @@ export default class Acts extends React.Component {
 
     async deleteAct(data) {
         this.setState({loader: true});
-        return await fetch('http://localhost:8080/clients/delete/' + data.id, {
+        return await fetch('http://localhost:8080/acts/' + data.id, {
             method: 'delete',
         });
     }
@@ -194,7 +179,7 @@ export default class Acts extends React.Component {
     render() {
         return (
             <MaterialTable
-                style={{width:'120%'}}
+                style={{width:'95%'}}
                 title={'Таблица Актов'}
                 columns={this.state.columns}
                 icons={tableIcons}
@@ -205,6 +190,7 @@ export default class Acts extends React.Component {
                     paginationType: 'stepped',
                     exportButton: true,
                     columnsButton: true,
+                    padding: 'dense',
                     exportAllData: true,
                     grouping: true,
                     showFirstLastPageButtons: true,
