@@ -7,6 +7,7 @@ import TextField from '@material-ui/core/TextField';
 import {Button} from "@material-ui/core";
 import {makeStyles} from '@material-ui/core/styles';
 import ClientsAct from "./singleClientActs";
+import OneAct from "./singleClientActs";
 import Acts from "./actsTable";
 
 
@@ -48,13 +49,13 @@ const SingleClient = (props) => {
                         required
                         disabled={true}
                         id="client-name"
-                        // label="Строка"
                         className={classes.textField}
                         value={client.name}
                         variant="outlined"
                         margin="normal"
                     />
                 </span>
+                <div>{client.id}</div>
                 <div>{client.name}</div>
                 <div>{client.email}</div>
                 <div>{client.address}</div>
@@ -66,7 +67,7 @@ const SingleClient = (props) => {
                 <div>{client.ynp}</div>
 
                 <div>
-                    <ClientsAct owner={client}/>
+                    <ClientsAct owner={client} clientId={props.match.params.id}/>
                 </div>
 
                 <Link to='/clients'>

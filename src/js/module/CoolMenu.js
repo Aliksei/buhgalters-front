@@ -15,15 +15,14 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import StorageIcon from '@material-ui/icons/Storage';
 import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 import ForumIcon from '@material-ui/icons/Forum';
 import Clients from "./clientsTable";
-import {Link, Route, Switch} from "react-router-dom";
-import { AnimatedSwitch } from 'react-router-transition';
-import React, {useState, useEffect} from "react";
+import {Link, Route} from "react-router-dom";
+import {AnimatedSwitch} from 'react-router-transition';
+import React from "react";
 import Acts from "./actsTable";
 import Reports from "./reportsTable";
 import SingleClient from "./singeClient";
@@ -93,9 +92,9 @@ const useStyles = makeStyles(theme => ({
 
 
 const ClientsRouting = () => (
-    <AnimatedSwitch atEnter={{ opacity: 10 }}
-                    atLeave={{ opacity: 1 }}
-                    atActive={{ opacity: 1 }}>
+    <AnimatedSwitch atEnter={{opacity: 1}}
+                    atLeave={{opacity: 1}}
+                    atActive={{opacity: 1}}>
         <Route exact path='/clients' component={Clients}/>
         <Route path='/clients/:id' component={SingleClient}/>
     </AnimatedSwitch>
@@ -177,9 +176,11 @@ export default function MiniDrawer() {
             </Drawer>
             <main className={classes.content}>
                 <div className={classes.toolbar}/>
-                <AnimatedSwitch   atEnter={{ opacity: 0 }}
-                                  atLeave={{ opacity: 0 }}
-                                  atActive={{ opacity: 1 }}>
+                <AnimatedSwitch atEnter={{opacity: 0.9}}
+                                atLeave={{opacity: 1}}
+                                atActive={{opacity: 1}}
+
+                >
                     {/*<Route exact path='/' component={MiniDrawer}/>*/}
                     <Route path='/clients' component={ClientsRouting}/>
                     <Route path='/acts' component={Acts}/>

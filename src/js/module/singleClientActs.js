@@ -17,9 +17,7 @@ import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
-import Autocomplete from '@material-ui/lab/Autocomplete';
 import MaterialTable from "material-table";
-import TextField from "@material-ui/core/TextField";
 
 
 const tableIcons = {
@@ -46,6 +44,8 @@ export default class ClientsAct extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            data: [],
+            loader: true,
             columns: [
                 {title: 'Номер Акта', field: 'actNumber'},
                 {
@@ -91,22 +91,21 @@ export default class ClientsAct extends React.Component {
                         12: 'Декабрь',
                     },
                 }
-            ],
-            data: [],
-            loader: true
-        }
+            ]
+        };
+
     }
 
-    async componentDidMount() {
+    componentDidMount() {
         Promise.all([
-            this.getAllActs()
+            this.getActsByClient(this.props.clientId)
         ]).then(([actList]) => {
             this.setState({data: actList, loader: false})
-        });
+        })
     }
 
-    async getAllActs() {
-        const response = await fetch("http://localhost:8080/acts");
+    async getActsByClient(id) {
+        const response = await fetch("http://localhost:8080/acts/byClient/" + id);
         return await response.json();
     }
 
@@ -117,11 +116,6 @@ export default class ClientsAct extends React.Component {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
         });
-    }
-
-    async getClients() {
-        const response = await fetch("http://localhost:8080/clients");
-        return await response.json();
     }
 
     async createAct(act) {
@@ -199,15 +193,19 @@ export default class ClientsAct extends React.Component {
                                 {
                                     newData.clientId = this.props.owner.id;
                                     this.editAct(newData.id, newData)
+                                        .then(res => res.json())
                                         .then(res => {
-                                            const data = this.state.data;
-                                            const index = data.indexOf(oldData);
-                                            data[index] = res;
-                                            this.setState({data, loader: false}, () => resolve());
+
+                                            const gj = this.state.data;
+                                            const index = gj.indexOf(oldData);
+                                            console.log(index);
+                                            gj[index] = res;
+                                            this.setState({data: gj, loader: false}, () => resolve());
+                                            console.log(this.state.data)
                                         })
                                 }
                                 resolve()
-                            }, 1)
+                            }, 1000)
                         }),
                     onRowDelete: oldData =>
                         new Promise((resolve, reject) => {
