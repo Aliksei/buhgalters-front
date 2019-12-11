@@ -1,14 +1,12 @@
 import React, {useEffect, useState} from "react";
-import EditIcon from '@material-ui/icons/Edit';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import {Link} from "react-router-dom";
 import TextField from '@material-ui/core/TextField';
-import {Button} from "@material-ui/core";
+import {Button, Grid} from "@material-ui/core";
 import {makeStyles} from '@material-ui/core/styles';
 import ClientsAct from "./singleClientActs";
-import OneAct from "./singleClientActs";
-import Acts from "./actsTable";
+import ClientsReport from "./singleClientReport";
 
 
 const useStyles = makeStyles(theme => ({
@@ -21,6 +19,11 @@ const useStyles = makeStyles(theme => ({
         marginRight: theme.spacing(1),
         width: 200,
     },
+    paper: {
+        padding: theme.spacing(2),
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+    }
 }));
 
 const SingleClient = (props) => {
@@ -66,15 +69,25 @@ const SingleClient = (props) => {
                 <div>{client.fszn}</div>
                 <div>{client.ynp}</div>
 
-                <div>
-                    <ClientsAct owner={client} clientId={props.match.params.id}/>
-                </div>
-
                 <Link to='/clients'>
                     <Button variant="contained" color="default" size="small">
                         <ArrowBackIcon/>
                     </Button>
                 </Link>
+
+                <Grid container>
+                    <Grid item xs={12} className={classes.paper}>
+                        {/*<Paper className={classes.paper}>*/}
+                        <ClientsAct owner={client} clientId={props.match.params.id}/>
+                        {/*</Paper>*/}
+                    </Grid>
+                    <Grid item xs={12} className={classes.paper}>
+                        {/*<Paper>*/}
+                        <ClientsReport owner={client} clientId={props.match.params.id}/>
+                        {/*</Paper>*/}
+                    </Grid>
+                </Grid>
+
                 <Link to='/clients'>
                     <Button
                         variant="contained"

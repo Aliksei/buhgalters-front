@@ -179,7 +179,7 @@ export default class Acts extends React.Component {
     render() {
         return (
             <MaterialTable
-                style={{width:'95%'}}
+                style={{width:'99%'}}
                 title={'Таблица Актов'}
                 columns={this.state.columns}
                 icons={tableIcons}

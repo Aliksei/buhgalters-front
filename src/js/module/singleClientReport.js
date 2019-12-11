@@ -39,105 +39,91 @@ const tableIcons = {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref}/>)
 };
 
-export default class ClientsAct extends React.Component {
+export default class ClientsReport extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             data: [],
             loader: true,
             columns: [
-                {title: 'Номер Акта', field: 'actNumber'},
                 {
-                    title: 'Клиент', field: 'clientId',
+                    title: 'Id', field: 'id',
                     hidden: true
-                }
-                ,
+                },
+                {
+                    title: 'Наименование', field: 'reportName',
+                },
+                {
+                    title: 'Тип отчетности',
+                    field: 'reportType',
+                    lookup: {
+                        0: 'Налоги',
+                        1: 'ФСЗН',
+                        2: 'Статистика',
+                        3: 'Белгосстрах',
+                    }
+                },
                 {
                     title: 'Статус',
                     field: 'status',
-                    lookup: {0: 'ВЫСТАВЛЕН', 1: 'ОПЛАЧЕН'}
-                },
-                {
-                    title: 'Сумма',
-                    field: 'summ',
-                    type: 'numeric'
+                    lookup: {
+                        0: 'ОТПРАВЛЕН',
+                        1: 'ПРИНЯТ',
+                        3: 'ПРОСРОЧЕН'
+                    }
                 },
                 {
                     title: 'Дата отправки',
-                    field: 'actDate',
+                    field: 'reportDate',
                     type: 'date',
-                    // render: (data, type) => {
-                    //     let moment = Moment(data);
-                    //     moment.locale();
-                    //     return (<div>{moment.format('YYYY-MM-DD')}</div>)
-                    // }
                 },
                 {
-                    title: 'Месяц',
-                    field: 'month',
-                    lookup: {
-                        1: 'Январь',
-                        2: 'Февраль',
-                        3: 'Март',
-                        4: 'Апрель',
-                        5: 'Май',
-                        6: 'Июнь',
-                        7: 'Июль',
-                        8: 'Август',
-                        9: 'Сентябрь',
-                        10: 'Октябрь',
-                        11: 'Ноябрь',
-                        12: 'Декабрь',
-                    },
+                    title: 'Дедлайн',
+                    field: 'deadLine',
+                    type: 'date',
                 }
             ]
         };
-
     }
 
     componentDidMount() {
-        Promise.all([
-            this.getActsByClient(this.props.clientId)
-        ]).then(([actList]) => {
-            this.setState({data: actList, loader: false})
-        })
+        let param = encodeURIComponent(this.props.clientId);
+        this.getReportsByClient(param)
+            .then(res => {
+                this.setState({data: res, loader: false});
+            })
     }
 
-    async getActsByClient(id) {
-        const response = await fetch("http://localhost:8080/acts/byClient/" + id);
-        return await response.json();
-    }
-
-    async editAct(actId, data) {
+    async updateReport(data) {
         this.setState({loader: true});
-        return await fetch('http://localhost:8080/acts/update/' + actId, {
+        return await fetch('http://localhost:8080/reports/' + data.id, {
             method: 'put',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
-        });
+        })
+            .then(res => res.json());
     }
 
-    async createAct(act) {
+    async createNewReport(report) {
         this.setState({loader: true});
-        return await fetch('http://localhost:8080/acts/createAct', {
+        return await fetch('http://localhost:8080/reports', {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(act)
-        });
+            body: JSON.stringify(report)
+        })
+            .then(res => res.json());
     }
 
-    async deleteAct(data) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/acts/' + data.id, {
-            method: 'delete',
-        });
+    async getReportsByClient(id) {
+        return await fetch("http://localhost:8080/reports/byClient?clientId=" + id)
+            .then(res => res.json());
     }
 
     render() {
         return (
             <MaterialTable
                 style={{width: '99%'}}
-                title={'Таблица aктов клиента :  ' + this.props.owner.name}
+                title={'Таблица отчетов клиента : ' + this.props.owner.name}
                 columns={this.state.columns}
                 icons={tableIcons}
                 data={this.state.data}
@@ -151,9 +137,9 @@ export default class ClientsAct extends React.Component {
                 localization={{
                     body: {
                         emptyDataSourceMessage: 'Поиск не дал результатов',
-                        addTooltip: 'Добавить Акт',
-                        deleteTooltip: 'Удалить Акт',
-                        editTooltip: 'Редактировать Акт'
+                        addTooltip: 'Добавить Отчет',
+                        deleteTooltip: 'Удалить Отчет',
+                        editTooltip: 'Редактировать Отчет'
                     },
                     toolbar: {
                         searchPlaceholder: 'Поиск'
@@ -174,8 +160,7 @@ export default class ClientsAct extends React.Component {
                                 {
                                     this.setState({loader: true});
                                     newData.clientId = this.props.owner.id;
-                                    this.createAct(newData)
-                                        .then(res => res.json())
+                                    this.createNewReport(newData)
                                         .then(res => {
                                             const data = this.state.data;
                                             data.push(res);
@@ -190,10 +175,8 @@ export default class ClientsAct extends React.Component {
                             setTimeout(() => {
                                 {
                                     newData.clientId = this.props.owner.id;
-                                    this.editAct(newData.id, newData)
-                                        .then(res => res.json())
+                                    this.updateReport(newData)
                                         .then(res => {
-
                                             const gj = this.state.data;
                                             const index = gj.indexOf(oldData);
                                             gj[index] = res;
@@ -223,3 +206,5 @@ export default class ClientsAct extends React.Component {
         )
     }
 }
+
+

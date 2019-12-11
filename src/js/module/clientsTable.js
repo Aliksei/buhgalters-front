@@ -136,7 +136,7 @@ export default class Clients extends React.Component {
                             this.openClientView(clickedClient);
                         })
                     }
-                    style={{width: '95%'}}
+                    style={{width: '99%'}}
                     localization={{
                         body: {
                             emptyDataSourceMessage: 'Поиск не дал результатов',

@@ -140,7 +140,7 @@ export default class ReportsTable extends React.Component {
                             })
                         })
                     }
-                    style={{width: '95%'}}
+                    style={{width: '99%'}}
                     localization={{
                         body: {
                             emptyDataSourceMessage: 'Поиск не дал результатов',
