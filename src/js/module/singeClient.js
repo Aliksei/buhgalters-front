@@ -1,12 +1,16 @@
-import React, {useEffect, useState} from "react";
+import React, {Fragment, useEffect, useState} from "react";
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import {Link} from "react-router-dom";
 import TextField from '@material-ui/core/TextField';
-import {Button, Grid} from "@material-ui/core";
+import {Box, Button, Grid} from "@material-ui/core";
 import {makeStyles} from '@material-ui/core/styles';
 import ClientsAct from "./singleClientActs";
 import ClientsReport from "./singleClientReport";
+import Breadcrumbs from "@material-ui/core/Breadcrumbs";
+import Paper from "@material-ui/core/Paper";
+import Typography from "@material-ui/core/Typography";
+import {func} from "prop-types";
 
 
 const useStyles = makeStyles(theme => ({
@@ -22,6 +26,13 @@ const useStyles = makeStyles(theme => ({
     paper: {
         padding: theme.spacing(2),
         textAlign: 'center',
+        color: theme.palette.text.secondary,
+    },
+    paper2: {
+        padding: theme.spacing(2),
+        textAlign: 'center',
+        width: '99%',
+        minHeight: '300px',
         color: theme.palette.text.secondary,
     }
 }));
@@ -44,62 +55,88 @@ const SingleClient = (props) => {
     }, []);
 
     return (
-        <div>
-            <div>
-                <span>Имя клиента : </span>
-                <span>
-                    <TextField
-                        required
-                        disabled={true}
-                        id="client-name"
-                        className={classes.textField}
-                        value={client.name}
-                        variant="outlined"
-                        margin="normal"
-                    />
-                </span>
-                <div>{client.id}</div>
-                <div>{client.name}</div>
-                <div>{client.email}</div>
-                <div>{client.address}</div>
-                <div>{client.director}</div>
-                <div>{client.fond}</div>
-                <div>{client.imns}</div>
-                <div>{client.okpo}</div>
-                <div>{client.fszn}</div>
-                <div>{client.ynp}</div>
-
+        <Fragment>
+            <Breadcrumbs aria-label="breadcrumb">
                 <Link to='/clients'>
-                    <Button variant="contained" color="default" size="small">
-                        <ArrowBackIcon/>
-                    </Button>
+                    Клиенты
                 </Link>
-
-                <Grid container>
+                <Link to={'/clients/' + props.match.params.id}>
+                    {client.name}
+                </Link>
+            </Breadcrumbs>
+            <div>
+                <Grid container className={classes.container}>
                     <Grid item xs={12} className={classes.paper}>
-                        {/*<Paper className={classes.paper}>*/}
-                        <ClientsAct owner={client} clientId={props.match.params.id}/>
-                        {/*</Paper>*/}
+                        <Paper className={classes.paper2}>
+                            {clientView(client)}
+                            <Link to='/clients'>
+                                <Button variant="contained" color="default" size="small">
+                                    <ArrowBackIcon/>
+                                </Button>
+                            </Link>
+                            <Link to='/clients'>
+                                <Button variant="contained" color="inherit" size="small">
+                                    <EditOutlinedIcon/>
+                                </Button>
+                            </Link>
+                        </Paper>
+
                     </Grid>
                     <Grid item xs={12} className={classes.paper}>
-                        {/*<Paper>*/}
+                        <ClientsAct owner={client} clientId={props.match.params.id}/>
+                    </Grid>
+                    <Grid item xs={12} className={classes.paper}>
                         <ClientsReport owner={client} clientId={props.match.params.id}/>
-                        {/*</Paper>*/}
                     </Grid>
                 </Grid>
 
-                <Link to='/clients'>
-                    <Button
-                        variant="contained"
-                        color="inherit"
-                        size="small"
-                    >
-                        <EditOutlinedIcon/>
-                    </Button>
-                </Link>
             </div>
-        </div>
+        </Fragment>
     )
 };
+
+export function clientView(client) {
+    return (
+        <Box display="flex" >
+            <div style={{display:'flex'}}>
+                <Typography variant={"h9"}>Имя : </Typography>
+                <TextField required id="client-name" value={client.name} variant="standard" margin="normal"/>
+            </div>
+            <div style={{display:'flex'}}>
+                <Typography variant={"h9"}>Адрес : </Typography>
+                <TextField id="client-address" value={client.address} variant="standard" margin="normal"/>
+            </div>
+            <div style={{display:'flex'}}>
+                <Typography variant={"h9"}>Почта:</Typography>
+                <TextField id="client-email" value={client.email} variant="standard" margin="normal"/>
+            </div>
+            <div style={{display:'flex'}}>
+                <Typography variant={"h9"}>Директор:</Typography>
+                <TextField id="client-director" value={client.director} variant="standard" margin="normal"/>
+            </div>
+            <div style={{display:'flex'}}>
+                <Typography variant={"h9"}>Фонд:</Typography>
+                <TextField id="client-fond" value={client.fond} variant="standard" margin="normal"/>
+            </div>
+            <div style={{display:'flex'}}>
+                <Typography variant={"h9"}>Имнс:</Typography>
+                <TextField id="client-imns" value={client.imns} variant="standard" margin="normal"/>
+            </div>
+            <div style={{display:'flex'}}>
+                <Typography variant={"h9"}>Окпо:</Typography>
+                <TextField id="client-okpo" value={client.okpo} variant="standard" margin="normal"/>
+            </div>
+            <div style={{display:'flex'}}>
+                <Typography variant={"h9"}>Фсзн:</Typography>
+                <TextField  id="client-fszn" value={client.fszn} variant="standard" margin="normal"/>
+            </div>
+            <div style={{display:'flex'}}>
+                <Typography variant={"h9"}>Унп:</Typography>
+                <TextField  id="client-ynp" value={client.ynp} variant="standard" margin="normal"/>
+            </div>
+
+        </Box>
+    )
+}
 
 export default SingleClient;

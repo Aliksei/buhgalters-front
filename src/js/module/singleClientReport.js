@@ -69,7 +69,7 @@ export default class ClientsReport extends React.Component {
                     lookup: {
                         0: 'ОТПРАВЛЕН',
                         1: 'ПРИНЯТ',
-                        3: 'ПРОСРОЧЕН'
+                        2: 'ПРОСРОЧЕН'
                     }
                 },
                 {
@@ -81,6 +81,19 @@ export default class ClientsReport extends React.Component {
                     title: 'Дедлайн',
                     field: 'deadLine',
                     type: 'date',
+                    render: (data, type) => {
+                        let deeadLine = new Date(data.deadLine);
+                        let todaay = new Date();
+                        console.log(type)
+                        var diff = (deeadLine.getTime() - todaay.getTime())/(1000 * 3600 * 24);
+                        let col;
+                        let tit;
+                        if (diff <= 10) {
+                            col = 'red';
+                            tit = 'Дедлайн скоро истекает или уже просрочен';
+                        }
+                        return (<div title={tit} style={{color: col}}>{data.deadLine}</div>)
+                    }
                 }
             ]
         };

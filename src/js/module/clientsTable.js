@@ -18,6 +18,10 @@ import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import {Fragment} from "react";
+import Link from "@material-ui/core/Link";
+import Breadcrumbs from "@material-ui/core/Breadcrumbs";
+import RefreshIcon from "@material-ui/core/SvgIcon/SvgIcon";
+import CachedIcon from '@material-ui/icons/Cached';
 
 
 const tableIcons = {
@@ -59,7 +63,8 @@ export default class Clients extends React.Component {
                 {title: 'ФСЗН', field: 'fszn'},
             ],
             data: [],
-        }
+        };
+        this.tableRef = React.createRef();
     }
 
     async componentDidMount() {
@@ -107,6 +112,11 @@ export default class Clients extends React.Component {
     render() {
         return (
             <Fragment>
+                <Breadcrumbs aria-label="breadcrumb">
+                    <Link color="inherit" href="/clients" >
+                        Клиенты
+                    </Link>
+                </Breadcrumbs>
                 <MaterialTable
                     title="Таблица Клиенты"
                     columns={this.state.columns}
@@ -137,6 +147,7 @@ export default class Clients extends React.Component {
                         })
                     }
                     style={{width: '99%'}}
+                    tableRef={this.tableRef}
                     localization={{
                         body: {
                             emptyDataSourceMessage: 'Поиск не дал результатов',
@@ -163,6 +174,20 @@ export default class Clients extends React.Component {
                             lastTooltip: 'В Конец'
                         },
                     }}
+                    actions={[
+                        {
+                            icon: () => { return (<CachedIcon/>)},
+                            tooltip: 'Refresh Data',
+                            isFreeAction: true,
+                            onClick: () =>  {
+                                    this.setState({loader: true});
+                                    this.componentDidMount()
+                                        .then(() => {
+                                            this.setState({loader: false});
+                                        })
+                            },
+                        }
+                    ]}
                     editable={{
                         onRowAdd: newData =>
                             new Promise((resolve, reject) => {

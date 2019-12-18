@@ -18,6 +18,7 @@ import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import {Fragment} from "react";
+import RefreshIcon from '@material-ui/icons/Refresh';
 
 
 const tableIcons = {
@@ -47,53 +48,90 @@ export default class ReportsTable extends React.Component {
             loader: true,
             columns: [
                 {
-                    title: 'Имя', field: 'name',
-                    // render: this.getClientLink
+                    title: 'Id', field: 'id',
+                    hidden: true
                 },
-                {title: 'УНП', field: 'ynp', type: 'numeric'},
-                {title: 'Директор', field: 'director'},
-                {title: 'Фонд $', field: 'fond', type: 'numeric'},
-                {title: 'Юр. Адрес', field: 'address'},
-                {title: 'Имнс', field: 'imns'},
-                {title: 'Почта', field: 'email'},
-                {title: 'ОКПО', field: 'okpo'},
-                {title: 'ФСЗН', field: 'fszn'},
+                {
+                    title: 'Наименование', field: 'reportName',
+                },
+                {
+                    title: 'Клиент',
+                    field: 'miniClient',
+                    editable: 'never',
+                    render: (data, type) => {
+                        return (<div>{data.miniClient.clientName}</div>)
+                    }
+                },
+                {
+                    title: 'ClientId',
+                    field: 'clientId',
+                    hidden: true
+                },
+                {
+                    title: 'Тип отчетности',
+                    field: 'reportType',
+                    lookup: {
+                        0: 'Налоги',
+                        1: 'ФСЗН',
+                        2: 'Статистика',
+                        3: 'Белгосстрах',
+                    }
+                },
+                {
+                    title: 'Статус',
+                    field: 'status',
+                    lookup: {
+                        0: 'ОТПРАВЛЕН',
+                        1: 'ПРИНЯТ',
+                        2: 'ПРОСРОЧЕН'
+                    }
+                },
+                {
+                    title: 'Дата отправки',
+                    field: 'reportDate',
+                    type: 'date',
+                },
+                {
+                    title: 'Дедлайн',
+                    field: 'deadLine',
+                    type: 'date',
+                    render: (data, type) => {
+                        let deeadLine = new Date(data.deadLine);
+                        let todaay = new Date();
+                        console.log(type)
+                        var diff = (deeadLine.getTime() - todaay.getTime())/(1000 * 3600 * 24);
+                        let col;
+                        let tit;
+                        if (diff <= 10) {
+                            col = 'red';
+                            tit = 'Дедлайн скоро истекает или уже просрочен';
+                        }
+                        return (<div title={tit} style={{color: col}}>{data.deadLine}</div>)
+                    }
+                }
             ],
-            key: 0,
             data: [],
-            clickedClient: undefined
-        }
+            clickedClient: undefined,
+        };
+        this.tableRef = React.createRef();
     }
 
     async componentDidMount() {
-        this.getClients()
+        this.getReports()
     }
 
-    // getClientLink = (data, type) => {
-    //     return (
-    //         <Link href="#">{data.name} color="inherit"</Link>
-    //     );
-    // };
-
-    async getClients() {
-        const response = await fetch("http://localhost:8080/clients");
-        const json = await response.json();
-        this.setState({data: json, loader: false});
+    async getReports() {
+        return await fetch("http://localhost:8080/reports")
+            .then(res => res.json())
+            .then(json => {
+                this.setState({data: json, loader: false})
+            })
     }
 
     async updateClient(data) {
         this.setState({loader: true});
         return await fetch('http://localhost:8080/clients/update/' + data.id, {
             method: 'put',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-    }
-
-    async addClient(data) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/clients/create', {
-            method: 'post',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
         });
@@ -114,6 +152,7 @@ export default class ReportsTable extends React.Component {
                     columns={this.state.columns}
                     isLoading={this.state.loader}
                     icons={tableIcons}
+                    tableRef={this.tableRef}
                     data={this.state.data}
                     options={{
                         doubleHorizontalScroll: true,
@@ -168,35 +207,35 @@ export default class ReportsTable extends React.Component {
                         },
                     }}
                     editable={{
-                        onRowAdd: newData =>
-                            new Promise((resolve, reject) => {
-                                setTimeout(() => {
-                                    {
-                                        this.addClient(newData)
-                                            .then(res => res.json())
-                                            .then(res => {
-                                                const data = this.state.data;
-                                                data.push({
-                                                        id: res.id,
-                                                        director: res.director,
-                                                        email: res.email,
-                                                        fond: res.fond,
-                                                        fszn: res.fszn,
-                                                        name: res.name,
-                                                        okpo: res.okpo,
-                                                        ynp: res.ynp,
-                                                        imns: res.imns,
-                                                        address: res.address
-                                                    }
-                                                )
-                                                ;
-                                                (this.setState({data: data, loader: false}, () => resolve()))
-                                            })
-
-                                    }
-                                    resolve()
-                                }, 1000)
-                            }),
+                        // onRowAdd: newData =>
+                        //     new Promise((resolve, reject) => {
+                        //         setTimeout(() => {
+                        //             {
+                        //                 this.addClient(newData)
+                        //                     .then(res => res.json())
+                        //                     .then(res => {
+                        //                         const data = this.state.data;
+                        //                         data.push({
+                        //                                 id: res.id,
+                        //                                 director: res.director,
+                        //                                 email: res.email,
+                        //                                 fond: res.fond,
+                        //                                 fszn: res.fszn,
+                        //                                 name: res.name,
+                        //                                 okpo: res.okpo,
+                        //                                 ynp: res.ynp,
+                        //                                 imns: res.imns,
+                        //                                 address: res.address
+                        //                             }
+                        //                         )
+                        //                         ;
+                        //                         (this.setState({data: data, loader: false}, () => resolve()))
+                        //                     })
+                        //
+                        //             }
+                        //             resolve()
+                        //         }, 1000)
+                        //     }),
                         onRowUpdate: (newData, oldData) =>
                             new Promise((resolve, reject) => {
                                 setTimeout(() => {
@@ -229,6 +268,20 @@ export default class ReportsTable extends React.Component {
                                 }, 1000)
                             }),
                     }}
+                    actions={[
+                        {
+                            icon: () => { return (<RefreshIcon/>)},
+                            tooltip: 'Refresh Data',
+                            isFreeAction: true,
+                            onClick: () =>  {
+                                    this.setState({loader: true});
+                                    this.componentDidMount()
+                                        .then(res => {
+                                            this.setState({loader: false});
+                                        })
+                            },
+                        }
+                    ]}
                 />
             </Fragment>
 

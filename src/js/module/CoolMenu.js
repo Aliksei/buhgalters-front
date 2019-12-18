@@ -26,6 +26,7 @@ import React from "react";
 import Acts from "./actsTable";
 import Reports from "./reportsTable";
 import SingleClient from "./singeClient";
+import LoginForm from "./login";
 
 const drawerWidth = 190;
 
@@ -126,6 +127,7 @@ export default function MiniDrawer() {
                     <Typography variant="h6" noWrap>
                         Программа учета Клиентов
                     </Typography>
+
                 </Toolbar>
             </AppBar>
             <Drawer
@@ -181,11 +183,11 @@ export default function MiniDrawer() {
                                 atActive={{opacity: 1}}
 
                 >
-                    {/*<Route exact path='/' component={MiniDrawer}/>*/}
                     <Route path='/clients' component={ClientsRouting}/>
                     <Route path='/acts' component={Acts}/>
                     <Route path='/reports' component={Reports}/>
                     <Route path='/tasks' component={Acts}/>
+                    <Route path='/login' component={LoginForm}/>
                     <Route path='/profile' component={Acts}/>
                 </AnimatedSwitch>
             </main>

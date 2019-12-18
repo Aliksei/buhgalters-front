@@ -5,6 +5,7 @@ import AddBox from '@material-ui/icons/AddBox';
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import Check from '@material-ui/icons/Check';
 import ChevronLeft from '@material-ui/icons/ChevronLeft';
+import RefreshIcon from '@material-ui/icons/Refresh';
 import ChevronRight from '@material-ui/icons/ChevronRight';
 import Clear from '@material-ui/icons/Clear';
 import DeleteOutline from '@material-ui/icons/DeleteOutline';
@@ -88,7 +89,8 @@ export default class Acts extends React.Component {
             key: 0,
             data: [],
             loader: true
-        }
+        };
+        this.tableRef = React.createRef();
     }
 
     getEditComponent = props => {
@@ -130,8 +132,6 @@ export default class Acts extends React.Component {
             this.getClients(),
             this.getAllActs()
         ]).then(([clientList, actList]) => {
-            console.log(clientList);
-            console.log(actList);
             actList.map(act => {
                 act.clientId = clientList.filter(c => c.id === act.clientId)[0].name;
             });
@@ -262,6 +262,20 @@ export default class Acts extends React.Component {
                             }, 1000)
                         }),
                 }}
+                actions={[
+                    {
+                        icon: () => { return (<RefreshIcon/>)},
+                        tooltip: 'Refresh Data',
+                        isFreeAction: true,
+                        onClick: () =>  {
+                            this.setState({loader: true});
+                            this.componentDidMount()
+                                .then(res => {
+                                    this.setState({loader: false});
+                                })
+                        },
+                    }
+                ]}
             />
         )
     }
