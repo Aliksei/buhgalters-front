@@ -4,8 +4,7 @@ import './index.css';
 import {BrowserRouter, Link, Route, Switch} from "react-router-dom";
 import MenuItem from "@material-ui/core/MenuItem";
 import {Drawer} from "@material-ui/core";
-import MiniDrawer from "./js/module/CoolMenu";
-import LoginForm from "./js/module/login";
+import MiniDrawer from "./js/general/CoolMenu";
 
 const Home = () => (
     <div>

@@ -102,10 +102,10 @@ export default class Clients extends React.Component {
         });
     }
 
-    openClientView(clickedClient) {
+    openClientView(id) {
         let {history} = this.props;
         history.push({
-            pathname: '/clients/' + clickedClient.id,
+            pathname: '/clients/' + id,
         });
     }
 
@@ -113,7 +113,7 @@ export default class Clients extends React.Component {
         return (
             <Fragment>
                 <Breadcrumbs aria-label="breadcrumb">
-                    <Link color="inherit" href="/clients" >
+                    <Link color="inherit" href="/clients">
                         Клиенты
                     </Link>
                 </Breadcrumbs>
@@ -126,6 +126,7 @@ export default class Clients extends React.Component {
                     options={{
                         doubleHorizontalScroll: true,
                         pageSizeOptions: [5, 10, 15],
+                        pageSize: 10,
                         paginationType: 'stepped',
                         exportButton: true,
                         columnsButton: true,
@@ -136,6 +137,9 @@ export default class Clients extends React.Component {
                         draggable: true,
                         padding: 'dense',
                         headerStyle: {
+                            // backgroundColor: 'rgba(95,96,99,0.32)',
+                            backgroundColor: 'rgba(0,69,147,0.52)',
+                            color: "white",
                             fontSize: 12,
                             fontWeight: 'bolder'
                         }
@@ -143,7 +147,7 @@ export default class Clients extends React.Component {
                     onRowClick={(
                         (evt, clickedClient) => {
                             this.openClientView.bind(this);
-                            this.openClientView(clickedClient);
+                            this.openClientView(clickedClient.id);
                         })
                     }
                     style={{width: '99%'}}
@@ -176,15 +180,17 @@ export default class Clients extends React.Component {
                     }}
                     actions={[
                         {
-                            icon: () => { return (<CachedIcon/>)},
+                            icon: () => {
+                                return (<CachedIcon/>)
+                            },
                             tooltip: 'Refresh Data',
                             isFreeAction: true,
-                            onClick: () =>  {
-                                    this.setState({loader: true});
-                                    this.componentDidMount()
-                                        .then(() => {
-                                            this.setState({loader: false});
-                                        })
+                            onClick: () => {
+                                this.setState({loader: true});
+                                this.componentDidMount()
+                                    .then(() => {
+                                        this.setState({loader: false});
+                                    })
                             },
                         }
                     ]}

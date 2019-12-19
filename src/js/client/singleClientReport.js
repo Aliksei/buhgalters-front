@@ -84,7 +84,6 @@ export default class ClientsReport extends React.Component {
                     render: (data, type) => {
                         let deeadLine = new Date(data.deadLine);
                         let todaay = new Date();
-                        console.log(type)
                         var diff = (deeadLine.getTime() - todaay.getTime())/(1000 * 3600 * 24);
                         let col;
                         let tit;
@@ -125,6 +124,13 @@ export default class ClientsReport extends React.Component {
             body: JSON.stringify(report)
         })
             .then(res => res.json());
+    }
+
+    async deleteReport(data) {
+        this.setState({loader: true});
+        return await fetch('http://localhost:8080/reports/' + data.id, {
+            method: 'delete',
+        });
     }
 
     async getReportsByClient(id) {
@@ -203,7 +209,7 @@ export default class ClientsReport extends React.Component {
                         new Promise((resolve, reject) => {
                             setTimeout(() => {
                                 {
-                                    this.deleteAct(oldData)
+                                    this.deleteReport(oldData)
                                         .then(res => {
                                             let data = this.state.data;
                                             const index = data.indexOf(oldData);

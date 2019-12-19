@@ -1,16 +1,13 @@
 import React, {Fragment, useEffect, useState} from "react";
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import {Link} from "react-router-dom";
-import TextField from '@material-ui/core/TextField';
 import {Box, Button, Grid, ListItemText} from "@material-ui/core";
 import {makeStyles} from '@material-ui/core/styles';
-import ClientsAct from "./singleClientActs";
 import ClientsReport from "./singleClientReport";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
-import ClientData from "./singl";
+import ClientData from "./clientPersonalData";
+import ClientsAct from "./singleClientActs";
 
 
 const useStyles = makeStyles(theme => ({
@@ -30,10 +27,9 @@ const useStyles = makeStyles(theme => ({
     },
     paper2: {
         padding: theme.spacing(2),
-        textAlign: 'center',
-        width: '99%',
+        width: '50%',
         minHeight: '200px',
-        maxHeight: '400px',
+        maxHeight: '300px',
         color: theme.palette.text.secondary,
     }
 }));
@@ -69,15 +65,10 @@ const SingleClient = (props) => {
                 <Grid container className={classes.container}>
                     <Grid item xs={12} className={classes.paper}>
                         <Paper className={classes.paper2}>
-                            <ClientData/>
+                            <ClientData client={client}/>
                             <Link to='/clients'>
                                 <Button variant="contained" color="default" size="small">
                                     <ArrowBackIcon/>
-                                </Button>
-                            </Link>
-                            <Link to='/clients'>
-                                <Button variant="contained" color="inherit" size="small">
-                                    <EditOutlinedIcon/>
                                 </Button>
                             </Link>
                         </Paper>
@@ -96,16 +87,5 @@ const SingleClient = (props) => {
     )
 };
 
-export function clientView(client) {
-    return (
-            <Box display="flex" flexWrap="wrap" alignItems="flex-start">
-
-
-
-
-
-            </Box>
-    )
-}
 
 export default SingleClient;

@@ -25,8 +25,9 @@ import {AnimatedSwitch} from 'react-router-transition';
 import React from "react";
 import Acts from "./actsTable";
 import Reports from "./reportsTable";
-import SingleClient from "./singeClient";
 import LoginForm from "./login";
+import MediaCard from "./TaskView";
+import SingleClient from "../client/singeClient";
 
 const drawerWidth = 190;
 
@@ -186,7 +187,7 @@ export default function MiniDrawer() {
                     <Route path='/clients' component={ClientsRouting}/>
                     <Route path='/acts' component={Acts}/>
                     <Route path='/reports' component={Reports}/>
-                    <Route path='/tasks' component={Acts}/>
+                    <Route path='/tasks' component={MediaCard}/>
                     <Route path='/login' component={LoginForm}/>
                     <Route path='/profile' component={Acts}/>
                 </AnimatedSwitch>

@@ -100,10 +100,6 @@ export default class Acts extends React.Component {
             ? options.filter(opt => opt.name == this.state.clientName)[0]
             : 'props.rowData.clientId';
 
-
-        console.log(props.rowData);
-        console.log(selectedOption);
-
         // let cur = props.rowData === {} ? '' : props.rowData.clientId;
 
 
@@ -176,10 +172,17 @@ export default class Acts extends React.Component {
         });
     }
 
+    openClientView(id) {
+        let {history} = this.props;
+        history.push({
+            pathname: '/clients/' + id,
+        });
+    }
+
     render() {
         return (
             <MaterialTable
-                style={{width:'99%'}}
+                style={{width: '99%'}}
                 title={'Таблица Актов'}
                 columns={this.state.columns}
                 icons={tableIcons}
@@ -187,6 +190,7 @@ export default class Acts extends React.Component {
                 isLoading={this.state.loader}
                 options={{
                     pageSizeOptions: [5, 10, 15],
+                    pageSize: 10,
                     paginationType: 'stepped',
                     exportButton: true,
                     columnsButton: true,
@@ -196,6 +200,13 @@ export default class Acts extends React.Component {
                     showFirstLastPageButtons: true,
                     toolbar: true,
                     draggable: true,
+                    headerStyle: {
+                        // backgroundColor: 'rgba(95,96,99,0.32)',
+                        backgroundColor: 'rgba(0,69,147,0.52)',
+                        color: "white",
+                        fontSize: 12,
+                        fontWeight: 'bolder'
+                    }
                 }}
                 localization={{
                     body: {
@@ -216,24 +227,13 @@ export default class Acts extends React.Component {
                         lastTooltip: 'В Конец'
                     },
                 }}
+                onRowClick={(
+                    (evt, clickedClient) => {
+                        this.openClientView.bind(this);
+                        this.openClientView(clickedClient.id);
+                    })
+                }
                 editable={{
-                    onRowAdd: newData =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                {
-                                    this.setState({loader: true});
-                                    newData.clientId = this.state.clientId;
-                                    this.createAct(newData)
-                                        .then(res => res.json())
-                                        .then(res => {
-                                            const data = this.state.data;
-                                            data.push(res);
-                                            this.setState({data, loader: false}, () => resolve());
-                                        });
-                                }
-                                resolve()
-                            }, 1000)
-                        }),
                     onRowUpdate: (newData, oldData) =>
                         new Promise((resolve, reject) => {
                             this.setState({loader: true});
@@ -264,10 +264,12 @@ export default class Acts extends React.Component {
                 }}
                 actions={[
                     {
-                        icon: () => { return (<RefreshIcon/>)},
+                        icon: () => {
+                            return (<RefreshIcon/>)
+                        },
                         tooltip: 'Refresh Data',
                         isFreeAction: true,
-                        onClick: () =>  {
+                        onClick: () => {
                             this.setState({loader: true});
                             this.componentDidMount()
                                 .then(res => {

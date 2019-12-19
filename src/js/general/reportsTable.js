@@ -98,7 +98,6 @@ export default class ReportsTable extends React.Component {
                     render: (data, type) => {
                         let deeadLine = new Date(data.deadLine);
                         let todaay = new Date();
-                        console.log(type)
                         var diff = (deeadLine.getTime() - todaay.getTime())/(1000 * 3600 * 24);
                         let col;
                         let tit;
@@ -128,19 +127,27 @@ export default class ReportsTable extends React.Component {
             })
     }
 
-    async updateClient(data) {
+    async updateReport(data) {
         this.setState({loader: true});
-        return await fetch('http://localhost:8080/clients/update/' + data.id, {
+        return await fetch('http://localhost:8080/reports/' + data.id, {
             method: 'put',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
+        })
+            .then(res => res.json());
+    }
+
+    async deleteReport(data) {
+        this.setState({loader: true});
+        return await fetch('http://localhost:8080/reports/' + data.id, {
+            method: 'delete',
         });
     }
 
-    async deleteClient(data) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/clients/delete/' + data.id, {
-            method: 'delete',
+    openClientView(id) {
+        let {history} = this.props;
+        history.push({
+            pathname: '/clients/' + id,
         });
     }
 
@@ -157,6 +164,7 @@ export default class ReportsTable extends React.Component {
                     options={{
                         doubleHorizontalScroll: true,
                         pageSizeOptions: [5, 10, 15],
+                        pageSize: 10,
                         paginationType: 'stepped',
                         exportButton: true,
                         columnsButton: true,
@@ -168,6 +176,8 @@ export default class ReportsTable extends React.Component {
                         padding: 'dense',
                         headerStyle: {
                             // backgroundColor: 'rgba(95,96,99,0.32)',
+                            backgroundColor: 'rgba(0,69,147,0.52)',
+                            color: "white",
                             fontSize: 12,
                             fontWeight: 'bolder'
                         }
@@ -207,41 +217,11 @@ export default class ReportsTable extends React.Component {
                         },
                     }}
                     editable={{
-                        // onRowAdd: newData =>
-                        //     new Promise((resolve, reject) => {
-                        //         setTimeout(() => {
-                        //             {
-                        //                 this.addClient(newData)
-                        //                     .then(res => res.json())
-                        //                     .then(res => {
-                        //                         const data = this.state.data;
-                        //                         data.push({
-                        //                                 id: res.id,
-                        //                                 director: res.director,
-                        //                                 email: res.email,
-                        //                                 fond: res.fond,
-                        //                                 fszn: res.fszn,
-                        //                                 name: res.name,
-                        //                                 okpo: res.okpo,
-                        //                                 ynp: res.ynp,
-                        //                                 imns: res.imns,
-                        //                                 address: res.address
-                        //                             }
-                        //                         )
-                        //                         ;
-                        //                         (this.setState({data: data, loader: false}, () => resolve()))
-                        //                     })
-                        //
-                        //             }
-                        //             resolve()
-                        //         }, 1000)
-                        //     }),
                         onRowUpdate: (newData, oldData) =>
                             new Promise((resolve, reject) => {
                                 setTimeout(() => {
                                     {
-                                        this.updateClient(newData)
-                                            .then(res => res.json())
+                                        this.updateReport(newData)
                                             .then(res => {
                                                 const data = this.state.data;
                                                 const index = data.indexOf(oldData);
@@ -256,7 +236,7 @@ export default class ReportsTable extends React.Component {
                             new Promise((resolve, reject) => {
                                 setTimeout(() => {
                                     {
-                                        this.deleteClient(oldData)
+                                        this.deleteReport(oldData)
                                             .then(resp => {
                                                 let data = this.state.data;
                                                 const index = data.indexOf(oldData);
@@ -268,6 +248,13 @@ export default class ReportsTable extends React.Component {
                                 }, 1000)
                             }),
                     }}
+                    onRowClick={(
+                        (evt, clickedAct) => {
+                            console.log(clickedAct);
+                            this.openClientView.bind(this);
+                            this.openClientView(clickedAct.clientId);
+                        })
+                    }
                     actions={[
                         {
                             icon: () => { return (<RefreshIcon/>)},
@@ -284,7 +271,6 @@ export default class ReportsTable extends React.Component {
                     ]}
                 />
             </Fragment>
-
         )
     }
 }
