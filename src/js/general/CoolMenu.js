@@ -25,9 +25,19 @@ import {AnimatedSwitch} from 'react-router-transition';
 import React from "react";
 import Acts from "./actsTable";
 import Reports from "./reportsTable";
-import LoginForm from "./login";
 import MediaCard from "./TaskView";
 import SingleClient from "../client/singeClient";
+import PrivateRoute from "../auth/PrivateRoute";
+import Login from "./login";
+import {AuthContext} from "../context/auth";
+import Logout from "./Logout";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
+import {AccountCircle} from "@material-ui/icons";
+import Badge from "@material-ui/core/Badge";
+import MailIcon from '@material-ui/icons/Mail';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+
 
 const drawerWidth = 190;
 
@@ -106,6 +116,13 @@ export default function MiniDrawer() {
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
+    const [anchorEl, setAnchorEl] = React.useState(null);
+
+    const [authTokens, setAuthTokens] = React.useState();
+    const setTokens = (data) => {
+        localStorage.setItem("tokens", JSON.stringify(data));
+        setAuthTokens(data);
+    };
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -115,8 +132,38 @@ export default function MiniDrawer() {
         setOpen(false);
     };
 
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleProfileMenuOpen = event => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    function logOut() {
+        setAuthTokens();
+        handleMenuClose();
+    }
+
+    const isMenuOpen = Boolean(anchorEl);
+
+    const renderMenu = (
+        <Menu
+            anchorEl={anchorEl}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            keepMounted
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            open={isMenuOpen}
+            onClose={handleMenuClose}
+        >
+            <MenuItem component={Link} to={'/profile'}  onClick={handleMenuClose}>Профиль</MenuItem>
+            <MenuItem onClick={logOut}>Выйти</MenuItem>
+        </Menu>
+    );
+
     return (
         <div className={classes.root}>
+            <AuthContext.Provider value={{ authTokens, setAuthTokens: setTokens }}>
             <CssBaseline/>
             <AppBar position="fixed" className={clsx(classes.appBar, {[classes.appBarShift]: open,})}>
                 <Toolbar>
@@ -128,9 +175,31 @@ export default function MiniDrawer() {
                     <Typography variant="h6" noWrap>
                         Программа учета Клиентов
                     </Typography>
-
+                    <IconButton component={Link} to={'/tasks'} aria-label="show 4 new mails" color="inherit">
+                        <Badge badgeContent={4} color="secondary">
+                            <MailIcon />
+                        </Badge>
+                    </IconButton>
+                    <IconButton aria-label="show 17 new notifications" color="inherit">
+                        <Badge badgeContent={17} color="secondary">
+                            <NotificationsIcon />
+                        </Badge>
+                    </IconButton>
+                    <IconButton
+                        edge="end"
+                        aria-label="account of current user"
+                        aria-haspopup="true"
+                        onClick={handleProfileMenuOpen}
+                        color="inherit"
+                    >
+                        <AccountCircle />
+                    </IconButton>
                 </Toolbar>
+                {
+                    renderMenu
+                }
             </AppBar>
+
             <Drawer
                 variant="permanent"
                 className={clsx(classes.drawer, {
@@ -177,21 +246,22 @@ export default function MiniDrawer() {
                     </ListItem>
                 </List>
             </Drawer>
-            <main className={classes.content}>
-                <div className={classes.toolbar}/>
-                <AnimatedSwitch atEnter={{opacity: 0.9}}
-                                atLeave={{opacity: 1}}
-                                atActive={{opacity: 1}}
 
-                >
-                    <Route path='/clients' component={ClientsRouting}/>
-                    <Route path='/acts' component={Acts}/>
-                    <Route path='/reports' component={Reports}/>
-                    <Route path='/tasks' component={MediaCard}/>
-                    <Route path='/login' component={LoginForm}/>
-                    <Route path='/profile' component={Acts}/>
-                </AnimatedSwitch>
-            </main>
+                <main className={classes.content}>
+                    <div className={classes.toolbar}/>
+                    <AnimatedSwitch atEnter={{opacity: 0.9}}
+                                    atLeave={{opacity: 1}}
+                                    atActive={{opacity: 1}}
+                    >
+                        <PrivateRoute path='/clients' component={ClientsRouting}/>
+                        <PrivateRoute path='/acts' component={Acts}/>
+                        <PrivateRoute path='/reports' component={Reports}/>
+                        <PrivateRoute path='/tasks' component={MediaCard}/>
+                        <Route path='/login' component={Login}/>
+                        <PrivateRoute path='/profile' component={Acts}/>
+                    </AnimatedSwitch>
+                </main>
+            </AuthContext.Provider>
         </div>
     );
 
