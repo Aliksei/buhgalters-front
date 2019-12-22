@@ -30,7 +30,6 @@ import SingleClient from "../client/singeClient";
 import PrivateRoute from "../auth/PrivateRoute";
 import Login from "./login";
 import {AuthContext} from "../context/auth";
-import Logout from "./Logout";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import {AccountCircle} from "@material-ui/icons";
@@ -104,9 +103,11 @@ const useStyles = makeStyles(theme => ({
 
 
 const ClientsRouting = () => (
-    <AnimatedSwitch atEnter={{opacity: 1}}
-                    atLeave={{opacity: 1}}
-                    atActive={{opacity: 1}}>
+    <AnimatedSwitch
+        // atEnter={{opacity: 1}}
+        // atLeave={{opacity: 1}}
+        // atActive={{opacity: 1}}
+    >
         <Route exact path='/clients' component={Clients}/>
         <Route path='/clients/:id' component={SingleClient}/>
     </AnimatedSwitch>
@@ -150,108 +151,109 @@ export default function MiniDrawer() {
     const renderMenu = (
         <Menu
             anchorEl={anchorEl}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            anchorOrigin={{vertical: 'top', horizontal: 'right'}}
             keepMounted
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            transformOrigin={{vertical: 'top', horizontal: 'right'}}
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <MenuItem component={Link} to={'/profile'}  onClick={handleMenuClose}>Профиль</MenuItem>
+            <MenuItem component={Link} to={'/profile'} onClick={handleMenuClose}>Профиль</MenuItem>
             <MenuItem onClick={logOut}>Выйти</MenuItem>
         </Menu>
     );
 
     return (
         <div className={classes.root}>
-            <AuthContext.Provider value={{ authTokens, setAuthTokens: setTokens }}>
-            <CssBaseline/>
-            <AppBar position="fixed" className={clsx(classes.appBar, {[classes.appBarShift]: open,})}>
-                <Toolbar>
-                    <IconButton
-                        color="inherit" aria-label="open drawer" onClick={handleDrawerOpen}
-                        edge="start" className={clsx(classes.menuButton, {[classes.hide]: open,})}>
-                        <MenuIcon/>
-                    </IconButton>
-                    <Typography variant="h6" noWrap>
-                        Программа учета Клиентов
-                    </Typography>
-                    <IconButton component={Link} to={'/tasks'} aria-label="show 4 new mails" color="inherit">
-                        <Badge badgeContent={4} color="secondary">
-                            <MailIcon />
-                        </Badge>
-                    </IconButton>
-                    <IconButton aria-label="show 17 new notifications" color="inherit">
-                        <Badge badgeContent={17} color="secondary">
-                            <NotificationsIcon />
-                        </Badge>
-                    </IconButton>
-                    <IconButton
-                        edge="end"
-                        aria-label="account of current user"
-                        aria-haspopup="true"
-                        onClick={handleProfileMenuOpen}
-                        color="inherit"
-                    >
-                        <AccountCircle />
-                    </IconButton>
-                </Toolbar>
-                {
-                    renderMenu
-                }
-            </AppBar>
+            <AuthContext.Provider value={{authTokens, setAuthTokens: setTokens}}>
+                <CssBaseline/>
+                <AppBar position="fixed" className={clsx(classes.appBar, {[classes.appBarShift]: open,})}>
+                    <Toolbar>
+                        <IconButton
+                            color="inherit" aria-label="open drawer" onClick={handleDrawerOpen}
+                            edge="start" className={clsx(classes.menuButton, {[classes.hide]: open,})}>
+                            <MenuIcon/>
+                        </IconButton>
+                        <Typography variant="h6" noWrap>
+                            Программа учета Клиентов
+                        </Typography>
+                        <IconButton component={Link} to={'/tasks'} aria-label="show 4 new mails" color="inherit">
+                            <Badge badgeContent={4} color="secondary">
+                                <MailIcon/>
+                            </Badge>
+                        </IconButton>
+                        <IconButton aria-label="show 17 new notifications" color="inherit">
+                            <Badge badgeContent={17} color="secondary">
+                                <NotificationsIcon/>
+                            </Badge>
+                        </IconButton>
+                        <IconButton
+                            edge="end"
+                            aria-label="account of current user"
+                            aria-haspopup="true"
+                            onClick={handleProfileMenuOpen}
+                            color="inherit"
+                        >
+                            <AccountCircle/>
+                        </IconButton>
+                    </Toolbar>
+                    {
+                        renderMenu
+                    }
+                </AppBar>
 
-            <Drawer
-                variant="permanent"
-                className={clsx(classes.drawer, {
-                    [classes.drawerOpen]: open,
-                    [classes.drawerClose]: !open,
-                })}
-                classes={{
-                    paper: clsx({
+                <Drawer
+                    variant="permanent"
+                    className={clsx(classes.drawer, {
                         [classes.drawerOpen]: open,
                         [classes.drawerClose]: !open,
-                    }),
-                }}
-                open={open}
-            >
-                <div className={classes.toolbar}>
-                    <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'rtl' ? <ChevronRightIcon/> : <ChevronLeftIcon/>}
-                    </IconButton>
-                </div>
-                <Divider/>
-                <List>
-                    <ListItem component={Link} to={'/clients'} button key='Клиенты'>
-                        <ListItemIcon><PeopleAltIcon/></ListItemIcon>
-                        <ListItemText primary='Клиенты'/>
-                    </ListItem>
-                    <ListItem component={Link} to={'/acts'} button key='Акты'>
-                        <ListItemIcon><StorageIcon/></ListItemIcon>
-                        <ListItemText primary='Акты'/>
-                    </ListItem>
-                    <ListItem component={Link} to={'/reports'} button key='Отчетности'>
-                        <ListItemIcon><InboxIcon/></ListItemIcon>
-                        <ListItemText primary='Отчетности'/>
-                    </ListItem>
-                </List>
-                <Divider/>
-                <List>
-                    <ListItem component={Link} to={'/tasks'} button key='Акты'>
-                        <ListItemIcon><ForumIcon/></ListItemIcon>
-                        <ListItemText primary='Задания'/>
-                    </ListItem>
-                    <ListItem component={Link} to={'/profile'} button key='Профиль'>
-                        <ListItemIcon><AccountCircleIcon/></ListItemIcon>
-                        <ListItemText primary='Профиль'/>
-                    </ListItem>
-                </List>
-            </Drawer>
+                    })}
+                    classes={{
+                        paper: clsx({
+                            [classes.drawerOpen]: open,
+                            [classes.drawerClose]: !open,
+                        }),
+                    }}
+                    open={open}
+                >
+                    <div className={classes.toolbar}>
+                        <IconButton onClick={handleDrawerClose}>
+                            {theme.direction === 'rtl' ? <ChevronRightIcon/> : <ChevronLeftIcon/>}
+                        </IconButton>
+                    </div>
+                    <Divider/>
+                    <List>
+                        <ListItem component={Link} to={'/clients'} button key='Клиенты'>
+                            <ListItemIcon><PeopleAltIcon/></ListItemIcon>
+                            <ListItemText primary='Клиенты'/>
+                        </ListItem>
+                        <ListItem component={Link} to={'/acts'} button key='Акты'>
+                            <ListItemIcon><StorageIcon/></ListItemIcon>
+                            <ListItemText primary='Акты'/>
+                        </ListItem>
+                        <ListItem component={Link} to={'/reports'} button key='Отчетности'>
+                            <ListItemIcon><InboxIcon/></ListItemIcon>
+                            <ListItemText primary='Отчетности'/>
+                        </ListItem>
+                    </List>
+                    <Divider/>
+                    <List>
+                        <ListItem component={Link} to={'/tasks'} button key='Акты'>
+                            <ListItemIcon><ForumIcon/></ListItemIcon>
+                            <ListItemText primary='Задания'/>
+                        </ListItem>
+                        <ListItem component={Link} to={'/profile'} button key='Профиль'>
+                            <ListItemIcon><AccountCircleIcon/></ListItemIcon>
+                            <ListItemText primary='Профиль'/>
+                        </ListItem>
+                    </List>
+                </Drawer>
 
                 <main className={classes.content}>
                     <div className={classes.toolbar}/>
-                    <AnimatedSwitch atEnter={{opacity: 0.9}}
-                                    atLeave={{opacity: 1}}
-                                    atActive={{opacity: 1}}
+                    <AnimatedSwitch
+                        // atEnter={{opacity: 0.9}}
+                        // atLeave={{opacity: 1}}
+                        // atActive={{opacity: 1}}
                     >
                         <PrivateRoute path='/clients' component={ClientsRouting}/>
                         <PrivateRoute path='/acts' component={Acts}/>

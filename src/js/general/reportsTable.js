@@ -193,11 +193,11 @@ export default class ReportsTable extends React.Component {
                     localization={{
                         body: {
                             emptyDataSourceMessage: 'Поиск не дал результатов',
-                            addTooltip: 'Добавить Клиента',
-                            deleteTooltip: 'Удалить Клиента',
+                            addTooltip: 'Добавить Акт',
+                            deleteTooltip: 'Удалить Акт',
                             editTooltip: 'Редактировать',
                             editRow: {
-                                deleteText: 'Удалить выбранного клиента?',
+                                deleteText: 'Удалить выбранный отчет?',
                             }
                         },
                         toolbar: {

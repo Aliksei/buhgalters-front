@@ -213,7 +213,10 @@ export default class Acts extends React.Component {
                         emptyDataSourceMessage: 'Поиск не дал результатов',
                         addTooltip: 'Добавить Акт',
                         deleteTooltip: 'Удалить Акт',
-                        editTooltip: 'Редактировать Акт'
+                        editTooltip: 'Редактировать Акт',
+                        editRow: {
+                            deleteText: 'Удалить выбранный акт?',
+                        }
                     },
                     toolbar: {
                         searchPlaceholder: 'Поиск'
@@ -256,7 +259,7 @@ export default class Acts extends React.Component {
                                     let data = this.state.data;
                                     const index = data.indexOf(oldData);
                                     data.splice(index, 1);
-                                    this.setState({data}, () => resolve());
+                                    this.setState({data: data, loader: false}, () => resolve());
                                 }
                                 resolve()
                             }, 1000)

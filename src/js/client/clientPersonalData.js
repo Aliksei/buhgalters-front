@@ -7,8 +7,6 @@ import {Box} from "@material-ui/core";
 export default class ClientData extends React.Component {
     constructor(props) {
         super(props);
-        console.log(props);
-        console.log(props.client);
         this.state = {
             client: {},
             editable: false,

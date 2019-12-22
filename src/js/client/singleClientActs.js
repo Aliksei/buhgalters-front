@@ -147,6 +147,12 @@ export default class ClientsAct extends React.Component {
                     paginationType: 'stepped',
                     padding: 'dense',
                     showFirstLastPageButtons: true,
+                    headerStyle: {
+                        backgroundColor: 'rgba(0,69,147,0.52)',
+                        color: "white",
+                        fontSize: 12,
+                        fontWeight: 'bolder'
+                    }
                 }}
                 localization={{
                     body: {

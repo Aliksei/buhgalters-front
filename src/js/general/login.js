@@ -1,20 +1,21 @@
 import React, {useState} from 'react'
 import Button from "@material-ui/core/Button";
-import {Card, FormControl, makeStyles} from "@material-ui/core";
-import FormGroup from "@material-ui/core/FormGroup";
+import {Card, Grid, makeStyles} from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
-import Paper from "@material-ui/core/Paper";
 import {useAuth} from "../context/auth";
 import {Redirect} from "react-router-dom";
 import Box from "@material-ui/core/Box";
 
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
     card: {
-        minWidth: 275,
-        maxWidth: 500,
-        minHeight: 275,
-        maxHeight: 500
+        minWidth: "30%",
+        minHeight: "30%",
+        textAlign: 'center'
+    },
+    box: {
+        padding: theme.spacing(2),
+        flexDirection: "column"
     },
     bullet: {
         display: 'inline-block',
@@ -27,7 +28,7 @@ const useStyles = makeStyles({
     pos: {
         marginBottom: 12,
     },
-});
+}));
 
 
 export default function LoginForm() {
@@ -40,7 +41,6 @@ export default function LoginForm() {
 
 
     function postLogin() {
-        console.log("TREEE");
         setAuthTokens("LIL");
         setLoggedIn(true);
     }
@@ -50,29 +50,40 @@ export default function LoginForm() {
     }
 
     return (
-        <Card className={classes.card}>
-                <Box display="flex">
-                    <TextField id="outlined-basic"
-                               label="login"
-                               variant="outlined"
-                    />
-                    <TextField
-                        id="filled-password-input"
-                        label="Password"
-                        type="password"
-                        autoComplete="current-password"
-                        variant="outlined"
-                    />
+        <Grid container align="center" justify="center">
+            <Card className={classes.card}>
+                <Box className={classes.box}>
+
+                    <Box className={classes.box}>
+                        <TextField id="outlined-basic"
+                                   label="Логин"
+                                   variant="outlined"
+                                   style={{display: "flex"}}
+                        />
+                    </Box>
+                    <Box className={classes.box}>
+                        <TextField
+                            id="filled-password-input"
+                            label="Пароль"
+                            type="password"
+                            autoComplete="current-password"
+                            variant="outlined"
+                            style={{display: "flex"}}
+                        />
+                    </Box>
+                    <Box className={classes.box}>
+                        <Button variant="outlined" color="primary" onClick={postLogin} style={{margin:7}}>
+                            Войти
+                        </Button>
+
+                        <Button variant="outlined" color="primary" onClick={postLogin}>
+                            Регистрация
+                        </Button>
+                    </Box>
                 </Box>
-                <Box display="flex">
-                    <Button variant="outlined" color="primary" onClick={postLogin}>
-                        Login
-                    </Button>
-                    <Button variant="outlined" color="primary" onClick={postLogin}>
-                        Register
-                    </Button>
-                </Box>
-        </Card>
+            </Card>
+        </Grid>
+
     );
 
 }
