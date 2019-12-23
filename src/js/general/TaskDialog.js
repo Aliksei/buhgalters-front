@@ -33,6 +33,10 @@ const useStyles = makeStyles(theme => ({
         margin: theme.spacing(1),
         minWidth: 120,
     },
+    card: {
+        maxWidth: "90%",
+        maxHeight: "240px"
+    },
     appBar: {
         position: 'relative',
     },

@@ -2,14 +2,21 @@ import React from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import Grid from "@material-ui/core/Grid";
 import TaskEntity from "./TaskDialog";
+import Paper from "@material-ui/core/Paper";
+import Typography from "@material-ui/core/Typography";
+import {Box} from "@material-ui/core";
+import {spacing} from "@material-ui/system";
 
 const useStyles = makeStyles(theme => ({
     card: {
-        // maxWidth: 250,
+        maxWidth: 250,
+    },
+    box: {
+        padding: theme.spacing(1),
     },
     column: {
-        backgroundColor: "grey",
-        minHeight: "90%"
+        // backgroundColor: "grey",
+        minHeight: "100%"
     },
     media: {
         height: 40,
@@ -18,8 +25,12 @@ const useStyles = makeStyles(theme => ({
         flexGrow: 1,
     },
     paper: {
-        minHeight: "80%",
-        // width: '30%',
+        backgroundColor: 'rgba(0,69,147,0.52)',
+        padding: theme.spacing(0),
+    },
+    typography: {
+        fontcolor: 'rgba(0,117,255,0)',
+        textAlign: 'center',
     },
     control: {
         padding: theme.spacing(2),
@@ -31,16 +42,42 @@ export default function MediaCard() {
 
     return (
         <Grid container spacing={3}>
-            <Grid item xs={4} className={classes.column}>
-                <TaskEntity/>
+            <Grid
+                item xs={4}
+                direction="row"
+                alignContent="center"
+                className={classes.column}>
+                <Paper className={classes.paper}>
+                    <Typography className={classes.typography} variant="h6">К Выполнению</Typography>
+                </Paper>
+                <Box className={classes.box}>
+                    <TaskEntity/>
+                </Box>
+                <Box className={classes.box}>
+                    <TaskEntity/>
+                </Box>
+                <Box className={classes.box}>
+                    <TaskEntity/>
+                </Box>
             </Grid>
-            <Grid item xs={4} className={classes.column}>
-                <TaskEntity/>
-                <TaskEntity/>
-                <TaskEntity/>
+            <Grid container alignItems="stretch" item xs={4} direction="column" className={classes.column}>
+                <Paper className={classes.paper}>
+                    <Typography className={classes.typography} variant="h6">В Процессе</Typography>
+                </Paper>
+                <Box className={classes.box}>
+                    <TaskEntity/>
+                </Box>
+                <Box className={classes.box}>
+                    <TaskEntity/>
+                </Box>
             </Grid>
-            <Grid item xs={4} className={classes.column}>
-                <TaskEntity/>
+            <Grid container alignItems="stretch" item xs={4} direction="column" className={classes.column}>
+                <Paper className={classes.paper}>
+                    <Typography className={classes.typography} variant="h6">В Процессе</Typography>
+                </Paper>
+                <Box className={classes.box}>
+                    <TaskEntity/>
+                </Box>
             </Grid>
         </Grid>
     );
