@@ -1,5 +1,5 @@
 import * as React from "react";
-import {forwardRef} from 'react';
+import {forwardRef, Fragment} from "react";
 import MaterialTable from "material-table";
 
 import AddBox from '@material-ui/icons/AddBox';
@@ -17,11 +17,10 @@ import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
-import {Fragment} from "react";
 import Link from "@material-ui/core/Link";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
-import RefreshIcon from "@material-ui/core/SvgIcon/SvgIcon";
 import CachedIcon from '@material-ui/icons/Cached';
+import {clientService} from "../service/clientService";
 
 
 const tableIcons = {
@@ -68,38 +67,10 @@ export default class Clients extends React.Component {
     }
 
     async componentDidMount() {
-        this.getClients()
-    }
-
-    async getClients() {
-        const response = await fetch("http://localhost:8080/clients");
-        const json = await response.json();
-        this.setState({data: json, loader: false});
-    }
-
-    async updateClient(data) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/clients/update/' + data.id, {
-            method: 'put',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-    }
-
-    async addClient(data) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/clients/create', {
-            method: 'post',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-    }
-
-    async deleteClient(data) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/clients/delete/' + data.id, {
-            method: 'delete',
-        });
+        clientService.getClients()
+            .then(clients => {
+                this.setState({data: clients, loader: false});
+            });
     }
 
     openClientView(id) {
@@ -199,8 +170,8 @@ export default class Clients extends React.Component {
                             new Promise((resolve, reject) => {
                                 setTimeout(() => {
                                     {
-                                        this.addClient(newData)
-                                            .then(res => res.json())
+                                        this.setState({loader: true});
+                                        clientService.postClient(newData)
                                             .then(res => {
                                                 const data = this.state.data;
                                                 data.push({
@@ -227,8 +198,8 @@ export default class Clients extends React.Component {
                             new Promise((resolve, reject) => {
                                 setTimeout(() => {
                                     {
-                                        this.updateClient(newData)
-                                            .then(res => res.json())
+                                        this.setState({loader: true});
+                                        clientService.putClient(newData)
                                             .then(res => {
                                                 const data = this.state.data;
                                                 const index = data.indexOf(oldData);
@@ -243,7 +214,8 @@ export default class Clients extends React.Component {
                             new Promise((resolve, reject) => {
                                 setTimeout(() => {
                                     {
-                                        this.deleteClient(oldData)
+                                        this.setState({loader: true});
+                                        clientService.deleteClient(oldData)
                                             .then(resp => {
                                                 let data = this.state.data;
                                                 const index = data.indexOf(oldData);

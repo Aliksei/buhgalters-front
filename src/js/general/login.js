@@ -44,6 +44,7 @@ export default function LoginForm() {
         return fetch('http://localhost:8080/authenticate', {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
+            // credentials: "include",
             body: JSON.stringify({
                 userName: userName,
                 password: password,
@@ -51,15 +52,13 @@ export default function LoginForm() {
         })
             .then(res => {
                 if (res.ok) {
-                   return res.json();
-                } else {
-                    return new Error();
+                    return res.json();
                 }
             })
             .then(res => {
-                setAuthTokens(res.jwtToken);
-                setLoggedIn(true);
-            })
+                    setAuthTokens(res.jwtToken);
+                    setLoggedIn(true);
+            });
     }
 
     const handleUserName = (event) => {

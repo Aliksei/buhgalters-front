@@ -7,6 +7,7 @@ function LogoutComp() {
 
     function logOut() {
         setAuthTokens();
+        localStorage.removeItem("tokens")
     }
 
     return (
