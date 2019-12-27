@@ -36,6 +36,7 @@ import {AccountCircle} from "@material-ui/icons";
 import Badge from "@material-ui/core/Badge";
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
+import RegistrationFrom from "./registration";
 
 
 const drawerWidth = 190;
@@ -260,6 +261,7 @@ export default function MiniDrawer() {
                         <PrivateRoute path='/reports' component={Reports}/>
                         <PrivateRoute path='/tasks' component={MediaCard}/>
                         <Route path='/login' component={Login}/>
+                        <Route path='/registration' component={RegistrationFrom}/>
                         <PrivateRoute path='/profile' component={Acts}/>
                     </AnimatedSwitch>
                 </main>

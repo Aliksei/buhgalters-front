@@ -5,7 +5,7 @@ import TextField from "@material-ui/core/TextField";
 import {useAuth} from "../context/auth";
 import {Link, Redirect} from "react-router-dom";
 import Box from "@material-ui/core/Box";
-import ListItem from "@material-ui/core/ListItem";
+import Typography from "@material-ui/core/Typography";
 
 
 const useStyles = makeStyles(theme => ({
@@ -32,59 +32,77 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-export default function LoginForm() {
+export default function RegistrationFrom() {
 
     const [isLoggedIn, setLoggedIn] = useState(false);
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [secondPassword, setSecondPassword] = useState("");
     const {setAuthTokens} = useAuth();
     const classes = useStyles();
 
-    function postLogin() {
-        return fetch('http://localhost:8080/authenticate', {
+    function register() {
+        return fetch('http://localhost:8080/user', {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
-                userName: userName,
+                name: userName,
+                email: email,
                 password: password,
+                company: 'Татьяна'
             })
         })
             .then(res => {
                 if (res.ok) {
-                   return res.json();
-                } else {
-                    return new Error();
+                    res.json();
+                    return <Redirect to="/login"/>;
                 }
-            })
-            .then(res => {
-                setAuthTokens(res.jwtToken);
-                setLoggedIn(true);
-            })
+            });
     }
-
-    const handleUserName = (event) => {
-        setUserName(event.target.value);
-    };
-
-    const handlePassword = (event) => {
-        setPassword(event.target.value);
-    };
 
     if (isLoggedIn) {
         return <Redirect to="/clients"/>;
     }
 
+    const handlePassword = (event) => {
+        setPassword(event.target.value);
+    };
+
+    const handleSecondPassword = (event) => {
+        setSecondPassword(event.target.value);
+    };
+
+    const handleEmail = (event) => {
+        setEmail(event.target.value);
+    };
+
+    const handleUserName = (event) => {
+        setUserName(event.target.value);
+    };
+
     return (
         <Grid container align="center" justify="center">
             <Card className={classes.card}>
+                <Typography>Начните регистрацию</Typography>
                 <Box className={classes.box}>
-
                     <Box className={classes.box}>
                         <TextField id="outlined-basic"
                                    label="Логин"
                                    variant="outlined"
                                    onChange={handleUserName}
                                    style={{display: "flex"}}
+                        />
+                    </Box>
+                    <Box className={classes.box}>
+                        <TextField
+                            id="email-input"
+                            label="Почта"
+                            type="email"
+                            autoComplete="current-password"
+                            variant="outlined"
+                            onChange={handleEmail}
+                            style={{display: "flex"}}
                         />
                     </Box>
                     <Box className={classes.box}>
@@ -99,12 +117,23 @@ export default function LoginForm() {
                         />
                     </Box>
                     <Box className={classes.box}>
-                        <Button variant="outlined" color="primary" onClick={postLogin} style={{margin:7}}>
-                            Войти
+                        <TextField
+                            id="secondPassword"
+                            label="Повторите Пароль"
+                            type="password"
+                            onChange={handleSecondPassword}
+                            autoComplete="current-password"
+                            variant="outlined"
+                            style={{display: "flex"}}
+                        />
+                    </Box>
+                    <Box className={classes.box}>
+                        <Button variant="outlined" color="primary" onClick={register} style={{margin: 7}}>
+                            Создать
                         </Button>
 
-                        <Button variant="outlined" color="primary" component={Link} to={'/registration'}>
-                            Регистрация
+                        <Button variant="outlined" color="primary" component={Link} to={'/login'}>
+                            Назад
                         </Button>
                     </Box>
                 </Box>
