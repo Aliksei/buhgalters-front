@@ -8,6 +8,7 @@ import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Paper from "@material-ui/core/Paper";
 import ClientData from "./clientPersonalData";
 import ClientsAct from "./singleClientActs";
+import {clientService} from "../service/clientService";
 
 
 const useStyles = makeStyles(theme => ({
@@ -40,15 +41,9 @@ const SingleClient = (props) => {
     const [client, setClient] = useState({});
     const [hasError, setErrors] = useState(false);
 
-    async function fetchClickedClient(props) {
-        return fetch("http://localhost:8080/clients/" + props.match.params.id)
-            .then(res => res.json())
-            .then(res => setClient(res))
-            .catch(error => setErrors(error));
-    }
-
     useEffect(() => {
-        fetchClickedClient(props);
+        clientService.getClientById(props.match.params.id)
+            .then(res => setClient(res));
     }, []);
 
     return (

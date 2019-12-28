@@ -20,6 +20,8 @@ import ViewColumn from '@material-ui/icons/ViewColumn';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import MaterialTable from "material-table";
 import TextField from "@material-ui/core/TextField";
+import {clientService} from "../service/clientService";
+import {actService} from "../service/actService";
 
 
 const tableIcons = {
@@ -125,50 +127,13 @@ export default class Acts extends React.Component {
 
     async componentDidMount() {
         Promise.all([
-            this.getClients(),
-            this.getAllActs()
+            clientService.getClients(),
+            actService.getActs()
         ]).then(([clientList, actList]) => {
             actList.map(act => {
                 act.clientId = clientList.filter(c => c.id === act.clientId)[0].name;
             });
             this.setState({clients: clientList, data: actList, loader: false})
-        });
-    }
-
-    async getAllActs() {
-        const response = await fetch("http://localhost:8080/acts");
-        return await response.json();
-    }
-
-    async editAct(clientId, act) {
-        const response = await fetch("http://localhost:8080/acts");
-        const json = await response.json();
-        this.setState({data: json, loader: false});
-    }
-
-    async getClients() {
-        const response = await fetch("http://localhost:8080/clients");
-        return await response.json();
-    }
-
-    async getClientsForActs() {
-        const response = await fetch("http://localhost:8080/clients/forActs");
-        return await response.json()
-    }
-
-    async createAct(act) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/acts/createAct', {
-            method: 'post',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(act)
-        });
-    }
-
-    async deleteAct(data) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/acts/' + data.id, {
-            method: 'delete',
         });
     }
 
@@ -242,27 +207,33 @@ export default class Acts extends React.Component {
                             this.setState({loader: true});
                             setTimeout(() => {
                                 {
-                                    const data = this.state.data;
-                                    const index = data.indexOf(oldData);
-                                    data[index] = newData;
-                                    this.setState({data, loader: false}, () => resolve());
+                                    this.setState({loader: true});
+                                    actService.putAct(newData)
+                                        .then(res => {
+                                            const data = this.state.data;
+                                            const index = data.indexOf(oldData);
+                                            data[index] = res;
+                                            this.setState({data, loader: false}, () => resolve());
+                                        });
                                 }
                                 resolve()
-                            }, 1000)
+                            }, 50)
                         }),
                     onRowDelete: oldData =>
                         new Promise((resolve, reject) => {
                             setTimeout(() => {
                                 {
-                                    this.deleteAct(oldData)
-                                        .then()
-                                    let data = this.state.data;
-                                    const index = data.indexOf(oldData);
-                                    data.splice(index, 1);
-                                    this.setState({data: data, loader: false}, () => resolve());
+                                    this.setState({loader: true});
+                                    actService.deleteAct(oldData)
+                                        .then(res => {
+                                            let data = this.state.data;
+                                            const index = data.indexOf(oldData);
+                                            data.splice(index, 1);
+                                            this.setState({data: data, loader: false}, () => resolve());
+                                        });
                                 }
                                 resolve()
-                            }, 1000)
+                            }, 50)
                         }),
                 }}
                 actions={[

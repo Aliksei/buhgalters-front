@@ -39,7 +39,7 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import RegistrationFrom from "./registration";
 
 
-const drawerWidth = 190;
+const drawerWidth = 185;
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -86,7 +86,7 @@ const useStyles = makeStyles(theme => ({
         overflowX: 'hidden',
         width: theme.spacing(7) + 1,
         [theme.breakpoints.up('sm')]: {
-            width: theme.spacing(9) + 1,
+            width: theme.spacing(7) + 1,
         },
     },
     toolbar: {

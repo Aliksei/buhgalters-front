@@ -19,6 +19,7 @@ import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import {Fragment} from "react";
 import RefreshIcon from '@material-ui/icons/Refresh';
+import {reportService} from "../service/reportService";
 
 
 const tableIcons = {
@@ -116,32 +117,8 @@ export default class ReportsTable extends React.Component {
     }
 
     async componentDidMount() {
-        this.getReports()
-    }
-
-    async getReports() {
-        return await fetch("http://localhost:8080/reports")
-            .then(res => res.json())
-            .then(json => {
-                this.setState({data: json, loader: false})
-            })
-    }
-
-    async updateReport(data) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/reports/' + data.id, {
-            method: 'put',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        })
-            .then(res => res.json());
-    }
-
-    async deleteReport(data) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/reports/' + data.id, {
-            method: 'delete',
-        });
+        reportService.getReports()
+            .then(res =>  this.setState({data: res, loader: false}));
     }
 
     openClientView(id) {
@@ -221,7 +198,8 @@ export default class ReportsTable extends React.Component {
                             new Promise((resolve, reject) => {
                                 setTimeout(() => {
                                     {
-                                        this.updateReport(newData)
+                                        this.setState({loader: true});
+                                        reportService.putReport(newData)
                                             .then(res => {
                                                 const data = this.state.data;
                                                 const index = data.indexOf(oldData);
@@ -230,13 +208,14 @@ export default class ReportsTable extends React.Component {
                                             })
                                     }
                                     resolve()
-                                }, 1000)
+                                }, 50)
                             }),
                         onRowDelete: oldData =>
                             new Promise((resolve, reject) => {
                                 setTimeout(() => {
                                     {
-                                        this.deleteReport(oldData)
+                                        this.setState({loader: true});
+                                        reportService.deleteReport(oldData)
                                             .then(resp => {
                                                 let data = this.state.data;
                                                 const index = data.indexOf(oldData);
@@ -245,7 +224,7 @@ export default class ReportsTable extends React.Component {
                                             });
                                     }
                                     resolve()
-                                }, 1000)
+                                }, 50)
                             }),
                     }}
                     onRowClick={(

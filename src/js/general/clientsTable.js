@@ -121,7 +121,7 @@ export default class Clients extends React.Component {
                             this.openClientView(clickedClient.id);
                         })
                     }
-                    style={{width: '99%'}}
+                    style={{width: '100%'}}
                     tableRef={this.tableRef}
                     localization={{
                         body: {
@@ -192,7 +192,7 @@ export default class Clients extends React.Component {
                                             })
                                     }
                                     resolve()
-                                }, 1000)
+                                }, 50)
                             }),
                         onRowUpdate: (newData, oldData) =>
                             new Promise((resolve, reject) => {
@@ -208,7 +208,7 @@ export default class Clients extends React.Component {
                                             })
                                     }
                                     resolve()
-                                }, 1000)
+                                }, 50)
                             }),
                         onRowDelete: oldData =>
                             new Promise((resolve, reject) => {
@@ -224,7 +224,7 @@ export default class Clients extends React.Component {
                                             });
                                     }
                                     resolve()
-                                }, 1000)
+                                }, 50)
                             }),
                     }}
                 />

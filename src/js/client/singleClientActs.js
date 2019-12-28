@@ -17,6 +17,8 @@ import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import MaterialTable from "material-table";
+import {actService} from "../service/actService";
+import {clientService} from "../service/clientService";
 
 
 const tableIcons = {
@@ -96,41 +98,10 @@ export default class ClientsAct extends React.Component {
     }
 
     componentDidMount() {
-        Promise.all([
-            this.getActsByClient(this.props.clientId)
-        ]).then(([actList]) => {
-            this.setState({data: actList, loader: false})
-        })
-    }
-
-    async getActsByClient(id) {
-        const response = await fetch("http://localhost:8080/acts/byClient/" + id);
-        return await response.json();
-    }
-
-    async editAct(actId, data) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/acts/update/' + actId, {
-            method: 'put',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-    }
-
-    async createAct(act) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/acts/createAct', {
-            method: 'post',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(act)
-        });
-    }
-
-    async deleteAct(data) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/acts/' + data.id, {
-            method: 'delete',
-        });
+        clientService.getClientActs(this.props.clientId)
+            .then(acts => {
+                this.setState({data: acts, loader: false})
+            });
     }
 
     render() {
@@ -159,7 +130,10 @@ export default class ClientsAct extends React.Component {
                         emptyDataSourceMessage: 'Поиск не дал результатов',
                         addTooltip: 'Добавить Акт',
                         deleteTooltip: 'Удалить Акт',
-                        editTooltip: 'Редактировать Акт'
+                        editTooltip: 'Редактировать Акт',
+                        editRow: {
+                            deleteText: 'Удалить выбранный акт?',
+                        }
                     },
                     toolbar: {
                         searchPlaceholder: 'Поиск'
@@ -180,8 +154,7 @@ export default class ClientsAct extends React.Component {
                                 {
                                     this.setState({loader: true});
                                     newData.clientId = this.props.owner.id;
-                                    this.createAct(newData)
-                                        .then(res => res.json())
+                                    actService.postAct(newData)
                                         .then(res => {
                                             const data = this.state.data;
                                             data.push(res);
@@ -189,17 +162,16 @@ export default class ClientsAct extends React.Component {
                                         });
                                 }
                                 resolve()
-                            }, 1)
+                            }, 50)
                         }),
                     onRowUpdate: (newData, oldData) =>
                         new Promise((resolve, reject) => {
                             setTimeout(() => {
                                 {
+                                    this.setState({loader: true});
                                     newData.clientId = this.props.owner.id;
-                                    this.editAct(newData.id, newData)
-                                        .then(res => res.json())
+                                    actService.putAct(newData)
                                         .then(res => {
-
                                             const gj = this.state.data;
                                             const index = gj.indexOf(oldData);
                                             gj[index] = res;
@@ -207,13 +179,14 @@ export default class ClientsAct extends React.Component {
                                         })
                                 }
                                 resolve()
-                            }, 1000)
+                            }, 50)
                         }),
                     onRowDelete: oldData =>
                         new Promise((resolve, reject) => {
                             setTimeout(() => {
                                 {
-                                    this.deleteAct(oldData)
+                                    this.setState({loader: true});
+                                    actService.deleteAct(oldData)
                                         .then(res => {
                                             let data = this.state.data;
                                             const index = data.indexOf(oldData);
@@ -222,7 +195,7 @@ export default class ClientsAct extends React.Component {
                                         });
                                 }
                                 resolve()
-                            }, 1000)
+                            }, 50)
                         }),
                 }}
             />

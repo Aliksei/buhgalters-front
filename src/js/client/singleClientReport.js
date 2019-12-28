@@ -17,6 +17,8 @@ import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import MaterialTable from "material-table";
+import {reportService} from "../service/reportService";
+import {clientService} from "../service/clientService";
 
 
 const tableIcons = {
@@ -84,7 +86,7 @@ export default class ClientsReport extends React.Component {
                     render: (data, type) => {
                         let deeadLine = new Date(data.deadLine);
                         let todaay = new Date();
-                        var diff = (deeadLine.getTime() - todaay.getTime())/(1000 * 3600 * 24);
+                        var diff = (deeadLine.getTime() - todaay.getTime()) / (1000 * 3600 * 24);
                         let col;
                         let tit;
                         if (diff <= 10) {
@@ -100,42 +102,10 @@ export default class ClientsReport extends React.Component {
 
     componentDidMount() {
         let param = encodeURIComponent(this.props.clientId);
-        this.getReportsByClient(param)
+        clientService.getClientReports(param)
             .then(res => {
                 this.setState({data: res, loader: false});
             })
-    }
-
-    async updateReport(data) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/reports/' + data.id, {
-            method: 'put',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        })
-            .then(res => res.json());
-    }
-
-    async createNewReport(report) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/reports', {
-            method: 'post',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(report)
-        })
-            .then(res => res.json());
-    }
-
-    async deleteReport(data) {
-        this.setState({loader: true});
-        return await fetch('http://localhost:8080/reports/' + data.id, {
-            method: 'delete',
-        });
-    }
-
-    async getReportsByClient(id) {
-        return await fetch("http://localhost:8080/reports/byClient?clientId=" + id)
-            .then(res => res.json());
     }
 
     render() {
@@ -164,7 +134,10 @@ export default class ClientsReport extends React.Component {
                         emptyDataSourceMessage: 'Поиск не дал результатов',
                         addTooltip: 'Добавить Отчет',
                         deleteTooltip: 'Удалить Отчет',
-                        editTooltip: 'Редактировать Отчет'
+                        editTooltip: 'Редактировать Отчет',
+                        editRow: {
+                            deleteText: 'Удалить выбранный отчет?',
+                        }
                     },
                     toolbar: {
                         searchPlaceholder: 'Поиск'
@@ -185,7 +158,7 @@ export default class ClientsReport extends React.Component {
                                 {
                                     this.setState({loader: true});
                                     newData.clientId = this.props.owner.id;
-                                    this.createNewReport(newData)
+                                    reportService.postReport(newData)
                                         .then(res => {
                                             const data = this.state.data;
                                             data.push(res);
@@ -193,14 +166,15 @@ export default class ClientsReport extends React.Component {
                                         });
                                 }
                                 resolve()
-                            }, 1)
+                            }, 50)
                         }),
                     onRowUpdate: (newData, oldData) =>
                         new Promise((resolve, reject) => {
                             setTimeout(() => {
                                 {
+                                    this.setState({loader: true});
                                     newData.clientId = this.props.owner.id;
-                                    this.updateReport(newData)
+                                    reportService.putReport(newData)
                                         .then(res => {
                                             const gj = this.state.data;
                                             const index = gj.indexOf(oldData);
@@ -209,13 +183,14 @@ export default class ClientsReport extends React.Component {
                                         })
                                 }
                                 resolve()
-                            }, 1000)
+                            }, 50)
                         }),
                     onRowDelete: oldData =>
                         new Promise((resolve, reject) => {
                             setTimeout(() => {
                                 {
-                                    this.deleteReport(oldData)
+                                    this.setState({loader: true});
+                                    reportService.deleteReport(oldData)
                                         .then(res => {
                                             let data = this.state.data;
                                             const index = data.indexOf(oldData);
@@ -224,7 +199,7 @@ export default class ClientsReport extends React.Component {
                                         });
                                 }
                                 resolve()
-                            }, 1000)
+                            }, 50)
                         }),
                 }}
             />
