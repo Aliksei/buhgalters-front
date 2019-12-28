@@ -49,10 +49,6 @@ export default class ReportsTable extends React.Component {
             loader: true,
             columns: [
                 {
-                    title: 'Id', field: 'id',
-                    hidden: true
-                },
-                {
                     title: 'Наименование', field: 'reportName',
                 },
                 {
@@ -62,11 +58,6 @@ export default class ReportsTable extends React.Component {
                     render: (data, type) => {
                         return (<div>{data.miniClient.clientName}</div>)
                     }
-                },
-                {
-                    title: 'ClientId',
-                    field: 'clientId',
-                    hidden: true
                 },
                 {
                     title: 'Тип отчетности',

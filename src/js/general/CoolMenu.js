@@ -223,26 +223,26 @@ export default function MiniDrawer() {
                     </div>
                     <Divider/>
                     <List>
-                        <ListItem component={Link} to={'/clients'} button key='Клиенты'>
+                        <ListItem component={Link} to={'/clients'} button key='Клиенты' title="Клиенты">
                             <ListItemIcon><PeopleAltIcon/></ListItemIcon>
                             <ListItemText primary='Клиенты'/>
                         </ListItem>
-                        <ListItem component={Link} to={'/acts'} button key='Акты'>
+                        <ListItem component={Link} to={'/acts'} button key='Акты' title="Акты">
                             <ListItemIcon><StorageIcon/></ListItemIcon>
                             <ListItemText primary='Акты'/>
                         </ListItem>
-                        <ListItem component={Link} to={'/reports'} button key='Отчетности'>
+                        <ListItem component={Link} to={'/reports'} button key='Отчетности' title="Профиль">
                             <ListItemIcon><InboxIcon/></ListItemIcon>
                             <ListItemText primary='Отчетности'/>
                         </ListItem>
                     </List>
                     <Divider/>
                     <List>
-                        <ListItem component={Link} to={'/tasks'} button key='Акты'>
+                        <ListItem component={Link} to={'/tasks'} button key='Акты' title="Задания">
                             <ListItemIcon><ForumIcon/></ListItemIcon>
                             <ListItemText primary='Задания'/>
                         </ListItem>
-                        <ListItem component={Link} to={'/profile'} button key='Профиль'>
+                        <ListItem component={Link} to={'/profile'} button key='Профиль' title="Профиль">
                             <ListItemIcon><AccountCircleIcon/></ListItemIcon>
                             <ListItemText primary='Профиль'/>
                         </ListItem>

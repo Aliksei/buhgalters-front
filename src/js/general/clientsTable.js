@@ -51,6 +51,9 @@ export default class Clients extends React.Component {
             columns: [
                 {
                     title: 'Имя', field: 'name',
+                    cellStyle: {
+                        padding: '0px 0px 0px 0px'
+                    }
                 },
                 {title: 'УНП', field: 'ynp', type: 'numeric'},
                 {title: 'Директор', field: 'director'},
@@ -113,8 +116,12 @@ export default class Clients extends React.Component {
                             color: "white",
                             fontSize: 12,
                             fontWeight: 'bolder'
+                        },
+                        cell: {
+                            padding: '140px'
                         }
-                    }}
+                    }
+                    }
                     onRowClick={(
                         (evt, clickedClient) => {
                             this.openClientView.bind(this);

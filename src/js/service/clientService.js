@@ -12,7 +12,7 @@ export const clientService = {
 
 function getClients() {
     return extendedFetcher
-        .getRequest("http://localhost:8080/clients/getAll");
+        .getRequest("http://localhost:8080/clients");
 }
 
 function putClient(body) {
