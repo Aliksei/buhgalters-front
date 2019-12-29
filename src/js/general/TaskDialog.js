@@ -66,7 +66,7 @@ export default function TaskEntity() {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const isMenuOpen = Boolean(anchorEl);
 
-    const inputLabel = React.useRef("JOKER");
+    const inputLabel = React.useRef("");
     const [labelWidth, setLabelWidth] = React.useState(0);
 
 
@@ -74,7 +74,7 @@ export default function TaskEntity() {
     const [tempContent, setTempContent] = React.useState("");
 
 
-    const [title, setTitle] = React.useState("JJJJJJJ");
+    const [title, setTitle] = React.useState("");
     const [tempTitle, setTempTitle] = React.useState("");
 
     const [assignedTo, setAssignedTo] = React.useState("");
