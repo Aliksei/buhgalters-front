@@ -5,7 +5,9 @@ import TaskEntity from "./TaskDialog";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import {Box} from "@material-ui/core";
-import {spacing} from "@material-ui/system";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Switch from "@material-ui/core/Switch";
+import FormGroup from "@material-ui/core/FormGroup";
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -40,44 +42,102 @@ const useStyles = makeStyles(theme => ({
 export default function MediaCard() {
     const classes = useStyles();
 
+    const [state, setState] = React.useState({
+        checkedA: true,
+        checkedB: true,
+    });
+
+    const handleChange = name => event => {
+        setState({ ...state, [name]: event.target.checked });
+    };
+
+    function filter() {
+
+        return (
+            <FormGroup row>
+                <FormControlLabel
+                    control={
+                        <Switch
+                            size="small"
+                            checked={state.checkedB}
+                            onChange={handleChange('checkedB')}
+                            value="checkedB"
+                            color="primary"
+                        />
+                    }
+                    label="В процессе"
+                />
+                <FormControlLabel
+                    control={
+                        <Switch
+                            size="small"
+                            checked={state.checkedB}
+                            onChange={handleChange('checkedB')}
+                            value="checkedB"
+                            color="primary"
+                        />
+                    }
+                    label="Выполненные"
+                />
+                <FormControlLabel
+                    control={
+                        <Switch
+                            size="small"
+                            checked={state.checkedB}
+                            onChange={handleChange('checkedB')}
+                            value="checkedB"
+                            color="primary"
+                        />
+                    }
+                    label="Выполненные"
+                />
+            </FormGroup>
+        )
+    }
+
     return (
-        <Grid container spacing={3}>
-            <Grid
-                item xs={4}
-                direction="row"
-                alignContent="center"
-                className={classes.column}>
-                <Paper className={classes.paper}>
-                    <Typography className={classes.typography} variant="h6">К Выполнению</Typography>
-                </Paper>
-                <Box className={classes.box}>
-                    <TaskEntity/>
-                </Box>
-                <Box className={classes.box}>
-                    <TaskEntity/>
-                </Box>
-                <Box className={classes.box}>
-                    <TaskEntity/>
-                </Box>
-            </Grid>
-            <Grid container alignItems="stretch" item xs={4} direction="column" className={classes.column}>
-                <Paper className={classes.paper}>
-                    <Typography className={classes.typography} variant="h6">В Процессе</Typography>
-                </Paper>
-                <Box className={classes.box}>
-                    <TaskEntity/>
-                </Box>
-                <Box className={classes.box}>
-                    <TaskEntity/>
-                </Box>
-            </Grid>
-            <Grid container alignItems="stretch" item xs={4} direction="column" className={classes.column}>
-                <Paper className={classes.paper}>
-                    <Typography className={classes.typography} variant="h6">В Процессе</Typography>
-                </Paper>
-                <Box className={classes.box}>
-                    <TaskEntity/>
-                </Box>
+        <Grid>
+            <Paper style={{padding: "5px"}}>
+                {filter()}
+            </Paper>
+            <Grid container spacing={3}>
+                <Grid
+                    item xs={4}
+                    direction="row"
+                    alignContent="center"
+                    className={classes.column}>
+                    <Paper className={classes.paper}>
+                        <Typography className={classes.typography} variant="h6">К Выполнению</Typography>
+                    </Paper>
+                    <Box className={classes.box}>
+                        <TaskEntity/>
+                    </Box>
+                    <Box className={classes.box}>
+                        <TaskEntity/>
+                    </Box>
+                    <Box className={classes.box}>
+                        <TaskEntity/>
+                    </Box>
+                </Grid>
+                <Grid container alignItems="stretch" item xs={4} direction="column" className={classes.column}>
+                    <Paper className={classes.paper}>
+                        <Typography className={classes.typography} variant="h6">В Процессе</Typography>
+                    </Paper>
+                    <Box className={classes.box}>
+                        <TaskEntity/>
+                    </Box>
+                    <Box className={classes.box}>
+                        <TaskEntity/>
+                    </Box>
+                </Grid>
+                <Grid container alignItems="stretch" item xs={4} direction="column" className={classes.column}>
+                    <Paper className={classes.paper}>
+                        <Typography className={classes.typography} variant="h6">В Процессе</Typography>
+                    </Paper>
+                    <Box className={classes.box}>
+                        <TaskEntity/>
+                    </Box>
+                </Grid>
             </Grid>
         </Grid>
     );
