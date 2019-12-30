@@ -9,7 +9,8 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import FormGroup from "@material-ui/core/FormGroup";
 import Button from "@material-ui/core/Button";
-import NewTaskDialog from "./CreateNewTaskDialog";
+import NewTaskDialog from "../task/CreateNewTaskDialog";
+import TaskFilter from "../task/taskFilter";
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -44,94 +45,9 @@ const useStyles = makeStyles(theme => ({
 export default function MediaCard() {
     const classes = useStyles();
 
-    const [checkedToDo, setCheckedToDo] = React.useState(true);
-    const [checkedInProgress, setCheckedInProgress] = React.useState(true);
-    const [checkedReady, setCheckedReady] = React.useState(true);
-
-    const [openNew, setOpenNew] = React.useState(true);
-
-    const handleCheckedToDo = (event) => {
-        setCheckedToDo(event.target.checked);
-    };
-
-    const handleCheckInProgress= (event) => {
-        setCheckedInProgress(event.target.checked);
-    };
-
-    const handleCheckedReady = (event) => {
-        setCheckedReady(event.target.checked);
-    };
-
-    function filter() {
-        return (
-            <FormGroup row>
-                <FormControlLabel
-                    control={
-                        <Switch
-                            size="small"
-                            checked={checkedToDo}
-                            onChange={handleCheckedToDo}
-                            value="checkedToDo"
-                            color="primary"
-                        />
-                    }
-                    label="К Выполнению"
-                />
-                <FormControlLabel
-                    control={
-                        <Switch
-                            size="small"
-                            checked={checkedInProgress}
-                            onChange={handleCheckInProgress}
-                            value="checkedInProgress"
-                            color="primary"
-                        />
-                    }
-                    label="В процессе"
-                />
-                <FormControlLabel
-                    control={
-                        <Switch
-                            size="small"
-                            checked={checkedReady}
-                            onChange={handleCheckedReady}
-                            value="checkedReady"
-                            color="primary"
-                        />
-                    }
-                    label="Выполненные"
-                />
-            </FormGroup>
-        )
-    }
-
-    const handleCreateNew = () => {
-        // console.log(openNew)
-        setOpenNew(true);
-        // console.log(openNew)
-    };
-
-    const handleNot = () => {
-        // console.log(openNew)
-        setOpenNew(false);
-        // console.log(openNew)
-    };
-
     return (
         <Grid>
-            {console.log(openNew)}
-            <Paper style={{padding: "15px 0px 15px 20px"}}>
-                <Box display="flex">
-                    {filter()}
-                    <NewTaskDialog open={openNew}/>
-                    <Button variant="contained" color="primary" onClick={handleCreateNew}>
-                        Добавить
-                    </Button>
-                    <Button variant="contained" color="primary" onClick={handleNot}>
-                        YtДобавить
-                    </Button>
-                </Box>
-            </Paper>
+            <TaskFilter/>
             <Grid container spacing={3}>
                 <Grid
                     item xs={4}
