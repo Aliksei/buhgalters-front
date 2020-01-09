@@ -6,14 +6,14 @@ import {Box, makeStyles} from "@material-ui/core";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import React, {useEffect} from "react";
 import {red} from "@material-ui/core/colors";
 import {companyService} from "../service/companyService";
-import {AccountCircle} from "@material-ui/icons";
 import {taskService} from "../service/taskService";
+import MenuItem from "@material-ui/core/MenuItem";
+import MuiDialogTitle from "@material-ui/core/DialogTitle/DialogTitle";
 
 const useStyles = makeStyles(theme => ({
     formControl: {
@@ -50,7 +50,7 @@ export default function NewTaskDialog() {
     const [openNew, setOpenNew] = React.useState(false);
     const [users, setUsers] = React.useState([]);
     const [status, setStatus] = React.useState(0);
-    const [title, setTitle] = React.useState("ndm,asndm,s");
+    const [title, setTitle] = React.useState("");
     const [text, setText] = React.useState("");
 
     const [assignee, setAssignee] = React.useState(null);
@@ -84,11 +84,14 @@ export default function NewTaskDialog() {
     };
 
     const handleClose = () => {
+        setText("");
+        setTitle("");
+        setAssignee(null);
         setOpenNew(false);
     };
 
     useEffect(() => {
-        companyService.getUserByCompanyId(1)
+        companyService.getUsersByCompanyId(1)
             .then(users => setUsers(users));
     }, []);
 
@@ -97,13 +100,21 @@ export default function NewTaskDialog() {
             <Button variant="contained" size={"small"} color="primary" onClick={handleOpen}>Добавить
                 Задание</Button>
             <Dialog open={openNew} className={classes.dialog} fullWidth>
+                <MuiDialogTitle>
+                    <TextField
+                        placeholder="Тема Задания"
+                        value={title}
+                        onChange={handleTitle}
+                    >
+                    </TextField>
+                </MuiDialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         <TextField
                             onChange={handleText}
                             value={text}
-                            fullWidth
                             placeholder="Подробное описание"
+                            fullWidth
                             multiline={true}
                             rows={6}
                             rowsMax={8}
@@ -114,7 +125,7 @@ export default function NewTaskDialog() {
                                 <Select fullWidth
                                         value={assignee}
                                         onChange={handleAssignee}
-                                        labelWidth={20}
+                                        labelWidth={40}
                                 >
                                     {users.map(u => {
                                         return <MenuItem value={u.id}>{u.name}</MenuItem>

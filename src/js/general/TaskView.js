@@ -1,16 +1,14 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import Grid from "@material-ui/core/Grid";
 import TaskEntity from "./TaskDialog";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import {Box} from "@material-ui/core";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Switch from "@material-ui/core/Switch";
-import FormGroup from "@material-ui/core/FormGroup";
-import Button from "@material-ui/core/Button";
-import NewTaskDialog from "../task/CreateNewTaskDialog";
 import TaskFilter from "../task/taskFilter";
+import {taskService} from "../service/taskService";
+import {employeeService} from "../service/userService";
+import {companyService} from "../service/companyService";
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -45,6 +43,38 @@ const useStyles = makeStyles(theme => ({
 export default function MediaCard() {
     const classes = useStyles();
 
+    const [tasks, setTasks] = React.useState([]);
+    const [users, setUsers] = React.useState([]);
+
+    useEffect(() => {
+        const fetchData  = async () => {
+            let t = await taskService.getTasks();
+            let u = await companyService.getUsersByCompanyId(1);
+            setTasks(t);
+            setUsers(u);
+        };
+        fetchData();
+    }, []);
+
+    const drawToDo = () => drawColumn(0);
+    const drawInProgress = () => drawColumn(1);
+    const drawDone = () => drawColumn(2);
+
+    const drawColumn = (status) => {
+        return tasks
+            .filter(t => t.status === status)
+            .map(t => {
+                let mapa = new Map(users.map(u => [u.id, u.name]));
+                console.log(mapa);
+                return (
+                    <Box className={classes.box}>
+                        <TaskEntity task={t}
+                                    users={mapa}/>
+                    </Box>
+                )
+            })
+    };
+
     return (
         <Grid>
             <TaskFilter/>
@@ -57,34 +87,19 @@ export default function MediaCard() {
                     <Paper className={classes.paper}>
                         <Typography className={classes.typography} variant="h6">К Выполнению</Typography>
                     </Paper>
-                    <Box className={classes.box}>
-                        <TaskEntity/>
-                    </Box>
-                    <Box className={classes.box}>
-                        <TaskEntity/>
-                    </Box>
-                    <Box className={classes.box}>
-                        <TaskEntity/>
-                    </Box>
+                    {drawToDo()}
                 </Grid>
                 <Grid container alignItems="stretch" item xs={4} direction="column" className={classes.column}>
                     <Paper className={classes.paper}>
                         <Typography className={classes.typography} variant="h6">В Процессе</Typography>
                     </Paper>
-                    <Box className={classes.box}>
-                        <TaskEntity/>
-                    </Box>
-                    <Box className={classes.box}>
-                        <TaskEntity/>
-                    </Box>
+                    {drawInProgress()}
                 </Grid>
                 <Grid container alignItems="stretch" item xs={4} direction="column" className={classes.column}>
                     <Paper className={classes.paper}>
                         <Typography className={classes.typography} variant="h6">В Процессе</Typography>
                     </Paper>
-                    <Box className={classes.box}>
-                        <TaskEntity/>
-                    </Box>
+                    {drawDone()}
                 </Grid>
             </Grid>
         </Grid>

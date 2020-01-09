@@ -3,7 +3,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import React from "react";
 import Paper from "@material-ui/core/Paper";
-import {Box} from "@material-ui/core";
+import {Box, Typography} from "@material-ui/core";
 import NewTaskDialog from "./CreateNewTaskDialog";
 
 export default function TaskFilter() {

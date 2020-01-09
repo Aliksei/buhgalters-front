@@ -5,7 +5,6 @@ import Dialog from '@material-ui/core/Dialog';
 import Typography from '@material-ui/core/Typography';
 import Card from "@material-ui/core/Card";
 import CardActionArea from "@material-ui/core/CardActionArea";
-import CardMedia from "@material-ui/core/CardMedia";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -26,7 +25,6 @@ import CardHeader from "@material-ui/core/CardHeader";
 import Avatar from "@material-ui/core/Avatar";
 import { red } from '@material-ui/core/colors';
 import Menu from "@material-ui/core/Menu";
-import {Link} from "react-router-dom";
 
 const useStyles = makeStyles(theme => ({
     formControl: {
@@ -58,10 +56,18 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-export default function TaskEntity() {
+const statusesMap = new Map();
+statusesMap.set(0, 'Готово к Выполнению');
+statusesMap.set(1, 'В процессе');
+statusesMap.set(2, 'Сделано');
+
+
+const TaskEntity = (props) => {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
     const [editableTitle, setEditableTitle] = React.useState(false);
+
+    const [users, setUsers] = React.useState(props.users);
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const isMenuOpen = Boolean(anchorEl);
@@ -69,22 +75,20 @@ export default function TaskEntity() {
     const inputLabel = React.useRef("");
     const [labelWidth, setLabelWidth] = React.useState(0);
 
-
-    const [content, setContent] = React.useState("");
+    const [content, setContent] = React.useState(props.task.text);
     const [tempContent, setTempContent] = React.useState("");
 
-
-    const [title, setTitle] = React.useState("");
+    const [title, setTitle] = React.useState(props.task.title);
     const [tempTitle, setTempTitle] = React.useState("");
 
-    const [assignedTo, setAssignedTo] = React.useState("");
+    const [assignedTo, setAssignedTo] = React.useState(props.task.assigneeId);
     const [tempAssignedTo, setTempAssignedTo] = React.useState("");
 
-    const [creator, setCreator] = React.useState("");
+    const [creator, setCreator] = React.useState(props.task.creatorId);
     const [tempCreator, setTempCreator] = React.useState("");
 
-    const [status, setStatus] = React.useState("");
-    const [tempStatus, setTempStatus] = React.useState("");
+    const [status, setStatus] = React.useState(props.task.status);
+    const [tempStatus, setTempStatus] = React.useState(-1);
 
     const handleMenuClose = () => {
         setAnchorEl(null);
@@ -142,6 +146,12 @@ export default function TaskEntity() {
         setEditableTitle(false);
     };
 
+
+    const pokazatNakogo = () => {
+        console.log(users);
+        return users.get(assignedTo)
+    };
+
     const renderMenu = (
         <Menu
             anchorEl={anchorEl}
@@ -193,7 +203,7 @@ export default function TaskEntity() {
                                 <MoreVertIcon />
                             </IconButton>
                         }
-                        title={assignedTo}
+                        title={pokazatNakogo()}
                         subheader="September 14, 2016"
                     />
                     {renderMenu}
@@ -211,7 +221,7 @@ export default function TaskEntity() {
                         Открыть
                     </Button>
                     <Typography gutterBottom>
-                        Статус : {status}
+                        Статус : {statusesMap.get(status)}
                     </Typography>
                 </CardActions>
             </Card>
@@ -238,9 +248,9 @@ export default function TaskEntity() {
                                         onChange={handleTempStatus}
                                         labelWidth={20}
                                 >
-                                    <MenuItem value={"Выполняется"}>Выполняется</MenuItem>
-                                    <MenuItem value={"Сделано"}>Сделано</MenuItem>
-                                    <MenuItem value={"Готово к Выполнению"}>Готово к Выполнению</MenuItem>
+                                    <MenuItem value={0}>Готово к Выполнению</MenuItem>
+                                    <MenuItem value={1}>В процессе</MenuItem>
+                                    <MenuItem value={2}>Сделано</MenuItem>
                                 </Select>
                             </FormControl>
                             <FormControl className={classes.formControl}>
@@ -281,4 +291,6 @@ export default function TaskEntity() {
             </Dialog>
         </div>
     );
-}
+};
+
+export default TaskEntity;
