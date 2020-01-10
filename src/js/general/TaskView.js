@@ -45,6 +45,7 @@ export default function MediaCard() {
 
     const [tasks, setTasks] = React.useState([]);
     const [users, setUsers] = React.useState([]);
+    const [iii, setIii] = React.useState({});
 
     useEffect(() => {
         const fetchData  = async () => {
@@ -54,7 +55,7 @@ export default function MediaCard() {
             setUsers(u);
         };
         fetchData();
-    }, []);
+    }, [iii]);
 
     const drawToDo = () => drawColumn(0);
     const drawInProgress = () => drawColumn(1);
@@ -64,12 +65,11 @@ export default function MediaCard() {
         return tasks
             .filter(t => t.status === status)
             .map(t => {
-                let mapa = new Map(users.map(u => [u.id, u.name]));
-                console.log(mapa);
                 return (
                     <Box className={classes.box}>
                         <TaskEntity task={t}
-                                    users={mapa}/>
+                                    refre={setIii}
+                                    users={users}/>
                     </Box>
                 )
             })
@@ -77,7 +77,7 @@ export default function MediaCard() {
 
     return (
         <Grid>
-            <TaskFilter/>
+            <TaskFilter refre={setIii}/>
             <Grid container spacing={3}>
                 <Grid
                     item xs={4}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -23,8 +23,9 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import IconButton from "@material-ui/core/IconButton";
 import CardHeader from "@material-ui/core/CardHeader";
 import Avatar from "@material-ui/core/Avatar";
-import { red } from '@material-ui/core/colors';
+import {red} from '@material-ui/core/colors';
 import Menu from "@material-ui/core/Menu";
+import {taskService} from "../service/taskService";
 
 const useStyles = makeStyles(theme => ({
     formControl: {
@@ -57,7 +58,7 @@ const useStyles = makeStyles(theme => ({
 
 
 const statusesMap = new Map();
-statusesMap.set(0, 'Готово к Выполнению');
+statusesMap.set(0, 'к Выполнению');
 statusesMap.set(1, 'В процессе');
 statusesMap.set(2, 'Сделано');
 
@@ -67,13 +68,10 @@ const TaskEntity = (props) => {
     const [open, setOpen] = React.useState(false);
     const [editableTitle, setEditableTitle] = React.useState(false);
 
-    const [users, setUsers] = React.useState(props.users);
+    const [users, setUsers] = React.useState([]);
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const isMenuOpen = Boolean(anchorEl);
-
-    const inputLabel = React.useRef("");
-    const [labelWidth, setLabelWidth] = React.useState(0);
 
     const [content, setContent] = React.useState(props.task.text);
     const [tempContent, setTempContent] = React.useState("");
@@ -135,6 +133,18 @@ const TaskEntity = (props) => {
         setEditableTitle(false);
         setAssignedTo(tempAssignedTo);
         setOpen(false);
+        taskService.putTask({
+            id: props.task.id,
+            text: tempContent,
+            title: tempTitle,
+            creatorId: tempCreator,
+            assigneeId: tempAssignedTo,
+            status: tempStatus
+        })
+            .then(r => {
+                console.log("JOKER REFRESH")
+                props.refre(r);
+            })
     };
 
     const handleTaskDropDown = event => {
@@ -146,10 +156,15 @@ const TaskEntity = (props) => {
         setEditableTitle(false);
     };
 
+    useEffect(() => {
+        setUsers(props.users)
+    }, [props.users]);
 
-    const pokazatNakogo = () => {
-        console.log(users);
-        return users.get(assignedTo)
+    const nameById = (id) => {
+        let name = users
+            .filter(u => u.id === id)
+            .map(u => u.name)[0];
+        return name;
     };
 
     const renderMenu = (
@@ -195,16 +210,13 @@ const TaskEntity = (props) => {
                     <CardHeader
                         avatar={
                             <Avatar aria-label="recipe" className={classes.avatar}>
-                                R
+                                {nameById(assignedTo)}
                             </Avatar>
                         }
-                        action={
-                            <IconButton  onClick={handleTaskDropDown} aria-label="settings">
-                                <MoreVertIcon />
-                            </IconButton>
-                        }
-                        title={pokazatNakogo()}
-                        subheader="September 14, 2016"
+                        action={<IconButton onClick={handleTaskDropDown}
+                                            aria-label="settings"><MoreVertIcon/></IconButton>}
+                        title={'aдресат:  ' + nameById(assignedTo)}
+                        subheader={props.task.updateDate}
                     />
                     {renderMenu}
                     <CardContent component="p">
@@ -225,7 +237,7 @@ const TaskEntity = (props) => {
                     </Typography>
                 </CardActions>
             </Card>
-            <Dialog open={open} onClose={handleSave} className={classes.dialog} fullWidth>
+            <Dialog open={open} className={classes.dialog} fullWidth>
                 <DialogContent>
                     {showTitle()}
                     <DialogContentText>
@@ -248,7 +260,7 @@ const TaskEntity = (props) => {
                                         onChange={handleTempStatus}
                                         labelWidth={20}
                                 >
-                                    <MenuItem value={0}>Готово к Выполнению</MenuItem>
+                                    <MenuItem value={0}>к Выполнению</MenuItem>
                                     <MenuItem value={1}>В процессе</MenuItem>
                                     <MenuItem value={2}>Сделано</MenuItem>
                                 </Select>
@@ -260,9 +272,7 @@ const TaskEntity = (props) => {
                                         onChange={handleTempCreator}
                                         labelWidth={20}
                                 >
-                                    <MenuItem value={"Татьяна"}>Татьяна</MenuItem>
-                                    <MenuItem value={"Анна"}>Анна</MenuItem>
-                                    <MenuItem value={"Саша"}>Саша</MenuItem>
+                                    {users.map(u => (<MenuItem value={u.id}>{u.name}</MenuItem>))}
                                 </Select>
                             </FormControl>
                             <FormControl className={classes.formControl}>
@@ -272,9 +282,7 @@ const TaskEntity = (props) => {
                                         onChange={handleTempAssignedTo}
                                         labelWidth={20}
                                 >
-                                    <MenuItem value={"Татьяна"}>Татьяна</MenuItem>
-                                    <MenuItem value={"Анна"}>Анна</MenuItem>
-                                    <MenuItem value={"Саша"}>Саша</MenuItem>
+                                    {users.map(u => (<MenuItem value={u.id}>{u.name}</MenuItem>))}
                                 </Select>
                             </FormControl>
                         </Box>

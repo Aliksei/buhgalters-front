@@ -16,8 +16,6 @@ export default class ClientData extends React.Component {
 
     componentDidMount() {
         this.setState({client: this.props.client});
-        console.log(this.props.client)
-        console.log("this.props.client")
     }
 
     showEditable() {
@@ -73,7 +71,6 @@ export default class ClientData extends React.Component {
     }
 
     setVal = (event) => {
-        console.log(event.target.value);
         this.setState({val: event.target.value})
     };
 

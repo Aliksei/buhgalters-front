@@ -44,7 +44,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export default function NewTaskDialog() {
+const NewTaskDialog = (props) => {
     const classes = useStyles();
 
     const [openNew, setOpenNew] = React.useState(false);
@@ -63,8 +63,11 @@ export default function NewTaskDialog() {
                 title: title,
                 status: status,
                 creatorId: 1
+            })
+            .then(r => {
+                handleClose();
+                props.refre(r)
             });
-        handleClose();
     };
 
     const handleAssignee = (event) => {
@@ -157,3 +160,4 @@ export default function NewTaskDialog() {
     );
 };
 
+export default NewTaskDialog;

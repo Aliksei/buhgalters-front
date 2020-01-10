@@ -6,7 +6,7 @@ import Paper from "@material-ui/core/Paper";
 import {Box, Typography} from "@material-ui/core";
 import NewTaskDialog from "./CreateNewTaskDialog";
 
-export default function TaskFilter() {
+const TaskFilter = (props) => {
 
     const [checkedToDo, setCheckedToDo] = React.useState(true);
     const [checkedInProgress, setCheckedInProgress] = React.useState(true);
@@ -65,8 +65,10 @@ export default function TaskFilter() {
                     />
                 </FormGroup>
 
-                <NewTaskDialog/>
+                <NewTaskDialog refre={props.refre}/>
             </Box>
         </Paper>
     )
 };
+
+export default TaskFilter;

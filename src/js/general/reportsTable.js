@@ -220,7 +220,6 @@ export default class ReportsTable extends React.Component {
                     }}
                     onRowClick={(
                         (evt, clickedAct) => {
-                            console.log(clickedAct);
                             this.openClientView.bind(this);
                             this.openClientView(clickedAct.clientId);
                         })
