@@ -26,15 +26,23 @@ import Avatar from "@material-ui/core/Avatar";
 import {red} from '@material-ui/core/colors';
 import Menu from "@material-ui/core/Menu";
 import {taskService} from "../service/taskService";
+import RadioGroup from "@material-ui/core/RadioGroup";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import ErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined';
+import Radio from "@material-ui/core/Radio";
 
 const useStyles = makeStyles(theme => ({
     formControl: {
         margin: theme.spacing(1),
-        minWidth: 120,
+        minWidth: 80,
+    },
+    smallIcon: {
+        width: theme.spacing(4),
+        height: theme.spacing(4),
     },
     card: {
-        maxWidth: "90%",
-        maxHeight: "240px"
+        maxWidth: "370px",
+        maxHeight: "210px",
     },
     appBar: {
         position: 'relative',
@@ -62,6 +70,22 @@ statusesMap.set(0, 'к Выполнению');
 statusesMap.set(1, 'В процессе');
 statusesMap.set(2, 'Сделано');
 
+const months =
+    [
+        {id: 1, name: 'Январь'},
+        {id: 2, name: 'Февраль'},
+        {id: 3, name: 'Март'},
+        {id: 4, name: 'Апрель'},
+        {id: 5, name: 'Май'},
+        {id: 6, name: 'Июнь'},
+        {id: 7, name: 'Июль'},
+        {id: 8, name: 'Август'},
+        {id: 9, name: 'Сентябрь'},
+        {id: 10, name: 'Октябрь'},
+        {id: 11, name: 'Ноябрь'},
+        {id: 12, name: 'Декабрь'},
+    ];
+
 
 const TaskEntity = ({task, users, updateView}) => {
     const classes = useStyles();
@@ -78,6 +102,12 @@ const TaskEntity = ({task, users, updateView}) => {
 
     const [title, setTitle] = React.useState(task.title);
     const [tempTitle, setTempTitle] = React.useState("");
+
+    const [type, setType] = React.useState(task.type);
+    const [tempType, setTempType] = React.useState(-1);
+
+    const [month, setMonth] = React.useState(task.month);
+    const [tempMonth, setTempMonth] = React.useState(-1);
 
     const [assignedTo, setAssignedTo] = React.useState(task.assigneeId);
     const [tempAssignedTo, setTempAssignedTo] = React.useState("");
@@ -107,6 +137,8 @@ const TaskEntity = ({task, users, updateView}) => {
     const handleClickOpen = () => {
         setTempStatus(status);
         setTempCreator(creator);
+        setTempType(type);
+        setTempMonth(month);
         setTempTitle(title);
         setTempContent(content);
         setTempAssignedTo(assignedTo);
@@ -114,6 +146,8 @@ const TaskEntity = ({task, users, updateView}) => {
     };
 
     const handleTempContent = ({target}) => setTempContent(target.value);
+    const handleTempType = ({target}) => setTempType(target.value);
+    const handleTempMonth = ({target}) => setTempMonth(target.value);
     const handleTempCreator = ({target}) => setTempCreator(target.value);
     const handleTempAssignedTo = ({target}) => setTempAssignedTo(target.value);
     const handleTempStatus = ({target}) => setTempStatus(target.value);
@@ -130,6 +164,8 @@ const TaskEntity = ({task, users, updateView}) => {
 
     const handleSave = () => {
         setStatus(tempStatus);
+        setType(tempType);
+        setMonth(tempMonth);
         setContent(tempContent);
         setTitle(tempTitle);
         setCreator(tempCreator);
@@ -138,6 +174,8 @@ const TaskEntity = ({task, users, updateView}) => {
         setOpen(false);
         taskService.putTask({
             id: task.id,
+            type: tempType,
+            month: tempMonth,
             text: tempContent,
             title: tempTitle,
             creatorId: tempCreator,
@@ -164,11 +202,27 @@ const TaskEntity = ({task, users, updateView}) => {
         </Menu>
     );
 
+    const drawType = () => {
+        let color = type === 0 ? 'green'
+            : type === 1 ? 'blue'
+                : type === 2 ? 'red' : '';
+        // console.log(color)
+        return (
+            <Avatar variant="rounded" className={classes.smallIcon} style={{backgroundColor: color}}>
+                <ErrorOutlineOutlinedIcon />
+            </Avatar>
+        )
+    };
+
     const showTitle = () => {
         if (editableTitle === true) {
             return (
                 <MuiDialogTitle>
-                    <TextField value={tempTitle} onChange={handleTitleChange}></TextField>
+                    <TextField
+                        value={tempTitle}
+                        onChange={handleTitleChange}>
+                        inputProps={{maxLength: 22}}
+                    </TextField>
                 </MuiDialogTitle>
             )
         } else {
@@ -188,6 +242,7 @@ const TaskEntity = ({task, users, updateView}) => {
             <Card className={classes.card}>
                 <CardActionArea>
                     <CardHeader
+                        style={{margin: "0px 0px -30px 0px"}}
                         avatar={
                             <Avatar aria-label="recipe" className={classes.avatar}>
                                 {nameById(assignedTo)}
@@ -200,21 +255,22 @@ const TaskEntity = ({task, users, updateView}) => {
                     />
                     {renderMenu}
                     <CardContent component="p">
-                        <Typography gutterBottom variant="h5" component="h2">
+                        <Typography gutterBottom noWrap variant="h5" component="h2">
                             {title}
                         </Typography>
-                        <Typography variant="body2" color="textSecondary" component="p">
+                        <Typography variant="body2" noWrap color="textSecondary" component="p">
                             {content}
                         </Typography>
                     </CardContent>
                 </CardActionArea>
                 <CardActions>
-                    <Button size="small" color="primary" onClick={handleClickOpen}>
+                    <Button size="small" color="primary" variant="contained" onClick={handleClickOpen}>
                         Открыть
                     </Button>
                     <Typography gutterBottom>
                         Статус : {statusesMap.get(status)}
                     </Typography>
+                    {drawType()}
                 </CardActions>
             </Card>
             <Dialog open={open} className={classes.dialog} fullWidth>
@@ -229,6 +285,7 @@ const TaskEntity = ({task, users, updateView}) => {
                             multiline={true}
                             rows={6}
                             rowsMax={8}
+                            style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
                         />
                         <Box display="flex">
                             <FormControl className={classes.formControl}>
@@ -265,14 +322,33 @@ const TaskEntity = ({task, users, updateView}) => {
                                     {dropDownUsers.map(u => (<MenuItem value={u.id}>{u.name}</MenuItem>))}
                                 </Select>
                             </FormControl>
+                            <FormControl className={classes.formControl}>
+                                <InputLabel>Месяц</InputLabel>
+                                <Select fullWidth
+                                        value={tempMonth}
+                                        onChange={handleTempMonth}
+                                        labelWidth={5}
+                                >
+                                    {months.map(m => (<MenuItem value={m.id}>{m.name}</MenuItem>))}
+                                </Select>
+                            </FormControl>
                         </Box>
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCancel} color="primary">
+                    <FormControl>
+                        <RadioGroup value={tempType.toString()} onChange={handleTempType}>
+                            <Box display="flex" style={{padding: "0px 70px 0px 0px"}}>
+                                <FormControlLabel value="0" control={<Radio/>} label="Low"/>
+                                <FormControlLabel value="1" control={<Radio/>} label="Medium"/>
+                                <FormControlLabel value="2" control={<Radio/>} label="Critical"/>
+                            </Box>
+                        </RadioGroup>
+                    </FormControl>
+                    <Button onClick={handleCancel} variant="contained" size="small">
                         Отмена
                     </Button>
-                    <Button onClick={handleSave} color="primary">
+                    <Button onClick={handleSave} color="primary" variant="contained" size="small">
                         Сохранить
                     </Button>
                 </DialogActions>

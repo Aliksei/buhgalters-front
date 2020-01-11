@@ -46,16 +46,18 @@ export default function MediaCard() {
     const [tasks, setTasks] = React.useState([]);
     const [users, setUsers] = React.useState([]);
     const [update, setUpdate] = React.useState({});
+    const [month, setMonth] = React.useState(-1);
+    const [taskType, setTaskType] = React.useState(-1);
 
     useEffect(() => {
         const fetchData  = async () => {
-            let t = await taskService.getTasks();
+            let t = await taskService.getTasks(month);
             let u = await companyService.getUsersByCompanyId(1);
             setTasks(t);
             setUsers(u);
         };
         fetchData();
-    }, [update]);
+    }, [update, month, taskType]);
 
     const drawToDo = () => drawColumn(0);
     const drawInProgress = () => drawColumn(1);
@@ -63,6 +65,13 @@ export default function MediaCard() {
 
     const drawColumn = (status) => {
         return tasks
+            .filter(t => {
+                if (taskType === -1) {
+                    return true;
+                } else {
+                    return t.type === taskType;
+                }
+            })
             .filter(t => t.status === status)
             .map(t => {
                 return (
@@ -77,7 +86,12 @@ export default function MediaCard() {
 
     return (
         <Grid>
-            <TaskFilter updateView={setUpdate} userList={users}/>
+            <TaskFilter updateView={setUpdate}
+                        month={month}
+                        userList={users}
+                        applyFilter={setMonth}
+                        applyTypeFilter={setTaskType}
+            />
             <Grid container spacing={3}>
                 <Grid
                     item xs={4}

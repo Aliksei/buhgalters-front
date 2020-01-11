@@ -8,9 +8,10 @@ export const taskService = {
     getTaskById
 };
 
-function getTasks() {
+function getTasks(monthId) {
+    let query  = monthId === null || monthId === undefined || monthId === -1 ? '' : `?monthId=${monthId}`;
     return extendedFetcher
-        .getRequest("http://localhost:8080/tasks");
+        .getRequest(`http://localhost:8080/tasks${query}`);
 }
 
 function putTask(body) {

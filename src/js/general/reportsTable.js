@@ -92,12 +92,14 @@ export default class ReportsTable extends React.Component {
                         let todaay = new Date();
                         var diff = (deeadLine.getTime() - todaay.getTime())/(1000 * 3600 * 24);
                         let col;
+                        let back;
                         let tit;
                         if (diff <= 10) {
                             col = 'red';
+                            back = 'lightgray';
                             tit = 'Дедлайн скоро истекает или уже просрочен';
                         }
-                        return (<div title={tit} style={{color: col}}>{data.deadLine}</div>)
+                        return (<div title={tit} style={{color: col, backgroundColor : back}}>{data.deadLine}</div>)
                     }
                 }
             ],
