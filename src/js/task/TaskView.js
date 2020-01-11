@@ -5,7 +5,7 @@ import TaskEntity from "./TaskDialog";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import {Box} from "@material-ui/core";
-import TaskFilter from "../task/taskFilter";
+import TaskFilter from "./taskFilter";
 import {taskService} from "../service/taskService";
 import {employeeService} from "../service/userService";
 import {companyService} from "../service/companyService";
@@ -45,7 +45,7 @@ export default function MediaCard() {
 
     const [tasks, setTasks] = React.useState([]);
     const [users, setUsers] = React.useState([]);
-    const [iii, setIii] = React.useState({});
+    const [update, setUpdate] = React.useState({});
 
     useEffect(() => {
         const fetchData  = async () => {
@@ -55,7 +55,7 @@ export default function MediaCard() {
             setUsers(u);
         };
         fetchData();
-    }, [iii]);
+    }, [update]);
 
     const drawToDo = () => drawColumn(0);
     const drawInProgress = () => drawColumn(1);
@@ -68,7 +68,7 @@ export default function MediaCard() {
                 return (
                     <Box className={classes.box}>
                         <TaskEntity task={t}
-                                    refre={setIii}
+                                    updateView={setUpdate}
                                     users={users}/>
                     </Box>
                 )
@@ -77,7 +77,7 @@ export default function MediaCard() {
 
     return (
         <Grid>
-            <TaskFilter refre={setIii}/>
+            <TaskFilter updateView={setUpdate} userList={users}/>
             <Grid container spacing={3}>
                 <Grid
                     item xs={4}
@@ -97,7 +97,7 @@ export default function MediaCard() {
                 </Grid>
                 <Grid container alignItems="stretch" item xs={4} direction="column" className={classes.column}>
                     <Paper className={classes.paper}>
-                        <Typography className={classes.typography} variant="h6">В Процессе</Typography>
+                        <Typography className={classes.typography} variant="h6">Готово</Typography>
                     </Paper>
                     {drawDone()}
                 </Grid>

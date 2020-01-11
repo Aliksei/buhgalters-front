@@ -63,33 +63,41 @@ statusesMap.set(1, 'В процессе');
 statusesMap.set(2, 'Сделано');
 
 
-const TaskEntity = (props) => {
+const TaskEntity = ({task, users, updateView}) => {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
     const [editableTitle, setEditableTitle] = React.useState(false);
 
-    const [users, setUsers] = React.useState([]);
+    const [dropDownUsers, setDropDownUsers] = React.useState(users);
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const isMenuOpen = Boolean(anchorEl);
 
-    const [content, setContent] = React.useState(props.task.text);
+    const [content, setContent] = React.useState(task.text);
     const [tempContent, setTempContent] = React.useState("");
 
-    const [title, setTitle] = React.useState(props.task.title);
+    const [title, setTitle] = React.useState(task.title);
     const [tempTitle, setTempTitle] = React.useState("");
 
-    const [assignedTo, setAssignedTo] = React.useState(props.task.assigneeId);
+    const [assignedTo, setAssignedTo] = React.useState(task.assigneeId);
     const [tempAssignedTo, setTempAssignedTo] = React.useState("");
 
-    const [creator, setCreator] = React.useState(props.task.creatorId);
+    const [creator, setCreator] = React.useState(task.creatorId);
     const [tempCreator, setTempCreator] = React.useState("");
 
-    const [status, setStatus] = React.useState(props.task.status);
+    const [status, setStatus] = React.useState(task.status);
     const [tempStatus, setTempStatus] = React.useState(-1);
 
     const handleMenuClose = () => {
         setAnchorEl(null);
+    };
+
+    const deleteTask = () => {
+        taskService.deleteTask(task.id)
+            .then(r => {
+                handleMenuClose();
+                updateView(new Date())
+            })
     };
 
     const handleEditTitle = () => {
@@ -105,24 +113,19 @@ const TaskEntity = (props) => {
         setOpen(true);
     };
 
-    const handleTempContent = (event) => {
-        setTempContent(event.target.value)
-    };
+    const handleTempContent = ({target}) => setTempContent(target.value);
+    const handleTempCreator = ({target}) => setTempCreator(target.value);
+    const handleTempAssignedTo = ({target}) => setTempAssignedTo(target.value);
+    const handleTempStatus = ({target}) => setTempStatus(target.value);
+    const handleTitleChange = ({target}) => setTempTitle(target.value);
 
-    const handleTempCreator = (event) => {
-        setTempCreator(event.target.value)
-    };
+    const handleTaskDropDown = ({currentTarget}) => setAnchorEl(currentTarget);
 
-    const handleTempAssignedTo = (event) => {
-        setTempAssignedTo(event.target.value)
-    };
+    const nameById = (id) => dropDownUsers.filter(u => u.id === id).map(u => u.name)[0];
 
-    const handleTempStatus = (event) => {
-        setTempStatus(event.target.value);
-    };
-
-    const handleTitleChange = (event) => {
-        setTempTitle(event.target.value);
+    const handleCancel = () => {
+        setOpen(false);
+        setEditableTitle(false);
     };
 
     const handleSave = () => {
@@ -134,38 +137,19 @@ const TaskEntity = (props) => {
         setAssignedTo(tempAssignedTo);
         setOpen(false);
         taskService.putTask({
-            id: props.task.id,
+            id: task.id,
             text: tempContent,
             title: tempTitle,
             creatorId: tempCreator,
             assigneeId: tempAssignedTo,
             status: tempStatus
         })
-            .then(r => {
-                console.log("JOKER REFRESH")
-                props.refre(r);
-            })
-    };
-
-    const handleTaskDropDown = event => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleCancel = () => {
-        setOpen(false);
-        setEditableTitle(false);
+            .then(r => updateView(r))
     };
 
     useEffect(() => {
-        setUsers(props.users)
-    }, [props.users]);
-
-    const nameById = (id) => {
-        let name = users
-            .filter(u => u.id === id)
-            .map(u => u.name)[0];
-        return name;
-    };
+        setDropDownUsers(users)
+    }, [users]);
 
     const renderMenu = (
         <Menu
@@ -176,19 +160,15 @@ const TaskEntity = (props) => {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <MenuItem onClick={handleMenuClose}>Удалить Задание</MenuItem>
+            <MenuItem onClick={deleteTask}>Удалить Задание</MenuItem>
         </Menu>
     );
 
     const showTitle = () => {
         if (editableTitle === true) {
             return (
-                <MuiDialogTitle style={{backgroundColor: 'rgba(0,69,147,0.52)'}}>
-                    <TextField
-                        value={tempTitle}
-                        onChange={handleTitleChange}
-                    >
-                    </TextField>
+                <MuiDialogTitle>
+                    <TextField value={tempTitle} onChange={handleTitleChange}></TextField>
                 </MuiDialogTitle>
             )
         } else {
@@ -216,7 +196,7 @@ const TaskEntity = (props) => {
                         action={<IconButton onClick={handleTaskDropDown}
                                             aria-label="settings"><MoreVertIcon/></IconButton>}
                         title={'aдресат:  ' + nameById(assignedTo)}
-                        subheader={props.task.updateDate}
+                        subheader={task.updateDate}
                     />
                     {renderMenu}
                     <CardContent component="p">
@@ -272,7 +252,7 @@ const TaskEntity = (props) => {
                                         onChange={handleTempCreator}
                                         labelWidth={20}
                                 >
-                                    {users.map(u => (<MenuItem value={u.id}>{u.name}</MenuItem>))}
+                                    {dropDownUsers.map(u => (<MenuItem value={u.id}>{u.name}</MenuItem>))}
                                 </Select>
                             </FormControl>
                             <FormControl className={classes.formControl}>
@@ -282,7 +262,7 @@ const TaskEntity = (props) => {
                                         onChange={handleTempAssignedTo}
                                         labelWidth={20}
                                 >
-                                    {users.map(u => (<MenuItem value={u.id}>{u.name}</MenuItem>))}
+                                    {dropDownUsers.map(u => (<MenuItem value={u.id}>{u.name}</MenuItem>))}
                                 </Select>
                             </FormControl>
                         </Box>

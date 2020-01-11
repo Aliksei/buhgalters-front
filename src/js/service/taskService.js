@@ -23,9 +23,9 @@ function postTask(body) {
         .postRequest("http://localhost:8080/tasks", body);
 }
 
-function deleteTask(body) {
+function deleteTask(id) {
     return extendedFetcher
-        .deleteRequest("http://localhost:8080/tasks/" + body.id);
+        .deleteRequest("http://localhost:8080/tasks/" + id);
 }
 
 function getTaskById(id) {

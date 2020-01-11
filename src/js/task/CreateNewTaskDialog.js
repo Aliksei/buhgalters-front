@@ -44,16 +44,18 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-const NewTaskDialog = (props) => {
+const NewTaskDialog = ({updateView, userList}) => {
     const classes = useStyles();
 
     const [openNew, setOpenNew] = React.useState(false);
     const [users, setUsers] = React.useState([]);
-    const [status, setStatus] = React.useState(0);
     const [title, setTitle] = React.useState("");
     const [text, setText] = React.useState("");
-
     const [assignee, setAssignee] = React.useState(null);
+
+    useEffect(() => {
+        setUsers(userList)
+    }, [userList]);
 
     const handleSave = () => {
         taskService
@@ -61,30 +63,19 @@ const NewTaskDialog = (props) => {
                 assigneeId: assignee,
                 text: text,
                 title: title,
-                status: status,
+                status: 0,
                 creatorId: 1
             })
             .then(r => {
                 handleClose();
-                props.refre(r)
+                updateView(r)
             });
     };
 
-    const handleAssignee = (event) => {
-        setAssignee(event.target.value)
-    };
-
-    const handleTitle = (event) => {
-        setTitle(event.target.value)
-    };
-
-    const handleText = (event) => {
-        setText(event.target.value)
-    };
-
-    const handleOpen = () => {
-        setOpenNew(true);
-    };
+    const handleAssignee = ({target}) => setAssignee(target.value);
+    const handleTitle = ({target}) => setTitle(target.value);
+    const handleText = ({target}) => setText(target.value);
+    const handleOpen = () => setOpenNew(true);
 
     const handleClose = () => {
         setText("");
@@ -93,22 +84,15 @@ const NewTaskDialog = (props) => {
         setOpenNew(false);
     };
 
-    useEffect(() => {
-        companyService.getUsersByCompanyId(1)
-            .then(users => setUsers(users));
-    }, []);
-
     return (
         <Box>
-            <Button variant="contained" size={"small"} color="primary" onClick={handleOpen}>Добавить
-                Задание</Button>
+            <Button variant="contained" size={"small"} color="primary" onClick={handleOpen}>Добавить Задание</Button>
             <Dialog open={openNew} className={classes.dialog} fullWidth>
                 <MuiDialogTitle>
                     <TextField
                         placeholder="Тема Задания"
                         value={title}
-                        onChange={handleTitle}
-                    >
+                        onChange={handleTitle}>
                     </TextField>
                 </MuiDialogTitle>
                 <DialogContent>
@@ -128,8 +112,7 @@ const NewTaskDialog = (props) => {
                                 <Select fullWidth
                                         value={assignee}
                                         onChange={handleAssignee}
-                                        labelWidth={40}
-                                >
+                                        labelWidth={40}>
                                     {users.map(u => {
                                         return <MenuItem value={u.id}>{u.name}</MenuItem>
                                     })}

@@ -25,7 +25,7 @@ import {AnimatedSwitch} from 'react-router-transition';
 import React from "react";
 import Acts from "./actsTable";
 import Reports from "./reportsTable";
-import MediaCard from "./TaskView";
+import MediaCard from "../task/TaskView";
 import SingleClient from "../client/singeClient";
 import PrivateRoute from "../auth/PrivateRoute";
 import Login from "./login";
