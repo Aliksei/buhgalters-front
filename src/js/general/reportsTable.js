@@ -145,8 +145,8 @@ export default class ReportsTable extends React.Component {
                         draggable: true,
                         padding: 'dense',
                         headerStyle: {
-                            // backgroundColor: 'rgba(95,96,99,0.32)',
                             backgroundColor: 'rgba(0,69,147,0.52)',
+                            padding: "1px 2px 3px 3px",
                             color: "white",
                             fontSize: 12,
                             fontWeight: 'bolder'

@@ -166,7 +166,7 @@ export default class Acts extends React.Component {
                     toolbar: true,
                     draggable: true,
                     headerStyle: {
-                        // backgroundColor: 'rgba(95,96,99,0.32)',
+                        padding: "1px 2px 3px 3px",
                         backgroundColor: 'rgba(0,69,147,0.52)',
                         color: "white",
                         fontSize: 12,

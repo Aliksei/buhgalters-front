@@ -47,9 +47,13 @@ export default function MediaCard() {
     const [users, setUsers] = React.useState([]);
     const [update, setUpdate] = React.useState({});
     const [month, setMonth] = React.useState(-1);
-    const [taskType, setTaskType] = React.useState(-1);
+    
+    const [low, setLow] = React.useState(true);
+    const [medium, setMedium] = React.useState(true);
+    const [critical, setCritical] = React.useState(true);
 
     useEffect(() => {
+        console.log('JOKER');
         const fetchData  = async () => {
             let t = await taskService.getTasks(month);
             let u = await companyService.getUsersByCompanyId(1);
@@ -57,23 +61,31 @@ export default function MediaCard() {
             setUsers(u);
         };
         fetchData();
-    }, [update, month, taskType]);
+
+    }, [update, month, low, medium, critical]);
 
     const drawToDo = () => drawColumn(0);
     const drawInProgress = () => drawColumn(1);
     const drawDone = () => drawColumn(2);
 
     const drawColumn = (status) => {
+        let types = [];
+        if (low) {
+            types.push(0);
+        }
+        if (medium) {
+            types.push(1);
+        }
+        if (critical) {
+            types.push(2);
+        }
+
+        console.log(types);
         return tasks
-            .filter(t => {
-                if (taskType === -1) {
-                    return true;
-                } else {
-                    return t.type === taskType;
-                }
-            })
+            .filter(t => types.includes(t.type))
             .filter(t => t.status === status)
             .map(t => {
+                console.log(t);
                 return (
                     <Box className={classes.box}>
                         <TaskEntity task={t}
@@ -90,7 +102,12 @@ export default function MediaCard() {
                         month={month}
                         userList={users}
                         applyFilter={setMonth}
-                        applyTypeFilter={setTaskType}
+                        low={low}
+                        medium={medium}
+                        critical={critical}
+                        setLow={setLow}
+                        setCritical={setCritical}
+                        setMedium={setMedium}
             />
             <Grid container spacing={3}>
                 <Grid

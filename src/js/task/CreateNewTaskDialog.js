@@ -79,8 +79,6 @@ const NewTaskDialog = ({updateView, userList}) => {
     }, [userList]);
 
 
-    console.log("type " + type);
-
     const handleSave = () => {
         taskService
             .postTask({
@@ -115,7 +113,8 @@ const NewTaskDialog = ({updateView, userList}) => {
 
     return (
         <Box>
-            <Button variant="contained" size={"small"} color="primary" onClick={handleOpen}>Добавить Задание</Button>
+            <Button variant="contained" size={"small"} style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}
+                    onClick={handleOpen}>Добавить Задание</Button>
             <Dialog open={openNew} className={classes.dialog} fullWidth>
                 <MuiDialogTitle>
                     <TextField
@@ -144,7 +143,7 @@ const NewTaskDialog = ({updateView, userList}) => {
                                         onChange={handleAssignee}
                                         labelWidth={40}>
                                     {users.map(u => {
-                                        return <MenuItem value={u.id}>{u.name}</MenuItem>
+                                        return <MenuItem dense value={u.id}>{u.name}</MenuItem>
                                     })}
                                 </Select>
                             </FormControl>
@@ -155,7 +154,7 @@ const NewTaskDialog = ({updateView, userList}) => {
                                         onChange={handleMonth}
                                         labelWidth={10}
                                 >
-                                    {months.map(m => (<MenuItem value={m.id}>{m.name}</MenuItem>))}
+                                    {months.map(m => (<MenuItem dense value={m.id}>{m.name}</MenuItem>))}
                                 </Select>
                             </FormControl>
                         </Box>
@@ -181,7 +180,7 @@ const NewTaskDialog = ({updateView, userList}) => {
                         size={"small"}
                         variant="contained"
                         onClick={handleSave}
-                        color="primary">
+                        style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}>
                         Сохранить
                     </Button>
                 </DialogActions>

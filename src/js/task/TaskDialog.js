@@ -198,7 +198,7 @@ const TaskEntity = ({task, users, updateView}) => {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <MenuItem onClick={deleteTask}>Удалить Задание</MenuItem>
+            <MenuItem dense onClick={deleteTask}>Удалить Задание</MenuItem>
         </Menu>
     );
 
@@ -206,10 +206,9 @@ const TaskEntity = ({task, users, updateView}) => {
         let color = type === 0 ? 'green'
             : type === 1 ? 'blue'
                 : type === 2 ? 'red' : '';
-        // console.log(color)
         return (
-            <Avatar variant="rounded" className={classes.smallIcon} style={{backgroundColor: color}}>
-                <ErrorOutlineOutlinedIcon />
+            <Avatar className={classes.smallIcon} style={{backgroundColor: color}}>
+                <ErrorOutlineOutlinedIcon/>
             </Avatar>
         )
     };
@@ -264,7 +263,8 @@ const TaskEntity = ({task, users, updateView}) => {
                     </CardContent>
                 </CardActionArea>
                 <CardActions>
-                    <Button size="small" color="primary" variant="contained" onClick={handleClickOpen}>
+                    <Button size="small" style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}
+                            variant="contained" onClick={handleClickOpen}>
                         Открыть
                     </Button>
                     <Typography gutterBottom>
@@ -297,9 +297,9 @@ const TaskEntity = ({task, users, updateView}) => {
                                         onChange={handleTempStatus}
                                         labelWidth={20}
                                 >
-                                    <MenuItem value={0}>к Выполнению</MenuItem>
-                                    <MenuItem value={1}>В процессе</MenuItem>
-                                    <MenuItem value={2}>Сделано</MenuItem>
+                                    <MenuItem dense value={0}>к Выполнению</MenuItem>
+                                    <MenuItem dense value={1}>В процессе</MenuItem>
+                                    <MenuItem dense value={2}>Сделано</MenuItem>
                                 </Select>
                             </FormControl>
                             <FormControl className={classes.formControl}>
@@ -309,7 +309,7 @@ const TaskEntity = ({task, users, updateView}) => {
                                         onChange={handleTempCreator}
                                         labelWidth={20}
                                 >
-                                    {dropDownUsers.map(u => (<MenuItem value={u.id}>{u.name}</MenuItem>))}
+                                    {dropDownUsers.map(u => (<MenuItem dense value={u.id}>{u.name}</MenuItem>))}
                                 </Select>
                             </FormControl>
                             <FormControl className={classes.formControl}>
@@ -319,7 +319,7 @@ const TaskEntity = ({task, users, updateView}) => {
                                         onChange={handleTempAssignedTo}
                                         labelWidth={20}
                                 >
-                                    {dropDownUsers.map(u => (<MenuItem value={u.id}>{u.name}</MenuItem>))}
+                                    {dropDownUsers.map(u => (<MenuItem dense value={u.id}>{u.name}</MenuItem>))}
                                 </Select>
                             </FormControl>
                             <FormControl className={classes.formControl}>
@@ -329,7 +329,7 @@ const TaskEntity = ({task, users, updateView}) => {
                                         onChange={handleTempMonth}
                                         labelWidth={5}
                                 >
-                                    {months.map(m => (<MenuItem value={m.id}>{m.name}</MenuItem>))}
+                                    {months.map(m => (<MenuItem dense value={m.id}>{m.name}</MenuItem>))}
                                 </Select>
                             </FormControl>
                         </Box>
@@ -348,7 +348,7 @@ const TaskEntity = ({task, users, updateView}) => {
                     <Button onClick={handleCancel} variant="contained" size="small">
                         Отмена
                     </Button>
-                    <Button onClick={handleSave} color="primary" variant="contained" size="small">
+                    <Button onClick={handleSave} style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}} variant="contained" size="small">
                         Сохранить
                     </Button>
                 </DialogActions>

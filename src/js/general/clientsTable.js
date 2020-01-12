@@ -1,5 +1,5 @@
 import * as React from "react";
-import {forwardRef, Fragment} from "react";
+import {forwardRef, Fragment, useEffect} from "react";
 import MaterialTable from "material-table";
 
 import AddBox from '@material-ui/icons/AddBox';
@@ -43,200 +43,160 @@ const tableIcons = {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref}/>)
 };
 
-export default class Clients extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            loader: true,
-            columns: [
-                {
-                    title: 'Имя', field: 'name',
-                    cellStyle: {
-                        padding: '0px 0px 0px 0px'
-                    }
-                },
-                {title: 'УНП', field: 'ynp', type: 'numeric'},
-                {title: 'Директор', field: 'director'},
-                {title: 'Фонд $', field: 'fond', type: 'numeric'},
-                {title: 'Юр. Адрес', field: 'address'},
-                {title: 'Имнс', field: 'imns'},
-                {title: 'Почта', field: 'email'},
-                {title: 'ОКПО', field: 'okpo'},
-                {title: 'ФСЗН', field: 'fszn'},
-            ],
-            data: [],
-        };
-        this.tableRef = React.createRef();
-    }
+const columns = [
+    {
+        title: 'Имя', field: 'name',
+        cellStyle: {
+            padding: '0px 0px 0px 0px'
+        }
+    },
+    {title: 'УНП', field: 'ynp', type: 'numeric'},
+    {title: 'Директор', field: 'director'},
+    {title: 'Фонд $', field: 'fond', type: 'numeric'},
+    {title: 'Юр. Адрес', field: 'address'},
+    {title: 'Имнс', field: 'imns'},
+    {title: 'Почта', field: 'email'},
+    {title: 'ОКПО', field: 'okpo'},
+    {title: 'ФСЗН', field: 'fszn'},
+];
 
-    async componentDidMount() {
+
+const Clients = (props) => {
+
+    const [loader, setLoader] = React.useState(true);
+    const [data, setData] = React.useState([]);
+    const [update, triggerUpdate] = React.useState({});
+
+    useEffect(() => {
         clientService.getClients()
             .then(clients => {
-                this.setState({data: clients, loader: false});
-            });
-    }
+                setData(clients);
+                setLoader(false);
+            })
+    }, [update]);
 
-    openClientView(id) {
-        let {history} = this.props;
+    const openClientView = (id) => {
+        let {history} = props;
         history.push({
             pathname: '/clients/' + id,
         });
-    }
+    };
 
-    render() {
-        return (
-            <Fragment>
-                <Breadcrumbs aria-label="breadcrumb">
-                    <Link color="inherit" href="/clients">
-                        Клиенты
-                    </Link>
-                </Breadcrumbs>
-                <MaterialTable
-                    title="Таблица Клиенты"
-                    columns={this.state.columns}
-                    isLoading={this.state.loader}
-                    icons={tableIcons}
-                    data={this.state.data}
-                    options={{
-                        doubleHorizontalScroll: true,
-                        pageSizeOptions: [5, 10, 15],
-                        pageSize: 10,
-                        paginationType: 'stepped',
-                        exportButton: true,
-                        columnsButton: true,
-                        exportAllData: true,
-                        grouping: true,
-                        showFirstLastPageButtons: true,
-                        toolbar: true,
-                        draggable: true,
-                        padding: 'dense',
-                        headerStyle: {
-                            // backgroundColor: 'rgba(95,96,99,0.32)',
-                            backgroundColor: 'rgba(0,69,147,0.52)',
-                            color: "white",
-                            fontSize: 12,
-                            fontWeight: 'bolder'
-                        },
-                        cell: {
-                            padding: '140px'
+    return (
+        <Fragment>
+            <Breadcrumbs aria-label="breadcrumb">
+                <Link color="inherit" href="/clients">
+                    Клиенты
+                </Link>
+            </Breadcrumbs>
+            <MaterialTable
+                title="Таблица Клиенты"
+                columns={columns}
+                isLoading={loader}
+                icons={tableIcons}
+                data={data}
+                options={{
+                    doubleHorizontalScroll: true,
+                    pageSizeOptions: [5, 10, 15],
+                    pageSize: 10,
+                    paginationType: 'stepped',
+                    exportButton: true,
+                    columnsButton: true,
+                    exportAllData: true,
+                    grouping: true,
+                    showFirstLastPageButtons: true,
+                    toolbar: true,
+                    draggable: true,
+                    padding: 'dense',
+                    headerStyle: {
+                        backgroundColor: 'rgba(0,69,147,0.52)',
+                        color: "white",
+                        padding: "1px 2px 3px 3px",
+                        fontSize: 12,
+                        fontWeight: 'bolder'
+                    },
+                    cell: {
+                        padding: '140px'
+                    }
+                }
+                }
+                onRowClick={(evt, clickedClient) => openClientView(clickedClient.id)}
+                style={{width: '100%'}}
+                localization={{
+                    body: {
+                        emptyDataSourceMessage: 'Поиск не дал результатов',
+                        addTooltip: 'Добавить Клиента',
+                        deleteTooltip: 'Удалить Клиента',
+                        editTooltip: 'Редактировать',
+                        editRow: {
+                            deleteText: 'Удалить выбранного клиента?',
                         }
+                    },
+                    toolbar: {
+                        searchPlaceholder: 'Поиск',
+                        searchTooltip: 'Поиск',
+                        addRemoveColumns: 'Поля для отображения',
+                        showColumnsTitle: 'Настройки колонок',
+                        exportTitle: 'Выгрузка в CSV файл'
+                    },
+                    pagination: {
+                        labelRowsSelect: 'элементов на странице',
+                        labelDisplayedRows: '{count} страница {from}-{to} старниц',
+                        // labelDisplayedRows: '{count} страница {from}-{to} старниц',
+                        firstTooltip: 'В начало',
+                        previousTooltip: 'Назад',
+                        nextTooltip: 'Вперед',
+                        lastTooltip: 'В Конец'
+                    },
+                }}
+                actions={[
+                    {
+                        icon: () => {
+                            return (<CachedIcon/>)
+                        },
+                        tooltip: 'Обновить данные в таблице',
+                        isFreeAction: true,
+                        onClick: () => {
+                            setLoader(true);
+                            triggerUpdate(new Date());
+                        },
                     }
-                    }
-                    onRowClick={(
-                        (evt, clickedClient) => {
-                            this.openClientView.bind(this);
-                            this.openClientView(clickedClient.id);
-                        })
-                    }
-                    style={{width: '100%'}}
-                    tableRef={this.tableRef}
-                    localization={{
-                        body: {
-                            emptyDataSourceMessage: 'Поиск не дал результатов',
-                            addTooltip: 'Добавить Клиента',
-                            deleteTooltip: 'Удалить Клиента',
-                            editTooltip: 'Редактировать',
-                            editRow: {
-                                deleteText: 'Удалить выбранного клиента?',
+                ]}
+                editable={{
+                    onRowAdd: newData => new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            {
+                                setLoader(true);
+                                clientService.postClient(newData)
+                                    .then(res => triggerUpdate(res));
                             }
-                        },
-                        toolbar: {
-                            searchPlaceholder: 'Поиск',
-                            addRemoveColumns: 'Поля для отображения',
-                            showColumnsTitle: 'Настройки колонок',
-                            exportTitle: 'Выгрузка в CSV файл'
-                        },
-                        pagination: {
-                            labelRowsSelect: 'элементов на странице',
-                            labelDisplayedRows: '{count} страница {from}-{to} старниц',
-                            // labelDisplayedRows: '{count} страница {from}-{to} старниц',
-                            firstTooltip: 'В начало',
-                            previousTooltip: 'Назад',
-                            nextTooltip: 'Вперед',
-                            lastTooltip: 'В Конец'
-                        },
-                    }}
-                    actions={[
-                        {
-                            icon: () => {
-                                return (<CachedIcon/>)
-                            },
-                            tooltip: 'Refresh Data',
-                            isFreeAction: true,
-                            onClick: () => {
-                                this.setState({loader: true});
-                                this.componentDidMount()
-                                    .then(() => {
-                                        this.setState({loader: false});
-                                    })
-                            },
-                        }
-                    ]}
-                    editable={{
-                        onRowAdd: newData =>
-                            new Promise((resolve, reject) => {
-                                setTimeout(() => {
-                                    {
-                                        this.setState({loader: true});
-                                        clientService.postClient(newData)
-                                            .then(res => {
-                                                const data = this.state.data;
-                                                data.push({
-                                                        id: res.id,
-                                                        director: res.director,
-                                                        email: res.email,
-                                                        fond: res.fond,
-                                                        fszn: res.fszn,
-                                                        name: res.name,
-                                                        okpo: res.okpo,
-                                                        ynp: res.ynp,
-                                                        imns: res.imns,
-                                                        address: res.address
-                                                    }
-                                                )
-                                                ;
-                                                (this.setState({data: data, loader: false}, () => resolve()))
-                                            })
-                                    }
-                                    resolve()
-                                }, 50)
-                            }),
-                        onRowUpdate: (newData, oldData) =>
-                            new Promise((resolve, reject) => {
-                                setTimeout(() => {
-                                    {
-                                        this.setState({loader: true});
-                                        clientService.putClient(newData)
-                                            .then(res => {
-                                                const data = this.state.data;
-                                                const index = data.indexOf(oldData);
-                                                data[index] = res;
-                                                this.setState({data: data, loader: false}, () => resolve())
-                                            })
-                                    }
-                                    resolve()
-                                }, 50)
-                            }),
-                        onRowDelete: oldData =>
-                            new Promise((resolve, reject) => {
-                                setTimeout(() => {
-                                    {
-                                        this.setState({loader: true});
-                                        clientService.deleteClient(oldData)
-                                            .then(resp => {
-                                                let data = this.state.data;
-                                                const index = data.indexOf(oldData);
-                                                data.splice(index, 1);
-                                                this.setState({data: data, loader: false}, () => resolve())
-                                            });
-                                    }
-                                    resolve()
-                                }, 50)
-                            }),
-                    }}
-                />
-            </Fragment>
+                            resolve()
+                        }, 50)
+                    }),
+                    onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            {
+                                setLoader(true);
+                                clientService.putClient(newData)
+                                    .then(res => triggerUpdate(res));
+                            }
+                            resolve()
+                        }, 50)
+                    }),
+                    onRowDelete: oldData => new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            {
+                                setLoader(true);
+                                clientService.deleteClient(oldData)
+                                    .then(resp => triggerUpdate(new Date()));
+                            }
+                            resolve()
+                        }, 50)
+                    }),
+                }}
+            />
+        </Fragment>
+    )
+};
 
-        )
-    }
-}
+export default Clients;

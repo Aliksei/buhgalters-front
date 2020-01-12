@@ -158,8 +158,8 @@ export default function MiniDrawer() {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <MenuItem component={Link} to={'/profile'} onClick={handleMenuClose}>Профиль</MenuItem>
-            <MenuItem onClick={logOut}>Выйти</MenuItem>
+            <MenuItem dense component={Link} to={'/profile'} onClick={handleMenuClose}>Профиль</MenuItem>
+            <MenuItem dense onClick={logOut}>Выйти</MenuItem>
         </Menu>
     );
 
