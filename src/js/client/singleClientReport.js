@@ -137,6 +137,8 @@ export default class ClientsReport extends React.Component {
                         editTooltip: 'Редактировать Отчет',
                         editRow: {
                             deleteText: 'Удалить выбранный отчет?',
+                            saveTooltip: 'Сохранить',
+                            cancelTooltip: 'Отменить',
                         }
                     },
                     toolbar: {

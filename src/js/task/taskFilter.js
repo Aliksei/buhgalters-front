@@ -54,15 +54,12 @@ const TaskFilter = ({
     const classes = useStyles();
 
     const handleLow = ({target}) => {
-        console.log(target.checked);
         setLow(target.checked)
     };
     const handleMedium = ({target}) => {
-        console.log(target.checked);
         setMedium(target.checked);
     };
     const handleCritical = ({target}) => {
-        console.log(target.checked);
         setCritical(target.checked)
     };
     const handleMonth = ({target}) => applyFilter(target.value);

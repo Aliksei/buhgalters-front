@@ -61,13 +61,8 @@ export default function LoginForm() {
             });
     }
 
-    const handleUserName = (event) => {
-        setUserName(event.target.value);
-    };
-
-    const handlePassword = (event) => {
-        setPassword(event.target.value);
-    };
+    const handleUserName = (event) => setUserName(event.target.value);
+    const handlePassword = (event) => setPassword(event.target.value);
 
     if (isLoggedIn) {
         return <Redirect to="/clients"/>;
@@ -77,7 +72,6 @@ export default function LoginForm() {
         <Grid container align="center" justify="center">
             <Card className={classes.card}>
                 <Box className={classes.box}>
-
                     <Box className={classes.box}>
                         <TextField id="outlined-basic"
                                    label="Логин"
@@ -98,18 +92,12 @@ export default function LoginForm() {
                         />
                     </Box>
                     <Box className={classes.box}>
-                        <Button variant="outlined" color="primary" onClick={postLogin} style={{margin:7}}>
-                            Войти
-                        </Button>
-
-                        <Button variant="outlined" color="primary" component={Link} to={'/registration'}>
-                            Регистрация
-                        </Button>
+                        <Button variant="outlined" color="primary" onClick={postLogin} style={{margin:7}}>Войти</Button>
+                        <Button variant="outlined" color="primary" component={Link} to={'/registration'}>Регистрация</Button>
                     </Box>
                 </Box>
             </Card>
         </Grid>
-
     );
 
 }

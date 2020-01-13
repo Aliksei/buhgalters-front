@@ -22,7 +22,7 @@ import ForumIcon from '@material-ui/icons/Forum';
 import Clients from "./clientsTable";
 import {Link, Route} from "react-router-dom";
 import {AnimatedSwitch} from 'react-router-transition';
-import React from "react";
+import React, {Fragment} from "react";
 import Acts from "./actsTable";
 import Reports from "./reportsTable";
 import MediaCard from "../task/TaskView";
@@ -103,17 +103,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-const ClientsRouting = () => (
-    <AnimatedSwitch
-        // atEnter={{opacity: 1}}
-        // atLeave={{opacity: 1}}
-        // atActive={{opacity: 1}}
-    >
-        <Route exact path='/clients' component={Clients}/>
-        <Route path='/clients/:id' component={SingleClient}/>
-    </AnimatedSwitch>
-);
-
 export default function MiniDrawer() {
     const classes = useStyles();
     const theme = useTheme();
@@ -126,28 +115,16 @@ export default function MiniDrawer() {
         setAuthTokens(data);
     };
 
-    const handleDrawerOpen = () => {
-        setOpen(true);
-    };
+    const handleDrawerOpen = () => setOpen(true);
+    const handleDrawerClose = () => setOpen(false);
+    const handleMenuClose = () => setAnchorEl(null);
+    const handleProfileMenuOpen = event => setAnchorEl(event.currentTarget);
 
-    const handleDrawerClose = () => {
-        setOpen(false);
-    };
-
-    const handleMenuClose = () => {
-        setAnchorEl(null);
-    };
-
-    const handleProfileMenuOpen = event => {
-        setAnchorEl(event.currentTarget);
-    };
 
     function logOut() {
         setAuthTokens();
         handleMenuClose();
     }
-
-    const isMenuOpen = Boolean(anchorEl);
 
     const renderMenu = (
         <Menu
@@ -155,7 +132,7 @@ export default function MiniDrawer() {
             anchorOrigin={{vertical: 'top', horizontal: 'right'}}
             keepMounted
             transformOrigin={{vertical: 'top', horizontal: 'right'}}
-            open={isMenuOpen}
+            open={Boolean(anchorEl)}
             onClose={handleMenuClose}
         >
             <MenuItem dense component={Link} to={'/profile'} onClick={handleMenuClose}>Профиль</MenuItem>
@@ -169,9 +146,7 @@ export default function MiniDrawer() {
                 <CssBaseline/>
                 <AppBar position="fixed" className={clsx(classes.appBar, {[classes.appBarShift]: open,})}>
                     <Toolbar>
-                        <IconButton
-                            color="inherit" aria-label="open drawer" onClick={handleDrawerOpen}
-                            edge="start" className={clsx(classes.menuButton, {[classes.hide]: open,})}>
+                        <IconButton color="inherit" aria-label="open drawer" onClick={handleDrawerOpen} edge="start" className={clsx(classes.menuButton, {[classes.hide]: open,})}>
                             <MenuIcon/>
                         </IconButton>
                         <Typography variant="h6" noWrap>
@@ -187,66 +162,23 @@ export default function MiniDrawer() {
                                 <NotificationsIcon/>
                             </Badge>
                         </IconButton>
-                        <IconButton
-                            edge="end"
-                            aria-label="account of current user"
-                            aria-haspopup="true"
-                            onClick={handleProfileMenuOpen}
-                            color="inherit"
-                        >
+                        <IconButton edge="end" aria-label="account of current user" aria-haspopup="true" onClick={handleProfileMenuOpen} color="inherit">
                             <AccountCircle/>
                         </IconButton>
                     </Toolbar>
-                    {
-                        renderMenu
-                    }
+                    {renderMenu}
                 </AppBar>
 
-                <Drawer
-                    variant="permanent"
-                    className={clsx(classes.drawer, {
-                        [classes.drawerOpen]: open,
-                        [classes.drawerClose]: !open,
-                    })}
-                    classes={{
-                        paper: clsx({
-                            [classes.drawerOpen]: open,
-                            [classes.drawerClose]: !open,
-                        }),
-                    }}
-                    open={open}
+                <Drawer variant="permanent"
+                        className={clsx(classes.drawer, {[classes.drawerOpen]: open, [classes.drawerClose]: !open,})}
+                        classes={{paper: clsx({[classes.drawerOpen]: open, [classes.drawerClose]: !open,}),}}
+                        open={open}
                 >
                     <div className={classes.toolbar}>
-                        <IconButton onClick={handleDrawerClose}>
-                            {theme.direction === 'rtl' ? <ChevronRightIcon/> : <ChevronLeftIcon/>}
-                        </IconButton>
+                        <IconButton onClick={handleDrawerClose}>{theme.direction === 'rtl' ? <ChevronRightIcon/> :
+                            <ChevronLeftIcon/>}</IconButton>
                     </div>
-                    <Divider/>
-                    <List>
-                        <ListItem component={Link} to={'/clients'} button key='Клиенты' title="Клиенты">
-                            <ListItemIcon><PeopleAltIcon/></ListItemIcon>
-                            <ListItemText primary='Клиенты'/>
-                        </ListItem>
-                        <ListItem component={Link} to={'/acts'} button key='Акты' title="Акты">
-                            <ListItemIcon><StorageIcon/></ListItemIcon>
-                            <ListItemText primary='Акты'/>
-                        </ListItem>
-                        <ListItem component={Link} to={'/reports'} button key='Отчетности' title="Профиль">
-                            <ListItemIcon><InboxIcon/></ListItemIcon>
-                            <ListItemText primary='Отчетности'/>
-                        </ListItem>
-                    </List>
-                    <Divider/>
-                    <List>
-                        <ListItem component={Link} to={'/tasks'} button key='Акты' title="Задания">
-                            <ListItemIcon><ForumIcon/></ListItemIcon>
-                            <ListItemText primary='Задания'/>
-                        </ListItem>
-                        <ListItem component={Link} to={'/profile'} button key='Профиль' title="Профиль">
-                            <ListItemIcon><AccountCircleIcon/></ListItemIcon>
-                            <ListItemText primary='Профиль'/>
-                        </ListItem>
-                    </List>
+                    <MenuItems/>
                 </Drawer>
 
                 <main className={classes.content}>
@@ -270,3 +202,46 @@ export default function MiniDrawer() {
     );
 
 }
+
+
+const MenuItems = () => {
+    return (<Fragment>
+        <Divider/>
+        <List>
+            <ListItem component={Link} to={'/clients'} button key='Клиенты' title="Клиенты">
+                <ListItemIcon><PeopleAltIcon/></ListItemIcon>
+                <ListItemText primary='Клиенты'/>
+            </ListItem>
+            <ListItem component={Link} to={'/acts'} button key='Акты' title="Акты">
+                <ListItemIcon><StorageIcon/></ListItemIcon>
+                <ListItemText primary='Акты'/>
+            </ListItem>
+            <ListItem component={Link} to={'/reports'} button key='Отчетности' title="Профиль">
+                <ListItemIcon><InboxIcon/></ListItemIcon>
+                <ListItemText primary='Отчетности'/>
+            </ListItem>
+        </List>
+        <Divider/>
+        <List>
+            <ListItem component={Link} to={'/tasks'} button key='Акты' title="Задания">
+                <ListItemIcon><ForumIcon/></ListItemIcon>
+                <ListItemText primary='Задания'/>
+            </ListItem>
+            <ListItem component={Link} to={'/profile'} button key='Профиль' title="Профиль">
+                <ListItemIcon><AccountCircleIcon/></ListItemIcon>
+                <ListItemText primary='Профиль'/>
+            </ListItem>
+        </List>
+    </Fragment>)
+};
+
+const ClientsRouting = () => (
+    <AnimatedSwitch
+        // atEnter={{opacity: 1}}
+        // atLeave={{opacity: 1}}
+        // atActive={{opacity: 1}}
+    >
+        <Route exact path='/clients' component={Clients}/>
+        <Route path='/clients/:id' component={SingleClient}/>
+    </AnimatedSwitch>
+);

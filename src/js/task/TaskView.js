@@ -7,7 +7,6 @@ import Typography from "@material-ui/core/Typography";
 import {Box} from "@material-ui/core";
 import TaskFilter from "./taskFilter";
 import {taskService} from "../service/taskService";
-import {employeeService} from "../service/userService";
 import {companyService} from "../service/companyService";
 
 const useStyles = makeStyles(theme => ({
@@ -47,13 +46,12 @@ export default function MediaCard() {
     const [users, setUsers] = React.useState([]);
     const [update, setUpdate] = React.useState({});
     const [month, setMonth] = React.useState(-1);
-    
+
     const [low, setLow] = React.useState(true);
     const [medium, setMedium] = React.useState(true);
     const [critical, setCritical] = React.useState(true);
 
     useEffect(() => {
-        console.log('JOKER');
         const fetchData  = async () => {
             let t = await taskService.getTasks(month);
             let u = await companyService.getUsersByCompanyId(1);
@@ -61,7 +59,6 @@ export default function MediaCard() {
             setUsers(u);
         };
         fetchData();
-
     }, [update, month, low, medium, critical]);
 
     const drawToDo = () => drawColumn(0);
@@ -80,12 +77,10 @@ export default function MediaCard() {
             types.push(2);
         }
 
-        console.log(types);
         return tasks
             .filter(t => types.includes(t.type))
             .filter(t => t.status === status)
             .map(t => {
-                console.log(t);
                 return (
                     <Box className={classes.box}>
                         <TaskEntity task={t}
