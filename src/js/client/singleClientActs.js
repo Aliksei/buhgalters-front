@@ -18,7 +18,7 @@ import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import MaterialTable from "material-table";
 import {actService} from "../service/actService";
-import {clientService} from "../service/clientService";
+import {useEffect} from "react";
 
 
 const tableIcons = {
@@ -41,158 +41,55 @@ const tableIcons = {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref}/>)
 };
 
-export default class ClientsAct extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            data: [],
-            loader: true,
-            columns: [
-                {title: 'Номер Акта', field: 'actNumber'},
-                {
-                    title: 'Клиент', field: 'clientId',
-                    hidden: true
-                }
-                ,
-                {
-                    title: 'Статус',
-                    field: 'status',
-                    lookup: {0: 'ВЫСТАВЛЕН', 1: 'ОПЛАЧЕН'}
-                },
-                {
-                    title: 'Сумма',
-                    field: 'summ',
-                    type: 'numeric'
-                },
-                {
-                    title: 'Дата отправки',
-                    field: 'actDate',
-                    type: 'date',
-                    // render: (data, type) => {
-                    //     let moment = Moment(data);
-                    //     moment.locale();
-                    //     return (<div>{moment.format('YYYY-MM-DD')}</div>)
-                    // }
-                },
-                {
-                    title: 'Месяц',
-                    field: 'month',
-                    lookup: {
-                        1: 'Январь',
-                        2: 'Февраль',
-                        3: 'Март',
-                        4: 'Апрель',
-                        5: 'Май',
-                        6: 'Июнь',
-                        7: 'Июль',
-                        8: 'Август',
-                        9: 'Сентябрь',
-                        10: 'Октябрь',
-                        11: 'Ноябрь',
-                        12: 'Декабрь',
-                    },
-                }
-            ]
-        };
+const ClientsAct = ({owner, actList, update}) => {
 
-    }
+        const [loader, setLoader] = React.useState(true);
 
-    componentDidMount() {
-        clientService.getClientActs(this.props.clientId)
-            .then(acts => {
-                this.setState({data: acts, loader: false})
-            });
-    }
-
-    render() {
+        useEffect(() => {
+            if (Object.keys(owner).length !== 0 && actList.leading > 0) {
+                setLoader(false);
+            }
+        }, [actList, owner]);
         return (
             <MaterialTable
                 style={{width: '99%'}}
-                title={'Таблица aктов клиента :  ' + this.props.owner.name}
-                columns={this.state.columns}
+                title={'Таблица aктов клиента :  ' + owner.name}
+                columns={columns}
                 icons={tableIcons}
-                data={this.state.data}
-                isLoading={this.state.loader}
-                options={{
-                    pageSizeOptions: [5, 10, 15],
-                    paginationType: 'stepped',
-                    padding: 'dense',
-                    showFirstLastPageButtons: true,
-                    headerStyle: {
-                        backgroundColor: 'rgba(0,69,147,0.52)',
-                        color: "white",
-                        fontSize: 12,
-                        fontWeight: 'bolder'
-                    }
-                }}
-                localization={{
-                    body: {
-                        emptyDataSourceMessage: 'Поиск не дал результатов',
-                        addTooltip: 'Добавить Акт',
-                        deleteTooltip: 'Удалить Акт',
-                        editTooltip: 'Редактировать Акт',
-                        editRow: {
-                            deleteText: 'Удалить выбранный акт?',
-                        }
-                    },
-                    toolbar: {
-                        searchPlaceholder: 'Поиск'
-                    },
-                    pagination: {
-                        labelRowsSelect: 'элементов',
-                        labelDisplayedRows: '{count} страница {from}-{to} старниц',
-                        firstTooltip: 'В начало',
-                        previousTooltip: 'Назад',
-                        nextTooltip: 'Вперед',
-                        lastTooltip: 'В Конец'
-                    },
-                }}
+                data={actList}
+                isLoading={loader}
+                options={options}
+                localization={localization}
                 editable={{
-                    onRowAdd: newData =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                {
-                                    this.setState({loader: true});
-                                    newData.clientId = this.props.owner.id;
-                                    actService.postAct(newData)
-                                        .then(res => {
-                                            const data = this.state.data;
-                                            data.push(res);
-                                            this.setState({data, loader: false}, () => resolve());
-                                        });
-                                }
-                                resolve()
-                            }, 50)
-                        }),
-                    onRowUpdate: (newData, oldData) =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                {
-                                    this.setState({loader: true});
-                                    newData.clientId = this.props.owner.id;
-                                    actService.putAct(newData)
-                                        .then(res => {
-                                            const gj = this.state.data;
-                                            const index = gj.indexOf(oldData);
-                                            gj[index] = res;
-                                            this.setState({data: gj, loader: false}, () => resolve());
-                                        })
-                                }
-                                resolve()
-                            }, 50)
-                        }),
+                    onRowAdd: newData => new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            {
+                                setLoader(true);
+                                newData.clientId = owner.id;
+                                actService.postAct(newData)
+                                    .then(res => update(res));
+                            }
+                            resolve()
+                        }, 50)
+                    }),
+                    onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            {
+                                setLoader(true);
+                                newData.clientId = owner.id;
+                                actService.putAct(newData)
+                                    .then(res => update(res))
+                            }
+                            resolve()
+                        }, 50)
+                    }),
                     onRowDelete: oldData =>
                         new Promise((resolve, reject) => {
                             setTimeout(() => {
                                 {
-                                    this.setState({loader: true});
+                                    setLoader(true);
                                     actService.deleteAct(oldData)
-                                        .then(res => {
-                                            let data = this.state.data;
-                                            const index = data.indexOf(oldData);
-                                            data.splice(index, 1);
-                                            this.setState({data, loader: false}, () => resolve());
-                                        });
+                                        .then(res => update(new Date()));
                                 }
                                 resolve()
                             }, 50)
@@ -201,4 +98,90 @@ export default class ClientsAct extends React.Component {
             />
         )
     }
-}
+
+;
+
+export default ClientsAct;
+
+const columns = [
+    {title: 'Номер Акта', field: 'actNumber'},
+    {
+        title: 'Клиент', field: 'clientId',
+        hidden: true
+    }
+    ,
+    {
+        title: 'Статус',
+        field: 'status',
+        lookup: {0: 'ВЫСТАВЛЕН', 1: 'ОПЛАЧЕН'}
+    },
+    {
+        title: 'Сумма',
+        field: 'summ',
+        type: 'numeric'
+    },
+    {
+        title: 'Дата отправки',
+        field: 'actDate',
+        type: 'date',
+        // render: (data, type) => {
+        //     let moment = Moment(data);
+        //     moment.locale();
+        //     return (<div>{moment.format('YYYY-MM-DD')}</div>)
+        // }
+    },
+    {
+        title: 'Месяц',
+        field: 'month',
+        lookup: {
+            1: 'Январь',
+            2: 'Февраль',
+            3: 'Март',
+            4: 'Апрель',
+            5: 'Май',
+            6: 'Июнь',
+            7: 'Июль',
+            8: 'Август',
+            9: 'Сентябрь',
+            10: 'Октябрь',
+            11: 'Ноябрь',
+            12: 'Декабрь',
+        },
+    }
+];
+
+const options = {
+    pageSizeOptions: [5, 10, 15],
+    paginationType: 'stepped',
+    padding: 'dense',
+    showFirstLastPageButtons: true,
+    headerStyle: {
+        backgroundColor: 'rgba(0,69,147,0.52)',
+        color: "white",
+        fontSize: 12,
+        fontWeight: 'bolder'
+    }
+};
+
+const localization = {
+    body: {
+        emptyDataSourceMessage: 'Поиск не дал результатов',
+        addTooltip: 'Добавить Акт',
+        deleteTooltip: 'Удалить Акт',
+        editTooltip: 'Редактировать Акт',
+        editRow: {
+            deleteText: 'Удалить выбранный акт?',
+        }
+    },
+    toolbar: {
+        searchPlaceholder: 'Поиск'
+    },
+    pagination: {
+        labelRowsSelect: 'элементов',
+        labelDisplayedRows: '{count} страница {from}-{to} старниц',
+        firstTooltip: 'В начало',
+        previousTooltip: 'Назад',
+        nextTooltip: 'Вперед',
+        lastTooltip: 'В Конец'
+    },
+};

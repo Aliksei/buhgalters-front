@@ -39,12 +39,16 @@ const SingleClient = (props) => {
 
     const classes = useStyles();
     const [client, setClient] = useState({});
-    const [hasError, setErrors] = useState(false);
+    const [acts, setActs] = useState([]);
+    const [reports, setReports] = useState([]);
+    const [update, triggerUpdate] = useState({});
 
     useEffect(() => {
-        clientService.getClientById(props.match.params.id)
-            .then(res => setClient(res));
-    }, []);
+        let clientId = props.match.params.id;
+        clientService.getClientById(clientId).then(c => setClient(c));
+        clientService.getClientActs(clientId).then(a => setActs(a));
+        clientService.getClientReports(clientId).then(r => setReports(r));
+    }, [update]);
 
     return (
         <Fragment>
@@ -70,10 +74,10 @@ const SingleClient = (props) => {
 
                     </Grid>
                     <Grid item xs={12} className={classes.paper}>
-                        <ClientsAct owner={client} clientId={props.match.params.id}/>
+                        <ClientsAct owner={client} actList={acts} update={triggerUpdate}/>
                     </Grid>
                     <Grid item xs={12} className={classes.paper}>
-                        <ClientsReport owner={client} clientId={props.match.params.id}/>
+                        <ClientsReport owner={client} reportList={reports} update={triggerUpdate}/>
                     </Grid>
                 </Grid>
 

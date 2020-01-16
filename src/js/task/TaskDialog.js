@@ -92,8 +92,6 @@ const TaskEntity = ({task, users, updateView}) => {
     const [open, setOpen] = React.useState(false);
     const [editableTitle, setEditableTitle] = React.useState(false);
 
-    const [dropDownUsers, setDropDownUsers] = React.useState(users);
-
     const [anchorEl, setAnchorEl] = React.useState(null);
     const isMenuOpen = Boolean(anchorEl);
 
@@ -155,7 +153,7 @@ const TaskEntity = ({task, users, updateView}) => {
 
     const handleTaskDropDown = ({currentTarget}) => setAnchorEl(currentTarget);
 
-    const nameById = (id) => dropDownUsers.filter(u => u.id === id).map(u => u.name)[0];
+    const nameById = (id) => users.filter(u => u.id === id).map(u => u.name)[0];
 
     const handleCancel = () => {
         setOpen(false);
@@ -184,10 +182,6 @@ const TaskEntity = ({task, users, updateView}) => {
         })
             .then(r => updateView(r))
     };
-
-    useEffect(() => {
-        setDropDownUsers(users)
-    }, [users]);
 
     const renderMenu = (
         <Menu
@@ -268,7 +262,7 @@ const TaskEntity = ({task, users, updateView}) => {
                         Открыть
                     </Button>
                     <Typography gutterBottom>
-                        Статус : {statusesMap.get(status)}
+                        Статус : {statusesMap.get(status) + "   " + "" }
                     </Typography>
                     {drawType()}
                 </CardActions>
@@ -309,7 +303,7 @@ const TaskEntity = ({task, users, updateView}) => {
                                         onChange={handleTempCreator}
                                         labelWidth={20}
                                 >
-                                    {dropDownUsers.map(u => (<MenuItem dense value={u.id}>{u.name}</MenuItem>))}
+                                    {users.map(u => (<MenuItem dense value={u.id}>{u.name}</MenuItem>))}
                                 </Select>
                             </FormControl>
                             <FormControl className={classes.formControl}>
@@ -319,7 +313,7 @@ const TaskEntity = ({task, users, updateView}) => {
                                         onChange={handleTempAssignedTo}
                                         labelWidth={20}
                                 >
-                                    {dropDownUsers.map(u => (<MenuItem dense value={u.id}>{u.name}</MenuItem>))}
+                                    {users.map(u => (<MenuItem dense value={u.id}>{u.name}</MenuItem>))}
                                 </Select>
                             </FormControl>
                             <FormControl className={classes.formControl}>

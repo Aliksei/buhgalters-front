@@ -55,6 +55,7 @@ export default function MediaCard() {
         const fetchData  = async () => {
             let t = await taskService.getTasks(month);
             let u = await companyService.getUsersByCompanyId(1);
+            console.log("Cделали запрос");
             setTasks(t);
             setUsers(u);
         };
@@ -77,10 +78,17 @@ export default function MediaCard() {
             types.push(2);
         }
 
+        console.log("Фильтруем статус " + status);
+
         return tasks
-            .filter(t => types.includes(t.type))
             .filter(t => t.status === status)
+            .filter(t => {
+                let contains = types.includes(t.type);
+
+                return contains;
+            })
             .map(t => {
+                console.log("types : ", "type: ", t.type, t , types);
                 return (
                     <Box className={classes.box}>
                         <TaskEntity task={t}
@@ -91,43 +99,50 @@ export default function MediaCard() {
             })
     };
 
-    return (
-        <Grid>
-            <TaskFilter updateView={setUpdate}
-                        month={month}
-                        userList={users}
-                        applyFilter={setMonth}
-                        low={low}
-                        medium={medium}
-                        critical={critical}
-                        setLow={setLow}
-                        setCritical={setCritical}
-                        setMedium={setMedium}
-            />
-            <Grid container spacing={3}>
-                <Grid
-                    item xs={4}
-                    direction="row"
-                    alignContent="center"
-                    className={classes.column}>
-                    <Paper className={classes.paper}>
-                        <Typography className={classes.typography} variant="h6">К Выполнению</Typography>
-                    </Paper>
-                    {drawToDo()}
-                </Grid>
-                <Grid container alignItems="stretch" item xs={4} direction="column" className={classes.column}>
-                    <Paper className={classes.paper}>
-                        <Typography className={classes.typography} variant="h6">В Процессе</Typography>
-                    </Paper>
-                    {drawInProgress()}
-                </Grid>
-                <Grid container alignItems="stretch" item xs={4} direction="column" className={classes.column}>
-                    <Paper className={classes.paper}>
-                        <Typography className={classes.typography} variant="h6">Готово</Typography>
-                    </Paper>
-                    {drawDone()}
+    if (Object.keys(tasks).length === 0 && Object.keys(users).length === 0) {
+        console.log("Не рисуем");
+        return <div></div>;
+    } else {
+        console.log("Рисуем");
+        return (
+            <Grid>
+                <TaskFilter updateView={setUpdate}
+                            month={month}
+                            userList={users}
+                            applyFilter={setMonth}
+                            low={low}
+                            medium={medium}
+                            critical={critical}
+                            setLow={setLow}
+                            setCritical={setCritical}
+                            setMedium={setMedium}
+                />
+                <Grid container spacing={3}>
+                    <Grid
+                        item xs={4}
+                        direction="row"
+                        alignContent="center"
+                        className={classes.column}>
+                        <Paper className={classes.paper}>
+                            <Typography className={classes.typography} variant="h6">К Выполнению</Typography>
+                        </Paper>
+                        {drawToDo()}
+                    </Grid>
+                    <Grid container alignItems="stretch" item xs={4} direction="column" className={classes.column}>
+                        <Paper className={classes.paper}>
+                            <Typography className={classes.typography} variant="h6">В Процессе</Typography>
+                        </Paper>
+                        {drawInProgress()}
+                    </Grid>
+                    <Grid container alignItems="stretch" item xs={4} direction="column" className={classes.column}>
+                        <Paper className={classes.paper}>
+                            <Typography className={classes.typography} variant="h6">Готово</Typography>
+                        </Paper>
+                        {drawDone()}
+                    </Grid>
                 </Grid>
             </Grid>
-        </Grid>
-    );
+        );
+    }
+
 }

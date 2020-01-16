@@ -67,16 +67,11 @@ const NewTaskDialog = ({updateView, userList}) => {
     const classes = useStyles();
 
     const [openNew, setOpenNew] = React.useState(false);
-    const [users, setUsers] = React.useState([]);
     const [title, setTitle] = React.useState("");
     const [text, setText] = React.useState("");
     const [type, setType] = React.useState(0);
     const [month, setMonth] = React.useState(new Date().getMonth() + 1);
     const [assignee, setAssignee] = React.useState(null);
-
-    useEffect(() => {
-        setUsers(userList)
-    }, [userList]);
 
 
     const handleSave = () => {
@@ -142,7 +137,7 @@ const NewTaskDialog = ({updateView, userList}) => {
                                         value={assignee}
                                         onChange={handleAssignee}
                                         labelWidth={40}>
-                                    {users.map(u => {
+                                    {userList.map(u => {
                                         return <MenuItem dense value={u.id}>{u.name}</MenuItem>
                                     })}
                                 </Select>

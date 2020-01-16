@@ -37,6 +37,7 @@ import Badge from "@material-ui/core/Badge";
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import RegistrationFrom from "./registration";
+import Tooltip from "@material-ui/core/Tooltip";
 
 
 const drawerWidth = 185;
@@ -146,7 +147,8 @@ export default function MiniDrawer() {
                 <CssBaseline/>
                 <AppBar position="fixed" className={clsx(classes.appBar, {[classes.appBarShift]: open,})}>
                     <Toolbar>
-                        <IconButton color="inherit" aria-label="open drawer" onClick={handleDrawerOpen} edge="start" className={clsx(classes.menuButton, {[classes.hide]: open,})}>
+                        <IconButton color="inherit" aria-label="open drawer" onClick={handleDrawerOpen} edge="start"
+                                    className={clsx(classes.menuButton, {[classes.hide]: open,})}>
                             <MenuIcon/>
                         </IconButton>
                         <Typography variant="h6" noWrap>
@@ -162,7 +164,8 @@ export default function MiniDrawer() {
                                 <NotificationsIcon/>
                             </Badge>
                         </IconButton>
-                        <IconButton edge="end" aria-label="account of current user" aria-haspopup="true" onClick={handleProfileMenuOpen} color="inherit">
+                        <IconButton edge="end" aria-label="account of current user" aria-haspopup="true"
+                                    onClick={handleProfileMenuOpen} color="inherit">
                             <AccountCircle/>
                         </IconButton>
                     </Toolbar>
@@ -208,27 +211,37 @@ const MenuItems = () => {
     return (<Fragment>
         <Divider/>
         <List>
-            <ListItem component={Link} to={'/clients'} button key='Клиенты' title="Клиенты">
-                <ListItemIcon><PeopleAltIcon/></ListItemIcon>
+            <ListItem component={Link} to={'/clients'} button key='Клиенты'>
+                <Tooltip title="Клиенты">
+                    <ListItemIcon><PeopleAltIcon/></ListItemIcon>
+                </Tooltip>
                 <ListItemText primary='Клиенты'/>
             </ListItem>
-            <ListItem component={Link} to={'/acts'} button key='Акты' title="Акты">
-                <ListItemIcon><StorageIcon/></ListItemIcon>
+            <ListItem component={Link} to={'/acts'} button key='Акты'>
+                <Tooltip title="Акты">
+                    <ListItemIcon><StorageIcon/></ListItemIcon>
+                </Tooltip>
                 <ListItemText primary='Акты'/>
             </ListItem>
-            <ListItem component={Link} to={'/reports'} button key='Отчетности' title="Профиль">
-                <ListItemIcon><InboxIcon/></ListItemIcon>
+            <ListItem component={Link} to={'/reports'} button key='Отчетности'>
+                <Tooltip title="Отчетности">
+                    <ListItemIcon><InboxIcon/></ListItemIcon>
+                </Tooltip>
                 <ListItemText primary='Отчетности'/>
             </ListItem>
         </List>
         <Divider/>
         <List>
-            <ListItem component={Link} to={'/tasks'} button key='Акты' title="Задания">
-                <ListItemIcon><ForumIcon/></ListItemIcon>
+            <ListItem component={Link} to={'/tasks'} button key='Акты'>
+                <Tooltip title="Задания">
+                    <ListItemIcon><ForumIcon/></ListItemIcon>
+                </Tooltip>
                 <ListItemText primary='Задания'/>
             </ListItem>
-            <ListItem component={Link} to={'/profile'} button key='Профиль' title="Профиль">
-                <ListItemIcon><AccountCircleIcon/></ListItemIcon>
+            <ListItem component={Link} to={'/profile'} button key='Профиль'>
+                <Tooltip title="Профиль">
+                    <ListItemIcon><AccountCircleIcon/></ListItemIcon>
+                </Tooltip>
                 <ListItemText primary='Профиль'/>
             </ListItem>
         </List>

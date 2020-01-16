@@ -18,7 +18,7 @@ import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import MaterialTable from "material-table";
 import {reportService} from "../service/reportService";
-import {clientService} from "../service/clientService";
+import {useEffect} from "react";
 
 
 const tableIcons = {
@@ -41,172 +41,153 @@ const tableIcons = {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref}/>)
 };
 
-export default class ClientsReport extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            data: [],
-            loader: true,
-            columns: [
-                {
-                    title: 'Id', field: 'id',
-                    hidden: true
-                },
-                {
-                    title: 'Наименование', field: 'reportName',
-                },
-                {
-                    title: 'Тип отчетности',
-                    field: 'reportType',
-                    lookup: {
-                        0: 'Налоги',
-                        1: 'ФСЗН',
-                        2: 'Статистика',
-                        3: 'Белгосстрах',
-                    }
-                },
-                {
-                    title: 'Статус',
-                    field: 'status',
-                    lookup: {
-                        0: 'ОТПРАВЛЕН',
-                        1: 'ПРИНЯТ',
-                        2: 'ПРОСРОЧЕН'
-                    }
-                },
-                {
-                    title: 'Дата отправки',
-                    field: 'reportDate',
-                    type: 'date',
-                },
-                {
-                    title: 'Дедлайн',
-                    field: 'deadLine',
-                    type: 'date',
-                    render: (data, type) => {
-                        let deeadLine = new Date(data.deadLine);
-                        let todaay = new Date();
-                        var diff = (deeadLine.getTime() - todaay.getTime()) / (1000 * 3600 * 24);
-                        let col;
-                        let tit;
-                        if (diff <= 10) {
-                            col = 'red';
-                            tit = 'Дедлайн скоро истекает или уже просрочен';
-                        }
-                        return (<div title={tit} style={{color: col}}>{data.deadLine}</div>)
-                    }
-                }
-            ]
-        };
-    }
+const ClientsReport = ({owner, reportList, update}) => {
 
-    componentDidMount() {
-        let param = encodeURIComponent(this.props.clientId);
-        clientService.getClientReports(param)
-            .then(res => {
-                this.setState({data: res, loader: false});
-            })
-    }
+    const [loader, setLoader] = React.useState(true);
 
-    render() {
+    useEffect(() => {
+        if (Object.keys(owner).length !== 0 && reportList.leading > 0) {
+            setLoader(false);
+        }
+    }, [owner, reportList]);
+
+
         return (
             <MaterialTable
                 style={{width: '99%'}}
-                title={'Таблица отчетов клиента : ' + this.props.owner.name}
-                columns={this.state.columns}
+                title={'Таблица отчетов клиента : ' + owner.name}
+                columns={columns}
                 icons={tableIcons}
-                data={this.state.data}
-                isLoading={this.state.loader}
-                options={{
-                    pageSizeOptions: [5, 10, 15],
-                    paginationType: 'stepped',
-                    padding: 'dense',
-                    showFirstLastPageButtons: true,
-                    headerStyle: {
-                        backgroundColor: 'rgba(0,69,147,0.52)',
-                        color: "white",
-                        fontSize: 12,
-                        fontWeight: 'bolder'
-                    }
-                }}
-                localization={{
-                    body: {
-                        emptyDataSourceMessage: 'Поиск не дал результатов',
-                        addTooltip: 'Добавить Отчет',
-                        deleteTooltip: 'Удалить Отчет',
-                        editTooltip: 'Редактировать Отчет',
-                        editRow: {
-                            deleteText: 'Удалить выбранный отчет?',
-                            saveTooltip: 'Сохранить',
-                            cancelTooltip: 'Отменить',
-                        }
-                    },
-                    toolbar: {
-                        searchPlaceholder: 'Поиск'
-                    },
-                    pagination: {
-                        labelRowsSelect: 'элементов',
-                        labelDisplayedRows: '{count} страница {from}-{to} старниц',
-                        firstTooltip: 'В начало',
-                        previousTooltip: 'Назад',
-                        nextTooltip: 'Вперед',
-                        lastTooltip: 'В Конец'
-                    },
-                }}
+                data={reportList}
+                isLoading={loader}
+                options={options}
+                localization={localization}
                 editable={{
-                    onRowAdd: newData =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                {
-                                    this.setState({loader: true});
-                                    newData.clientId = this.props.owner.id;
-                                    reportService.postReport(newData)
-                                        .then(res => {
-                                            const data = this.state.data;
-                                            data.push(res);
-                                            this.setState({data, loader: false}, () => resolve());
-                                        });
-                                }
-                                resolve()
-                            }, 50)
-                        }),
-                    onRowUpdate: (newData, oldData) =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                {
-                                    this.setState({loader: true});
-                                    newData.clientId = this.props.owner.id;
-                                    reportService.putReport(newData)
-                                        .then(res => {
-                                            const gj = this.state.data;
-                                            const index = gj.indexOf(oldData);
-                                            gj[index] = res;
-                                            this.setState({data: gj, loader: false}, () => resolve());
-                                        })
-                                }
-                                resolve()
-                            }, 50)
-                        }),
-                    onRowDelete: oldData =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                {
-                                    this.setState({loader: true});
-                                    reportService.deleteReport(oldData)
-                                        .then(res => {
-                                            let data = this.state.data;
-                                            const index = data.indexOf(oldData);
-                                            data.splice(index, 1);
-                                            this.setState({data, loader: false}, () => resolve());
-                                        });
-                                }
-                                resolve()
-                            }, 50)
-                        }),
+                    onRowAdd: newData => new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            {
+                                this.setState({loader: true});
+                                newData.clientId = owner.id;
+                                reportService.postReport(newData)
+                                    .then(res => update(res));
+                            }
+                            resolve()
+                        }, 50)
+                    }),
+                    onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            {
+                                setLoader(true);
+                                newData.clientId = owner.id;
+                                reportService.putReport(newData)
+                                    .then(res => update(res))
+                            }
+                            resolve()
+                        }, 50)
+                    }),
+                    onRowDelete: oldData => new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            {
+                                setLoader(true);
+                                reportService.deleteReport(oldData)
+                                    .then(res => update(new Date()));
+                            }
+                            resolve()
+                        }, 50)
+                    }),
                 }}
             />
         )
-    }
-}
+};
 
+export default ClientsReport;
+
+const localization = {
+    body: {
+        emptyDataSourceMessage: 'Поиск не дал результатов',
+        addTooltip: 'Добавить Отчет',
+        deleteTooltip: 'Удалить Отчет',
+        editTooltip: 'Редактировать Отчет',
+        editRow: {
+            deleteText: 'Удалить выбранный отчет?',
+            saveTooltip: 'Сохранить',
+            cancelTooltip: 'Отменить',
+        }
+    },
+    toolbar: {
+        searchPlaceholder: 'Поиск'
+    },
+    pagination: {
+        labelRowsSelect: 'элементов',
+        labelDisplayedRows: '{count} страница {from}-{to} старниц',
+        firstTooltip: 'В начало',
+        previousTooltip: 'Назад',
+        nextTooltip: 'Вперед',
+        lastTooltip: 'В Конец'
+    },
+};
+
+const options = {
+    pageSizeOptions: [5, 10, 15],
+    paginationType: 'stepped',
+    padding: 'dense',
+    showFirstLastPageButtons: true,
+    headerStyle: {
+        backgroundColor: 'rgba(0,69,147,0.52)',
+        color: "white",
+        fontSize: 12,
+        fontWeight: 'bolder'
+    }
+};
+
+const columns = [
+    {
+        title: 'Id', field: 'id',
+        hidden: true
+    },
+    {
+        title: 'Наименование', field: 'reportName',
+    },
+    {
+        title: 'Тип отчетности',
+        field: 'reportType',
+        lookup: {
+            0: 'Налоги',
+            1: 'ФСЗН',
+            2: 'Статистика',
+            3: 'Белгосстрах',
+        }
+    },
+    {
+        title: 'Статус',
+        field: 'status',
+        lookup: {
+            0: 'ОТПРАВЛЕН',
+            1: 'ПРИНЯТ',
+            2: 'ПРОСРОЧЕН'
+        }
+    },
+    {
+        title: 'Дата отправки',
+        field: 'reportDate',
+        type: 'date',
+    },
+    {
+        title: 'Дедлайн',
+        field: 'deadLine',
+        type: 'date',
+        render: (data, type) => {
+            let deeadLine = new Date(data.deadLine);
+            let todaay = new Date();
+            var diff = (deeadLine.getTime() - todaay.getTime()) / (1000 * 3600 * 24);
+            let col;
+            let tit;
+            if (diff <= 10) {
+                col = 'red';
+                tit = 'Дедлайн скоро истекает или уже просрочен';
+            }
+            return (<div title={tit} style={{color: col}}>{data.deadLine}</div>)
+        }
+    }
+];
 
