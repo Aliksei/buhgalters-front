@@ -30,6 +30,7 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import ErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined';
 import Radio from "@material-ui/core/Radio";
+import Tooltip from "@material-ui/core/Tooltip";
 
 const useStyles = makeStyles(theme => ({
     formControl: {
@@ -197,13 +198,20 @@ const TaskEntity = ({task, users, updateView}) => {
     );
 
     const drawType = () => {
-        let color = type === 0 ? 'green'
-            : type === 1 ? 'blue'
-                : type === 2 ? 'red' : '';
+        let color = type === 0 ? 'rgba(18,167,21,0.42)'
+            : type === 1 ? 'rgba(0, 55, 195, 0.71)'
+                : type === 2 ? 'red'
+                    : '';
+        let tooltipMessage = type === 0 ? "Низкий приоритет"
+            : type === 1 ? "Средний приоритет"
+                : type === 2 ?"Высокий приоритет" : null;
+
         return (
-            <Avatar className={classes.smallIcon} style={{backgroundColor: color}}>
-                <ErrorOutlineOutlinedIcon/>
-            </Avatar>
+            <Tooltip arrow title={tooltipMessage}>
+                <Avatar className={classes.smallIcon} style={{backgroundColor: color}}>
+                    <ErrorOutlineOutlinedIcon/>
+                </Avatar>
+            </Tooltip>
         )
     };
 
@@ -262,7 +270,7 @@ const TaskEntity = ({task, users, updateView}) => {
                         Открыть
                     </Button>
                     <Typography gutterBottom>
-                        Статус : {statusesMap.get(status) + "   " + "" }
+                        Статус : {statusesMap.get(status) + "   " + ""}
                     </Typography>
                     {drawType()}
                 </CardActions>
@@ -342,7 +350,8 @@ const TaskEntity = ({task, users, updateView}) => {
                     <Button onClick={handleCancel} variant="contained" size="small">
                         Отмена
                     </Button>
-                    <Button onClick={handleSave} style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}} variant="contained" size="small">
+                    <Button onClick={handleSave} style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}
+                            variant="contained" size="small">
                         Сохранить
                     </Button>
                 </DialogActions>

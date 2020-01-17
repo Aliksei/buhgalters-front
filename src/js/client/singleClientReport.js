@@ -46,7 +46,7 @@ const ClientsReport = ({owner, reportList, update}) => {
     const [loader, setLoader] = React.useState(true);
 
     useEffect(() => {
-        if (Object.keys(owner).length !== 0 && reportList.leading > 0) {
+        if (Object.keys(owner).length !== 0 ) {
             setLoader(false);
         }
     }, [owner, reportList]);

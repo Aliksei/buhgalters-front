@@ -73,6 +73,9 @@ const NewTaskDialog = ({updateView, userList}) => {
     const [month, setMonth] = React.useState(new Date().getMonth() + 1);
     const [assignee, setAssignee] = React.useState(null);
 
+    const [titleError, setTitleError] = React.useState(false);
+    const [textError, setTextError] = React.useState(false);
+    const [assigneeError, setAssigneeError] = React.useState(false);
 
     const handleSave = () => {
         taskService
@@ -93,9 +96,35 @@ const NewTaskDialog = ({updateView, userList}) => {
 
     const handleType = ({target}) => setType(target.value);
     const handleMonth = ({target}) => setMonth(target.value);
-    const handleAssignee = ({target}) => setAssignee(target.value);
-    const handleTitle = ({target}) => setTitle(target.value);
-    const handleText = ({target}) => setText(target.value);
+    const handleAssignee = ({target}) => {
+        if (target.value !== undefined) {
+            setAssignee(target.value);
+            setAssigneeError(false);
+        }
+    };
+
+    const handleTitle = ({target}) => {
+        let val = target.value;
+        setTitle(val);
+        if (val === "") {
+            setTitleError(true)
+        } else {
+            setTitleError(false);
+            setTitle(val);
+        }
+    };
+    const handleText = ({target}) => {
+        let val = target.value;
+        setText(val);
+        if (val === "") {
+            setTextError(true)
+        } else {
+            setTextError(false);
+            setText(val);
+        }
+    };
+
+
     const handleOpen = () => setOpenNew(true);
 
     const handleClose = () => {
@@ -104,7 +133,18 @@ const NewTaskDialog = ({updateView, userList}) => {
         setType("0");
         setAssignee(null);
         setOpenNew(false);
+        setTextError(false);
+        setTitleError(false);
+        setAssigneeError(false);
     };
+
+    const getHelperText= (hasError) => {
+        return  hasError ? 'Поле не может быть пустым' : null
+    };
+
+    const saveEnabled = titleError || textError || assigneeError;
+
+    const saveStyleBtn = saveEnabled ? null : 'rgba(0,69,147,0.52)';
 
     return (
         <Box>
@@ -112,18 +152,24 @@ const NewTaskDialog = ({updateView, userList}) => {
                     onClick={handleOpen}>Добавить Задание</Button>
             <Dialog open={openNew} className={classes.dialog} fullWidth>
                 <MuiDialogTitle>
-                    <TextField
-                        placeholder="Тема Задания"
-                        value={title}
-                        onChange={handleTitle}>
+                    <TextField error={titleError}
+                               placeholder="Тема Задания"
+                               value={title}
+                               helperText={getHelperText(titleError)}
+                               onChange={handleTitle}
+                               onBlur={handleTitle}
+                    >
                     </TextField>
                 </MuiDialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         <TextField
+                            error={textError}
                             onChange={handleText}
+                            onBlur={handleText}
                             value={text}
                             placeholder="Подробное описание"
+                            helperText={getHelperText(textError)}
                             fullWidth
                             multiline={true}
                             rows={6}
@@ -131,11 +177,16 @@ const NewTaskDialog = ({updateView, userList}) => {
                             style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
                         />
                         <Box display="flex">
-                            <FormControl className={classes.formControl}>
+                            <FormControl className={classes.formControl} error={assigneeError}>
                                 <InputLabel>Адресат</InputLabel>
                                 <Select fullWidth
                                         value={assignee}
                                         onChange={handleAssignee}
+                                        onClose={() => {
+                                            if (assignee === null) {
+                                                setAssigneeError(true);
+                                            }
+                                        }}
                                         labelWidth={40}>
                                     {userList.map(u => {
                                         return <MenuItem dense value={u.id}>{u.name}</MenuItem>
@@ -175,7 +226,8 @@ const NewTaskDialog = ({updateView, userList}) => {
                         size={"small"}
                         variant="contained"
                         onClick={handleSave}
-                        style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}>
+                        disabled={saveEnabled}
+                        style={{backgroundColor: `${saveStyleBtn}`, color: "white"}}>
                         Сохранить
                     </Button>
                 </DialogActions>

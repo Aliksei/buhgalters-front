@@ -46,10 +46,11 @@ const ClientsAct = ({owner, actList, update}) => {
         const [loader, setLoader] = React.useState(true);
 
         useEffect(() => {
-            if (Object.keys(owner).length !== 0 && actList.leading > 0) {
+            if (Object.keys(owner).length !== 0) {
                 setLoader(false);
             }
         }, [actList, owner]);
+
         return (
             <MaterialTable
                 style={{width: '99%'}}

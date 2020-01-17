@@ -74,17 +74,17 @@ const TaskFilter = ({
                                                   <Switch size="small" checked={low}
                                                           onChange={handleLow}
                                                           color="primary"/>
-                                              } label="Low"/>
+                                              } label="Низкий"/>
                         <FormControlLabel control=
                                               {<Switch size="small" checked={medium}
                                                        onChange={handleMedium} color="primary"
-                                              />} label="Medium"
+                                              />} label="Средний"
                         />
                         <FormControlLabel control=
                                               {
                                                   <Switch size="small" checked={critical}
                                                           onChange={handleCritical} color="primary"
-                                                  />} label="Critical"/>
+                                                  />} label="Высокий"/>
                         <FormControl className={classes.formControl}>
                             <Select fullWidth
                                     value={month}
