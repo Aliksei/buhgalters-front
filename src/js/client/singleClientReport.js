@@ -66,10 +66,14 @@ const ClientsReport = ({owner, reportList, update}) => {
                     onRowAdd: newData => new Promise((resolve, reject) => {
                         setTimeout(() => {
                             {
-                                this.setState({loader: true});
-                                newData.clientId = owner.id;
-                                reportService.postReport(newData)
-                                    .then(res => update(res));
+                                if (validateReport(newData)) {
+                                    this.setState({loader: true});
+                                    newData.clientId = owner.id;
+                                    reportService.postReport(newData)
+                                        .then(res => update(res));
+                                } else {
+                                    alert("Данные введены неверно")
+                                }
                             }
                             resolve()
                         }, 50)
@@ -77,10 +81,14 @@ const ClientsReport = ({owner, reportList, update}) => {
                     onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
                         setTimeout(() => {
                             {
-                                setLoader(true);
-                                newData.clientId = owner.id;
-                                reportService.putReport(newData)
-                                    .then(res => update(res))
+                                if (validateReport(newData)) {
+                                    setLoader(true);
+                                    newData.clientId = owner.id;
+                                    reportService.putReport(newData)
+                                        .then(res => update(res))
+                                } else {
+                                    alert("Данные введены неверно")
+                                }
                             }
                             resolve()
                         }, 50)
@@ -101,6 +109,30 @@ const ClientsReport = ({owner, reportList, update}) => {
 };
 
 export default ClientsReport;
+
+const validateReport = (report) => {
+    if (Object.keys(report).length === 0) {
+        return false;
+    } else {
+        if (report.reportName === "") {
+            return false;
+        } else if (report.reportType === "") {
+            return false;
+        } else if (report.status === "") {
+            return false;
+        } else if (report.deadLine === null) {
+            return false;
+        }
+        else if (report.reportDate === null) {
+            return false;
+        } else if (report.status === "") {
+            return false;
+        } else if (report.month === "") {
+            return false;
+        }
+    }
+    return true;
+};
 
 const localization = {
     body: {
@@ -128,7 +160,8 @@ const localization = {
 };
 
 const options = {
-    pageSizeOptions: [5, 10, 15],
+    pageSizeOptions: [10, 20, 30],
+    pageSize: 10,
     paginationType: 'stepped',
     padding: 'dense',
     showFirstLastPageButtons: true,

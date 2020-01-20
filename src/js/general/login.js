@@ -37,27 +37,35 @@ export default function LoginForm() {
     const [isLoggedIn, setLoggedIn] = useState(false);
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState(false);
     const {setAuthTokens} = useAuth();
     const classes = useStyles();
 
     function postLogin() {
+        setError(false);
         return fetch('http://localhost:8080/authenticate', {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
             // credentials: "include",
             body: JSON.stringify({
-                userName: userName,
-                password: password,
+                userName: btoa(userName),
+                password: btoa(password),
             })
         })
             .then(res => {
-                if (res.ok) {
+                if (res.status === 200) {
                     return res.json();
+                } else {
+                    console.log("Setting error true");
+                    setError(true);
+                    return "";
                 }
             })
             .then(res => {
+                if (res !== "") {
                     setAuthTokens(res.jwtToken);
                     setLoggedIn(true);
+                }
             });
     }
 
@@ -68,13 +76,19 @@ export default function LoginForm() {
         return <Redirect to="/clients"/>;
     }
 
+    const getHelperText= () => {
+            return  error ? 'Логин или пароль введены неверно' : null
+    };
+
     return (
         <Grid container align="center" justify="center">
             <Card className={classes.card}>
                 <Box className={classes.box}>
                     <Box className={classes.box}>
                         <TextField id="outlined-basic"
+                                   error={error}
                                    label="Логин"
+                                   helperText={getHelperText()}
                                    variant="outlined"
                                    onChange={handleUserName}
                                    style={{display: "flex"}}
@@ -83,6 +97,8 @@ export default function LoginForm() {
                     <Box className={classes.box}>
                         <TextField
                             id="filled-password-input"
+                            error={error}
+                            helperText={getHelperText()}
                             label="Пароль"
                             type="password"
                             autoComplete="current-password"

@@ -117,6 +117,11 @@ const TaskEntity = ({task, users, updateView}) => {
     const [status, setStatus] = React.useState(task.status);
     const [tempStatus, setTempStatus] = React.useState(-1);
 
+    const [titleError, setTitleError] = React.useState(false);
+    const [contentError, setContentError] = React.useState(false);
+
+
+
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
@@ -144,13 +149,23 @@ const TaskEntity = ({task, users, updateView}) => {
         setOpen(true);
     };
 
-    const handleTempContent = ({target}) => setTempContent(target.value);
     const handleTempType = ({target}) => setTempType(target.value);
     const handleTempMonth = ({target}) => setTempMonth(target.value);
     const handleTempCreator = ({target}) => setTempCreator(target.value);
     const handleTempAssignedTo = ({target}) => setTempAssignedTo(target.value);
     const handleTempStatus = ({target}) => setTempStatus(target.value);
-    const handleTitleChange = ({target}) => setTempTitle(target.value);
+
+
+    const handleTitle = ({target}) => {
+        let val = target.value;
+        setTempTitle(val);
+        if (val === "") {
+            setTitleError(true)
+        } else {
+            setTitleError(false);
+            setTempTitle(val);
+        }
+    };
 
     const handleTaskDropDown = ({currentTarget}) => setAnchorEl(currentTarget);
 
@@ -182,6 +197,41 @@ const TaskEntity = ({task, users, updateView}) => {
             status: tempStatus
         })
             .then(r => updateView(r))
+    };
+
+    const handleContent = ({target}) => {
+        let val = target.value;
+        setTempContent(val);
+        if (val === "") {
+            setContentError(true)
+        } else {
+            setContentError(false);
+            setTempContent(val);
+        }
+    };
+
+    const saveBtn = () => {
+        let saveEnabled = titleError || contentError;
+        let saveStyle = saveEnabled ? {
+            color: "black"
+        } : {
+            backgroundColor: "rgba(0,69,147,0.52)", color: "white"
+        };
+
+        return (
+            <Button
+                size={"small"}
+                variant="contained"
+                onClick={handleSave}
+                disabled={saveEnabled}
+                style={saveStyle}>
+                Сохранить
+            </Button>
+        )
+    };
+
+    const getHelperText= (hasError) => {
+        return  hasError ? 'Поле не может быть пустым' : null
     };
 
     const renderMenu = (
@@ -220,9 +270,13 @@ const TaskEntity = ({task, users, updateView}) => {
             return (
                 <MuiDialogTitle>
                     <TextField
+                        error={titleError}
                         value={tempTitle}
-                        onChange={handleTitleChange}>
+                        onBlur={handleTitle}
+                        onChange={handleTitle}
                         inputProps={{maxLength: 22}}
+                        helperText={getHelperText(titleError)}
+                        placeholder="Тема Задания">
                     </TextField>
                 </MuiDialogTitle>
             )
@@ -280,10 +334,13 @@ const TaskEntity = ({task, users, updateView}) => {
                     {showTitle()}
                     <DialogContentText>
                         <TextField
-                            onChange={handleTempContent}
+                            error={contentError}
+                            onChange={handleContent}
+                            onBlur={handleContent}
                             value={tempContent}
+                            placeholder="Подробное описание"
+                            helperText={getHelperText(contentError)}
                             fullWidth
-                            placeholder="Подробное описаие"
                             multiline={true}
                             rows={6}
                             rowsMax={8}
@@ -350,10 +407,7 @@ const TaskEntity = ({task, users, updateView}) => {
                     <Button onClick={handleCancel} variant="contained" size="small">
                         Отмена
                     </Button>
-                    <Button onClick={handleSave} style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}
-                            variant="contained" size="small">
-                        Сохранить
-                    </Button>
+                    {saveBtn()}
                 </DialogActions>
             </Dialog>
         </div>

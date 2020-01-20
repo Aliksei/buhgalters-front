@@ -65,10 +65,14 @@ const ClientsAct = ({owner, actList, update}) => {
                     onRowAdd: newData => new Promise((resolve, reject) => {
                         setTimeout(() => {
                             {
-                                setLoader(true);
-                                newData.clientId = owner.id;
-                                actService.postAct(newData)
-                                    .then(res => update(res));
+                                if (validateAct(newData)) {
+                                    newData.clientId = owner.id;
+                                    setLoader(true);
+                                    actService.postAct(newData)
+                                        .then(res => update(res));
+                                } else {
+                                    alert("Данные введены неверно");
+                                }
                             }
                             resolve()
                         }, 50)
@@ -76,10 +80,14 @@ const ClientsAct = ({owner, actList, update}) => {
                     onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
                         setTimeout(() => {
                             {
-                                setLoader(true);
-                                newData.clientId = owner.id;
-                                actService.putAct(newData)
-                                    .then(res => update(res))
+                                if (validateAct(newData)) {
+                                    setLoader(true);
+                                    newData.clientId = owner.id;
+                                    actService.putAct(newData)
+                                        .then(res => update(res))
+                                } else {
+                                    alert("Данные введены неверно");
+                                }
                             }
                             resolve()
                         }, 50)
@@ -101,6 +109,25 @@ const ClientsAct = ({owner, actList, update}) => {
     }
 
 ;
+
+const validateAct = (act) => {
+    if (Object.keys(act).length === 0) {
+        return false;
+    } else {
+        if (act.actNumber === "") {
+            return false;
+        } else if (act.summ === "") {
+            return false;
+        } else if (act.actDate === null) {
+            return false;
+        } else if (act.status === "") {
+            return false;
+        } else if (act.month === "") {
+            return false;
+        }
+    }
+    return true;
+};
 
 export default ClientsAct;
 
@@ -152,7 +179,8 @@ const columns = [
 ];
 
 const options = {
-    pageSizeOptions: [5, 10, 15],
+    pageSizeOptions: [10, 20, 30],
+    pageSize: 10,
     paginationType: 'stepped',
     padding: 'dense',
     showFirstLastPageButtons: true,
@@ -172,6 +200,8 @@ const localization = {
         editTooltip: 'Редактировать Акт',
         editRow: {
             deleteText: 'Удалить выбранный акт?',
+            saveTooltip: 'Сохранить',
+            cancelTooltip: 'Отменить',
         }
     },
     toolbar: {

@@ -65,13 +65,7 @@ const SingleClient = (props) => {
                     <Grid item xs={12} className={classes.paper}>
                         <Paper className={classes.paper2}>
                             <ClientData client={client}/>
-                            <Link to='/clients'>
-                                <Button variant="contained" color="default" size="small">
-                                    <ArrowBackIcon/>
-                                </Button>
-                            </Link>
                         </Paper>
-
                     </Grid>
                     <Grid item xs={12} className={classes.paper}>
                         <ClientsAct owner={client} actList={acts} update={triggerUpdate}/>

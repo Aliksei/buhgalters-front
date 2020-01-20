@@ -142,9 +142,26 @@ const NewTaskDialog = ({updateView, userList}) => {
         return  hasError ? 'Поле не может быть пустым' : null
     };
 
-    const saveEnabled = titleError || textError || assigneeError;
 
-    const saveStyleBtn = saveEnabled ? null : 'rgba(0,69,147,0.52)';
+    const saveBtn = () => {
+        let saveEnabled = titleError || textError || assigneeError || assignee === null;
+        let saveStyle = saveEnabled ? {
+            color: "black"
+        } : {
+            backgroundColor: "rgba(0,69,147,0.52)", color: "white"
+        };
+
+        return (
+            <Button
+                size={"small"}
+                variant="contained"
+                onClick={handleSave}
+                disabled={saveEnabled}
+                style={saveStyle}>
+                Сохранить
+            </Button>
+        )
+    };
 
     return (
         <Box>
@@ -222,14 +239,7 @@ const NewTaskDialog = ({updateView, userList}) => {
                         variant="contained">
                         Отмена
                     </Button>
-                    <Button
-                        size={"small"}
-                        variant="contained"
-                        onClick={handleSave}
-                        disabled={saveEnabled}
-                        style={{backgroundColor: `${saveStyleBtn}`, color: "white"}}>
-                        Сохранить
-                    </Button>
+                    {saveBtn()}
                 </DialogActions>
             </Dialog>
         </Box>
