@@ -1,7 +1,6 @@
 import React, {Fragment, useEffect, useState} from "react";
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import {Link} from "react-router-dom";
-import {Box, Button, Grid, ListItemText} from "@material-ui/core";
+import {Grid} from "@material-ui/core";
 import {makeStyles} from '@material-ui/core/styles';
 import ClientsReport from "./singleClientReport";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
@@ -28,9 +27,9 @@ const useStyles = makeStyles(theme => ({
     },
     paper2: {
         padding: theme.spacing(2),
-        width: '50%',
+        width: '99%',
         minHeight: '200px',
-        maxHeight: '300px',
+        maxHeight: '500px',
         color: theme.palette.text.secondary,
     }
 }));
@@ -62,9 +61,14 @@ const SingleClient = (props) => {
             </Breadcrumbs>
             <div>
                 <Grid container className={classes.container}>
-                    <Grid item xs={12} className={classes.paper}>
+                    <Grid item xs={6} className={classes.paper}>
                         <Paper className={classes.paper2}>
-                            <ClientData client={client}/>
+                            <ClientData client={client} update={triggerUpdate}/>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={6} className={classes.paper}>
+                        <Paper className={classes.paper2}>
+                            <ClientData client={client} update={triggerUpdate}/>
                         </Paper>
                     </Grid>
                     <Grid item xs={12} className={classes.paper}>

@@ -22,7 +22,7 @@ import ForumIcon from '@material-ui/icons/Forum';
 import Clients from "./clientsTable";
 import {Link, Route} from "react-router-dom";
 import {AnimatedSwitch} from 'react-router-transition';
-import React, {Fragment} from "react";
+import React, {Fragment, useEffect, useRef} from "react";
 import Acts from "./actsTable";
 import Reports from "./reportsTable";
 import MediaCard from "../task/TaskView";
@@ -38,6 +38,7 @@ import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import RegistrationFrom from "./registration";
 import Tooltip from "@material-ui/core/Tooltip";
+import useSocket from "use-socket.io-client";
 
 
 const drawerWidth = 185;
@@ -115,6 +116,25 @@ export default function MiniDrawer() {
         localStorage.setItem("tokens", JSON.stringify(data));
         setAuthTokens(data);
     };
+
+    const socket = useRef(new WebSocket("wss://localhost:8080/app/"));
+
+    useEffect(() => {
+        socket.current.onmessage = (msg) => {
+            console.log(msg.data);
+            // setMessages(messages.concat([msg.data]))
+        };
+
+        socket.current.onopen = () => {
+            socket.current.send("JOKEREER");
+        };
+
+
+
+    });
+
+    useEffect(() => () => socket.current.close(), [socket]);
+
 
     const handleDrawerOpen = () => setOpen(true);
     const handleDrawerClose = () => setOpen(false);
@@ -208,42 +228,104 @@ export default function MiniDrawer() {
 
 
 const MenuItems = () => {
+
+    const [clientsSelected, setClientsSelected ] = React.useState(false);
+    const [reportsSelected, setReportsSelected] = React.useState(false);
+    const [actsSelected, setActsSelected] = React.useState(false);
+    const [taskstsSelected, setTaskstsSelected] = React.useState(false);
+    const [profileSelected, setProfileSelected] = React.useState(false);
+
+    const handleClientClick =() => {
+      setClientsSelected(true);
+
+      setActsSelected(false);
+      setTaskstsSelected(false);
+      setReportsSelected(false);
+      setProfileSelected(false);
+    };
+
+    const handleTasksClick =() => {
+        setTaskstsSelected(true);
+
+        setClientsSelected(false);
+        setActsSelected(false);
+        setReportsSelected(false);
+        setProfileSelected(false);
+    };
+
+    const handleReportsClick =() => {
+        setReportsSelected(true);
+
+        setProfileSelected(false);
+        setClientsSelected(false);
+        setActsSelected(false);
+        setTaskstsSelected(false);
+    };
+
+    const handleActsClick =() => {
+        setActsSelected(true);
+
+        setProfileSelected(false);
+        setClientsSelected(false);
+        setReportsSelected(false);
+        setTaskstsSelected(false);
+    };
+
+    const handleProfileClick =() => {
+        setProfileSelected(true);
+
+        setActsSelected(false);
+        setClientsSelected(false);
+        setReportsSelected(false);
+        setTaskstsSelected(false);
+    };
+
     return (<Fragment>
         <Divider/>
         <List>
-            <ListItem component={Link} to={'/clients'} button key='Клиенты'>
-                <Tooltip title="Клиенты">
-                    <ListItemIcon><PeopleAltIcon/></ListItemIcon>
-                </Tooltip>
-                <ListItemText primary='Клиенты'/>
-            </ListItem>
-            <ListItem component={Link} to={'/acts'} button key='Акты'>
-                <Tooltip title="Акты">
-                    <ListItemIcon><StorageIcon/></ListItemIcon>
-                </Tooltip>
-                <ListItemText primary='Акты'/>
-            </ListItem>
-            <ListItem component={Link} to={'/reports'} button key='Отчетности'>
-                <Tooltip title="Отчетности">
-                    <ListItemIcon><InboxIcon/></ListItemIcon>
-                </Tooltip>
-                <ListItemText primary='Отчетности'/>
-            </ListItem>
+            <div onClick={handleClientClick}>
+                <ListItem component={Link} to={'/clients'} button key='Клиенты' selected={clientsSelected}>
+                    <Tooltip title="Клиенты">
+                        <ListItemIcon><PeopleAltIcon/></ListItemIcon>
+                    </Tooltip>
+                    <ListItemText primary='Клиенты'/>
+                </ListItem>
+            </div>
+            <div onClick={handleActsClick}>
+                <ListItem component={Link} to={'/acts'} button key='Акты' selected={actsSelected}>
+                    <Tooltip title="Акты">
+                        <ListItemIcon><StorageIcon/></ListItemIcon>
+                    </Tooltip>
+                    <ListItemText primary='Акты'/>
+                </ListItem>
+            </div>
+            <div onClick={handleReportsClick}>
+                <ListItem component={Link} to={'/reports'} button key='Отчетности' selected={reportsSelected}>
+                    <Tooltip title="Отчетности">
+                        <ListItemIcon><InboxIcon/></ListItemIcon>
+                    </Tooltip>
+                    <ListItemText primary='Отчетности'/>
+                </ListItem>
+            </div>
         </List>
         <Divider/>
         <List>
-            <ListItem component={Link} to={'/tasks'} button key='Акты'>
-                <Tooltip title="Задания">
-                    <ListItemIcon><ForumIcon/></ListItemIcon>
-                </Tooltip>
-                <ListItemText primary='Задания'/>
-            </ListItem>
-            <ListItem component={Link} to={'/profile'} button key='Профиль'>
-                <Tooltip title="Профиль">
-                    <ListItemIcon><AccountCircleIcon/></ListItemIcon>
-                </Tooltip>
-                <ListItemText primary='Профиль'/>
-            </ListItem>
+            <div onClick={handleTasksClick}>
+                <ListItem component={Link} to={'/tasks'} button key='Задания' selected={taskstsSelected}>
+                    <Tooltip title="Задания">
+                        <ListItemIcon><ForumIcon/></ListItemIcon>
+                    </Tooltip>
+                    <ListItemText primary='Задания'/>
+                </ListItem>
+            </div>
+            <div onClick={handleProfileClick}>
+                <ListItem component={Link} to={'/profile'} button key='Профиль' selected={profileSelected}>
+                    <Tooltip title="Профиль">
+                        <ListItemIcon><AccountCircleIcon/></ListItemIcon>
+                    </Tooltip>
+                    <ListItemText primary='Профиль'/>
+                </ListItem>
+            </div>
         </List>
     </Fragment>)
 };
