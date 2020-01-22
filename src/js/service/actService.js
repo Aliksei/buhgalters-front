@@ -28,7 +28,17 @@ function deleteAct(body) {
         .deleteRequest("http://localhost:8080/acts/" + body.id);
 }
 
-function downlaod(body) {
+async function downlaod(buildedParams) {
+    let s = objectToQueryString(buildedParams);
+    let url = `http://localhost:8080/acts/download?${s}`;
+    let decoded = decodeURI(url).replace(/\s/g, "%20");
+    console.log(decoded);
     return extendedFetcher
-        .getRequest("http://localhost:8080/download");
+        .downloadRequest(decoded);
+}
+
+function objectToQueryString(obj) {
+    return Object.keys(obj)
+        .map(key => key + '=' + decodeURIComponent(obj[key]))
+        .join('&');
 }

@@ -31,7 +31,7 @@ const useStyles = makeStyles(theme => ({
         width: '99%',
         minHeight: '200px',
         maxHeight: '500px',
-        color: theme.palette.text.secondary,
+        color: "rgb(241, 241, 241)",
     }
 }));
 

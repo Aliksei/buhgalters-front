@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import Typography from "@material-ui/core/Typography";
@@ -20,6 +20,7 @@ import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
+import {actService} from "../service/actService";
 // import { Document, Page } from 'react-pdf';
 
 const useStyles = makeStyles(theme => ({
@@ -43,12 +44,12 @@ const useStyles = makeStyles(theme => ({
         flex: 1,
     },
     docView: {
-        width: '80%',
+        width: '75%',
         height: '100vh',
         backgroundColor: 'gray'
     },
     propsPanel: {
-        width: '20%',
+        width: '25%',
         height: '100vh',
     },
     propsPanelPaper: {
@@ -66,8 +67,6 @@ const Shablons = ({acts, client}) => {
             <Typography>Шаблоны отправки документа</Typography>
             <Template header={"Шаблон 1"} seconHeader={"SECon header 1"} acts={acts} client={client}/>
             <Template header={"Шаблон 2"} seconHeader={"SECon header 2"} acts={acts} client={client}/>
-            <Template header={"Шаблон 3"} seconHeader={"SECon header 3"} acts={acts} client={client}/>
-            <Template header={"Шаблон 4"} seconHeader={"SECon header 24"} acts={acts} client={client}/>
         </div>
     );
 };
@@ -120,14 +119,43 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const FullScreenDialog = ({opened, handleClose, acts, client}) => {
     const classes = useStyles();
 
-    const [pages, setPages] = React.useState();
     const [act, setAct] = React.useState(null);
     const [actError, setActError] = React.useState(false);
     const [perechen, setPerechen] = React.useState("");
+    const [objectUrl, setSrc] = React.useState(null);
 
-    const handlePages = (num) => {
-        setPages(num)
+
+    const [name, setName] = React.useState(client.name);
+
+    const updateIframe = () => {
+
     };
+
+    const close = () => {
+        console.log("Закрываем нахуй");
+        setAct(null);
+        setActError(false);
+        setPerechen("");
+        setSrc(null);
+        handleClose();
+    };
+
+    useEffect(() => {
+        if (opened === true) {
+            let actObject = acts.filter(a => a.id === act)[0];
+            console.log(perechen);
+            let p = {
+                name: name,
+                actNumber: actObject.actNumber,
+                director: client.director,
+                perechen: perechen
+            };
+
+            console.log(p)
+            actService.downlaod(p)
+                .then(e => setSrc(e))
+        }
+    }, [act, perechen]);
 
     const handleAct = ({target}) => {
         if (target.value === undefined) {
@@ -142,13 +170,23 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
         setPerechen(target.value);
     };
 
+    const drawIframe = () => {
+        if (objectUrl === null) {
+            return null;
+        } else {
+            return <iframe src={objectUrl} width={"100%"}
+                           height={"100%"}>
+
+            </iframe>
+        }
+    };
 
     return (
         <div>
-            <Dialog fullScreen open={opened} onClose={handleClose} TransitionComponent={Transition}>
+            <Dialog fullScreen open={opened} TransitionComponent={Transition}>
                 <AppBar className={classes.appBar}>
                     <Toolbar>
-                        <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
+                        <IconButton edge="start" color="inherit" onClick={close} aria-label="close">
                             <CloseIcon/>
                         </IconButton>
                         <Typography variant="h6" className={classes.title}>
@@ -161,17 +199,19 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                 </AppBar>
                 <Grid container>
                     <div className={classes.propsPanel}>
-                        <FormControl className={classes.formControl} error={actError}>
-                            <InputLabel>Выбранный Акт</InputLabel>
-                            <Select fullWidth
-                                    value={act}
-                                    onChange={handleAct}
-                            >
-                                {acts.map(u => {
-                                    return <MenuItem dense value={u.id}>{u.actNumber}</MenuItem>
-                                })}
-                            </Select>
-                        </FormControl>
+                        <Paper className={classes.propsPanelPaper}>
+                            <FormControl className={classes.formControl} error={actError} style={{width : "140px"}}>
+                                <InputLabel>Выбранный Акт</InputLabel>
+                                <Select fullWidth
+                                        value={act}
+                                        onChange={handleAct}
+                                >
+                                    {acts.map(u => {
+                                        return <MenuItem dense value={u.id}>{u.actNumber}</MenuItem>
+                                    })}
+                                </Select>
+                            </FormControl>
+                        </Paper>
                         <Paper className={classes.propsPanelPaper}>
                             <Typography className={classes.secondaryHeading}>Получатель : </Typography>
                             <Typography className={classes.heading}>{client.name}</Typography>
@@ -194,17 +234,12 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                             >
                             </TextField>
                         </Paper>
+                        <Button variant="contained" size={"small"}
+                                style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}
+                                onClick={updateIframe}>Применить данные</Button>
                     </div>
                     <div className={classes.docView}>
-                        {/*<iframe src="https://docs.google.com/gview?url=http://ieee802.org/secmail/docIZSEwEqHFr.doc&embedded=true"></iframe>*/}
-                        {/*<iframe src="https://drive.google.com/file/d/1ejPtYX56eX7wCsQY6Dy0UbdcUxmNY6Td/view"></iframe>*/}
-
-                        {/*<Document*/}
-                        {/*    file="src/Aliksei-Tkachuk-CV.pdf"*/}
-                        {/*    onLoadSuccess={handlePages}*/}
-                        {/*>*/}
-                        {/*    <Page pageNumber={pages} width={600} />*/}
-                        {/*</Document>*/}
+                        {drawIframe()}
                     </div>
                 </Grid>
             </Dialog>

@@ -3,6 +3,7 @@ export const extendedFetcher = {
     postRequest,
     getRequest,
     deleteRequest,
+    downloadRequest
 };
 
 function putRequest(url, body) {
@@ -38,6 +39,22 @@ function getRequest(url) {
         }
     };
     return executeRequest(url, requestOptions);
+}
+
+function downloadRequest(url) {
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/pdf',
+            Authorization : 'Bearer '  + localStorage.getItem('tokens').replace('"', '').replace('"', '')
+        }
+    };
+    return fetch(url, requestOptions)
+        .then(res => res.blob())
+        .then(blob => {
+            let b = new Blob([blob],  {type: "application/pdf"});
+            return URL.createObjectURL(b);
+        });
 }
 
 function deleteRequest(url) {
