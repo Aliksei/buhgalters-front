@@ -8,6 +8,7 @@ import Paper from "@material-ui/core/Paper";
 import ClientData from "./clientPersonalData";
 import ClientsAct from "./singleClientActs";
 import {clientService} from "../service/clientService";
+import Shablons from "./emailact";
 
 
 const useStyles = makeStyles(theme => ({
@@ -68,7 +69,7 @@ const SingleClient = (props) => {
                     </Grid>
                     <Grid item xs={6} className={classes.paper}>
                         <Paper className={classes.paper2}>
-                            <ClientData client={client} update={triggerUpdate}/>
+                            <Shablons client={client} update={triggerUpdate} acts={acts}/>
                         </Paper>
                     </Grid>
                     <Grid item xs={12} className={classes.paper}>

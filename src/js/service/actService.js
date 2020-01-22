@@ -4,7 +4,8 @@ export const actService = {
     getActs,
     putAct,
     postAct,
-    deleteAct
+    deleteAct,
+    downlaod
 };
 
 function getActs() {
@@ -25,4 +26,9 @@ function postAct(body) {
 function deleteAct(body) {
     return extendedFetcher
         .deleteRequest("http://localhost:8080/acts/" + body.id);
+}
+
+function downlaod(body) {
+    return extendedFetcher
+        .getRequest("http://localhost:8080/download");
 }
