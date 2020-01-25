@@ -86,7 +86,6 @@ const NewTaskDialog = ({updateView, userList}) => {
                 month: month,
                 title: title,
                 status: 0,
-                creatorId: 1
             })
             .then(r => {
                 handleClose();

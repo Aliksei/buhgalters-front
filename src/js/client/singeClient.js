@@ -31,7 +31,8 @@ const useStyles = makeStyles(theme => ({
         width: '99%',
         minHeight: '200px',
         maxHeight: '500px',
-        color: "rgb(241, 241, 241)",
+        color: theme.palette.text.secondary,
+        backgroundColor: "rgba(0,109,255,0.07)",
     }
 }));
 
