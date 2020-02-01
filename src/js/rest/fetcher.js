@@ -41,13 +41,15 @@ function getRequest(url) {
     return executeRequest(url, requestOptions);
 }
 
-function downloadRequest(url) {
+function downloadRequest(url, body) {
     const requestOptions = {
-        method: 'GET',
+        method: 'POST',
         headers: {
-            'Content-Type': 'application/pdf',
+            'Content-Type': 'application/json',
+            'Accept': 'application/pdf',
             Authorization : 'Bearer '  + localStorage.getItem('tokens').replace('"', '').replace('"', '')
-        }
+        },
+        body: JSON.stringify(body)
     };
     return fetch(url, requestOptions)
         .then(res => res.blob())

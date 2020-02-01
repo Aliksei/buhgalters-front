@@ -28,13 +28,16 @@ function deleteAct(body) {
         .deleteRequest("http://localhost:8080/acts/" + body.id);
 }
 
-async function downlaod(buildedParams) {
-    let s = objectToQueryString(buildedParams);
-    let url = `http://localhost:8080/acts/download?${s}`;
-    let decoded = decodeURI(url).replace(/\s/g, "%20");
-    console.log(decoded);
-    return extendedFetcher
-        .downloadRequest(decoded);
+async function downlaod(body) {
+    return extendedFetcher.downloadRequest("http://localhost:8080/acts/download", body);
+
+
+    // let s = objectToQueryString(buildedParams);
+    // let url = `http://localhost:8080/acts/download?${s}`;
+    // let decoded = decodeURI(url).replace(/\s/g, "%20");
+    // console.log(decoded);
+    // return extendedFetcher
+    //     .downloadRequest(decoded);
 }
 
 function objectToQueryString(obj) {

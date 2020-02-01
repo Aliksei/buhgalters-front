@@ -28,12 +28,12 @@ const useStyles = makeStyles(theme => ({
         width: '100%',
     },
     heading: {
-        fontSize: theme.typography.pxToRem(15),
+        fontSize: theme.typography.pxToRem(13),
         flexBasis: '33.33%',
         flexShrink: 0,
     },
     secondaryHeading: {
-        fontSize: theme.typography.pxToRem(15),
+        fontSize: theme.typography.pxToRem(13),
         color: theme.palette.text.secondary,
     },
     appBar: {
@@ -122,6 +122,8 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
     const [act, setAct] = React.useState(null);
     const [actError, setActError] = React.useState(false);
     const [perechen, setPerechen] = React.useState("");
+    const [directorSignature, setDirectorSignature] = React.useState("");
+    const [cost, setCost] = React.useState("");
     const [objectUrl, setSrc] = React.useState(null);
 
 
@@ -132,7 +134,6 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
     };
 
     const close = () => {
-        console.log("Закрываем нахуй");
         setAct(null);
         setActError(false);
         setPerechen("");
@@ -145,13 +146,21 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
             let actObject = acts.filter(a => a.id === act)[0];
             console.log(perechen);
             let p = {
-                name: name,
                 actNumber: actObject.actNumber,
-                director: client.director,
+                clientName: client.name,
+                clientDirector: client.director,
+                // date:
+                actMonth : 'Ферфаль',
+                actYear : '2019',
+                ynp: client.ynp,
+                date: "Xnj-nj",
+                directorSignature: directorSignature,
+                clientAddress: client.address,
+                cost: cost,
                 perechen: perechen
             };
 
-            console.log(p)
+            console.log(p);
             actService.downlaod(p)
                 .then(e => setSrc(e))
         }
@@ -166,9 +175,10 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
         setAct(target.value);
     };
 
-    const handlePerechen = ({target}) => {
-        setPerechen(target.value);
-    };
+    const handlePerechen = ({target}) => setPerechen(target.value);
+    const handleCost = ({target}) => setCost(target.value);
+
+
 
     const drawIframe = () => {
         if (objectUrl === null) {
@@ -219,6 +229,25 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                         <Paper className={classes.propsPanelPaper}>
                             <Typography className={classes.secondaryHeading}>Почта : </Typography>
                             <Typography className={classes.heading}>{client.email}</Typography>
+                        </Paper>
+                        <Paper className={classes.propsPanelPaper}>
+                            <Typography className={classes.secondaryHeading}>УНП : </Typography>
+                            <Typography className={classes.heading}>{client.ynp}</Typography>
+                        </Paper>
+                        <Paper className={classes.propsPanelPaper}>
+                            <Typography className={classes.secondaryHeading}>Адресс : </Typography>
+                            <Typography className={classes.heading}>{client.address}</Typography>
+                        </Paper>
+                        <Paper className={classes.propsPanelPaper}>
+                            <Typography className={classes.secondaryHeading}>Документы : </Typography>
+                            <TextField
+                                onChange={handleCost}
+                                value={cost}
+                                placeholder="Сумма в рублях"
+                                fullWidth
+                                style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
+                            >
+                            </TextField>
                         </Paper>
                         <Paper className={classes.propsPanelPaper}>
                             <Typography className={classes.secondaryHeading}>Документы : </Typography>
