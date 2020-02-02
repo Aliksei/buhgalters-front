@@ -21,6 +21,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import {actService} from "../service/actService";
+import {extendedFetcher} from "../rest/fetcher";
 // import { Document, Page } from 'react-pdf';
 
 const useStyles = makeStyles(theme => ({
@@ -117,42 +118,75 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const FullScreenDialog = ({opened, handleClose, acts, client}) => {
-    const classes = useStyles();
+        const classes = useStyles();
 
-    const [act, setAct] = React.useState(null);
-    const [actError, setActError] = React.useState(false);
-    const [perechen, setPerechen] = React.useState("");
-    const [directorSignature, setDirectorSignature] = React.useState("");
-    const [cost, setCost] = React.useState("");
-    const [objectUrl, setSrc] = React.useState(null);
+        const [act, setAct] = React.useState(null);
+        const [actError, setActError] = React.useState(false);
+        const [perechen, setPerechen] = React.useState("");
+        const [directorSignature, setDirectorSignature] = React.useState("");
+        const [cost, setCost] = React.useState("");
+        const [dogovor, setDogovor] = React.useState("");
+        const [director, setDirector] = React.useState(client.director);
 
 
-    const [name, setName] = React.useState(client.name);
+        const [objectUrl, setSrc] = React.useState(null);
 
-    const updateIframe = () => {
 
-    };
+        const [name, setName] = React.useState(client.name);
 
-    const close = () => {
-        setAct(null);
-        setActError(false);
-        setPerechen("");
-        setSrc(null);
-        handleClose();
-    };
+        const updateIframe = () => {
 
-    useEffect(() => {
-        if (opened === true) {
-            let actObject = acts.filter(a => a.id === act)[0];
-            console.log(perechen);
+        };
+
+        const close = () => {
+            setAct(null);
+            setActError(false);
+            setPerechen("");
+            setSrc(null);
+            setDogovor("");
+            handleClose();
+        };
+
+        useEffect(() => {
+            setDirector(client.director)
+        }, [client]);
+
+        useEffect(() => {
+            if (opened === true && act != null) {
+                console.log(perechen);
+                let p = {
+                    actNumber: act.actNumber,
+                    clientName: client.name,
+                    clientDirector: director,
+                    // date:
+                    actMonth: 'Ферфаль',
+                    actYear: '2019',
+                    ynp: client.ynp,
+                    dogovor: dogovor,
+                    date: "Xnj-nj",
+                    directorSignature: directorSignature,
+                    clientAddress: client.address,
+                    cost: cost,
+                    perechen: perechen
+                };
+
+                console.log(p);
+                actService.downlaod(p)
+                    .then(e => setSrc(e))
+            }
+        }, [act, perechen]);
+
+
+        const applyData = () => {
             let p = {
-                actNumber: actObject.actNumber,
+                actNumber: act.actNumber,
                 clientName: client.name,
-                clientDirector: client.director,
+                clientDirector: director,
                 // date:
-                actMonth : 'Ферфаль',
-                actYear : '2019',
+                actMonth: 'Ферфаль',
+                actYear: '2019',
                 ynp: client.ynp,
+                dogovor: dogovor,
                 date: "Xnj-nj",
                 directorSignature: directorSignature,
                 clientAddress: client.address,
@@ -163,115 +197,167 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
             console.log(p);
             actService.downlaod(p)
                 .then(e => setSrc(e))
-        }
-    }, [act, perechen]);
+        };
 
-    const handleAct = ({target}) => {
-        if (target.value === undefined) {
-            setActError(true);
-        } else {
-            setActError(false);
-        }
-        setAct(target.value);
-    };
+        const sendMessage = () => {
+            let p = {
+                actNumber: act.actNumber,
+                clientName: client.name,
+                clientDirector: director,
+                // date:
+                actMonth: 'Ферфаль',
+                actYear: '2019',
+                ynp: client.ynp,
+                dogovor: dogovor,
+                date: "Xnj-nj",
+                directorSignature: directorSignature,
+                clientAddress: client.address,
+                cost: cost,
+                perechen: perechen
+            };
 
-    const handlePerechen = ({target}) => setPerechen(target.value);
-    const handleCost = ({target}) => setCost(target.value);
+            let body = {
+                wordAct: p,
+                sendEmailRequest: {
+                    from: "",
+                    to: "",
+                    password: "",
+                    text: "Joker"
+                }
+            }
 
 
+            extendedFetcher.postRequest("http://localhost:8080/sendEmail", body);
+        };
 
-    const drawIframe = () => {
-        if (objectUrl === null) {
-            return null;
-        } else {
-            return <iframe src={objectUrl} width={"100%"}
-                           height={"100%"}>
+        const handleAct = ({target}) => {
+            if (target.value === undefined) {
+                setActError(true);
+            } else {
+                setActError(false);
+            }
+            let actObject = acts.filter(a => a.id === target.value)[0];
+            setAct(actObject);
+        };
 
-            </iframe>
-        }
-    };
+        const handlePerechen = ({target}) => setPerechen(target.value);
+        const handleDogovor = ({target}) => setDogovor(target.value);
+        const handleCost = ({target}) => setCost(target.value);
+        const handleDirector = ({target}) => setDirector(target.value);
 
-    return (
-        <div>
-            <Dialog fullScreen open={opened} TransitionComponent={Transition}>
-                <AppBar className={classes.appBar}>
-                    <Toolbar>
-                        <IconButton edge="start" color="inherit" onClick={close} aria-label="close">
-                            <CloseIcon/>
-                        </IconButton>
-                        <Typography variant="h6" className={classes.title}>
-                            Отмена
-                        </Typography>
-                        <Button variant="contained" size={"small"}
-                                style={{backgroundColor: 'white'}}
-                        >Отправить Документ</Button>
-                    </Toolbar>
-                </AppBar>
-                <Grid container>
-                    <div className={classes.propsPanel}>
-                        <Paper className={classes.propsPanelPaper}>
-                            <FormControl className={classes.formControl} error={actError} style={{width : "140px"}}>
-                                <InputLabel>Выбранный Акт</InputLabel>
-                                <Select fullWidth
-                                        value={act}
-                                        onChange={handleAct}
+
+        const drawIframe = () => {
+            if (objectUrl === null) {
+                return null;
+            } else {
+                return <iframe src={objectUrl} width={"100%"}
+                               height={"100%"}>
+
+                </iframe>
+            }
+        };
+
+        return (
+            <div>
+                <Dialog fullScreen open={opened} TransitionComponent={Transition}>
+                    <AppBar className={classes.appBar}>
+                        <Toolbar>
+                            <IconButton edge="start" color="inherit" onClick={close} aria-label="close">
+                                <CloseIcon/>
+                            </IconButton>
+                            <Typography variant="h6" className={classes.title}>
+                                Отмена
+                            </Typography>
+                            <Button variant="contained" size={"small"}
+                                    style={{backgroundColor: 'white'}}
+                                    onClick={sendMessage}
+                            >Отправить Документ</Button>
+                            <Button variant="contained" size={"small"}
+                                    onClick={applyData}
+                                    style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}
+                            >Применить данные</Button>
+                        </Toolbar>
+                    </AppBar>
+                    <Grid container>
+                        <div className={classes.propsPanel} style={{overflowY: 'scroll'}}>
+                            <Paper className={classes.propsPanelPaper}>
+                                <FormControl className={classes.formControl} error={actError} style={{width: "140px"}}>
+                                    <InputLabel>Выбранный Акт</InputLabel>
+                                    <Select fullWidth
+                                            value={act}
+                                            onChange={handleAct}
+                                    >
+                                        {acts.map(u => {
+                                            return <MenuItem dense value={u.id}>{u.actNumber}</MenuItem>
+                                        })}
+                                    </Select>
+                                </FormControl>
+                            </Paper>
+                            <Paper className={classes.propsPanelPaper}>
+                                <Typography className={classes.secondaryHeading}>Получатель : </Typography>
+                                <Typography className={classes.heading}>{client.name}</Typography>
+                            </Paper>
+                            <Paper className={classes.propsPanelPaper}>
+                                <Typography className={classes.secondaryHeading}>Почта : </Typography>
+                                <Typography className={classes.heading}>{client.email}</Typography>
+                            </Paper>
+                            <Paper className={classes.propsPanelPaper}>
+                                <Typography className={classes.secondaryHeading}>УНП : </Typography>
+                                <Typography className={classes.heading}>{client.ynp}</Typography>
+                            </Paper>
+                            <Paper className={classes.propsPanelPaper}>
+                                <Typography className={classes.secondaryHeading}>Адресс : </Typography>
+                                <Typography className={classes.heading}>{client.address}</Typography>
+                            </Paper>
+                            <Paper className={classes.propsPanelPaper}>
+                                <Typography className={classes.secondaryHeading}>Сумма акта : </Typography>
+                                <TextField
+                                    onChange={handleCost}
+                                    value={`${act === null ? "" : act.summ} ${cost}`}
+                                    placeholder="Сумма"
+                                    fullWidth>
+                                </TextField>
+                            </Paper>
+                            <Paper className={classes.propsPanelPaper}>
+                                <Typography className={classes.secondaryHeading}>Директор : </Typography>
+                                <TextField
+                                    onChange={handleDirector}
+                                    value={director}
+                                    placeholder="Директор"
+                                    fullWidth>
+                                </TextField>
+                            </Paper>
+                            <Paper className={classes.propsPanelPaper}>
+                                <Typography className={classes.secondaryHeading}>Заключенный договор : </Typography>
+                                <TextField
+                                    onChange={handleDogovor}
+                                    value={dogovor}
+                                    placeholder="Информация по договору"
+                                    fullWidth
                                 >
-                                    {acts.map(u => {
-                                        return <MenuItem dense value={u.id}>{u.actNumber}</MenuItem>
-                                    })}
-                                </Select>
-                            </FormControl>
-                        </Paper>
-                        <Paper className={classes.propsPanelPaper}>
-                            <Typography className={classes.secondaryHeading}>Получатель : </Typography>
-                            <Typography className={classes.heading}>{client.name}</Typography>
-                        </Paper>
-                        <Paper className={classes.propsPanelPaper}>
-                            <Typography className={classes.secondaryHeading}>Почта : </Typography>
-                            <Typography className={classes.heading}>{client.email}</Typography>
-                        </Paper>
-                        <Paper className={classes.propsPanelPaper}>
-                            <Typography className={classes.secondaryHeading}>УНП : </Typography>
-                            <Typography className={classes.heading}>{client.ynp}</Typography>
-                        </Paper>
-                        <Paper className={classes.propsPanelPaper}>
-                            <Typography className={classes.secondaryHeading}>Адресс : </Typography>
-                            <Typography className={classes.heading}>{client.address}</Typography>
-                        </Paper>
-                        <Paper className={classes.propsPanelPaper}>
-                            <Typography className={classes.secondaryHeading}>Документы : </Typography>
-                            <TextField
-                                onChange={handleCost}
-                                value={cost}
-                                placeholder="Сумма в рублях"
-                                fullWidth
-                                style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
-                            >
-                            </TextField>
-                        </Paper>
-                        <Paper className={classes.propsPanelPaper}>
-                            <Typography className={classes.secondaryHeading}>Документы : </Typography>
-                            <TextField
-                                onChange={handlePerechen}
-                                value={perechen}
-                                placeholder="Перечень документов"
-                                fullWidth
-                                multiline={true}
-                                rows={6}
-                                rowsMax={8}
-                                style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
-                            >
-                            </TextField>
-                        </Paper>
-                        <Button variant="contained" size={"small"}
-                                style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}
-                                onClick={updateIframe}>Применить данные</Button>
-                    </div>
-                    <div className={classes.docView}>
-                        {drawIframe()}
-                    </div>
-                </Grid>
-            </Dialog>
-        </div>
-    );
-};
+                                </TextField>
+                            </Paper>
+                            <Paper className={classes.propsPanelPaper}>
+                                <Typography className={classes.secondaryHeading}>Документы : </Typography>
+                                <TextField
+                                    onChange={handlePerechen}
+                                    value={perechen}
+                                    placeholder="Перечень документов"
+                                    fullWidth
+                                    multiline={true}
+                                    rows={6}
+                                    rowsMax={8}
+                                    style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
+                                >
+                                </TextField>
+                            </Paper>
+                        </div>
+                        <div className={classes.docView}>
+                            {drawIframe()}
+                        </div>
+                    </Grid>
+                </Dialog>
+            </div>
+        );
+    }
+;
