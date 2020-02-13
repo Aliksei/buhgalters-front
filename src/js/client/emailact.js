@@ -20,7 +20,7 @@ import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
-import {actService} from "../service/actService";
+import {actService, API_HOST} from "../service/actService";
 import {extendedFetcher} from "../rest/fetcher";
 // import { Document, Page } from 'react-pdf';
 
@@ -227,7 +227,7 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
             }
 
 
-            extendedFetcher.postRequest("http://localhost:8080/sendEmail", body);
+            extendedFetcher.postRequest(`http://${API_HOST}:8080/sendEmail`, body);
         };
 
         const handleAct = ({target}) => {

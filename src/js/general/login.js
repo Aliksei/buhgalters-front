@@ -5,7 +5,7 @@ import TextField from "@material-ui/core/TextField";
 import {useAuth} from "../context/auth";
 import {Link, Redirect} from "react-router-dom";
 import Box from "@material-ui/core/Box";
-import ListItem from "@material-ui/core/ListItem";
+import {API_HOST} from "../service/actService";
 
 
 const useStyles = makeStyles(theme => ({
@@ -43,7 +43,7 @@ export default function LoginForm() {
 
     function postLogin() {
         setError(false);
-        return fetch('http://localhost:8080/authenticate', {
+        return fetch(`http://${API_HOST}:8080/authenticate`, {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
             // credentials: "include",

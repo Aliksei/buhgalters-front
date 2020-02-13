@@ -117,25 +117,6 @@ export default function MiniDrawer() {
         setAuthTokens(data);
     };
 
-    const socket = useRef(new WebSocket("wss://localhost:8080/app/"));
-
-    useEffect(() => {
-        socket.current.onmessage = (msg) => {
-            console.log(msg.data);
-            // setMessages(messages.concat([msg.data]))
-        };
-
-        socket.current.onopen = () => {
-            socket.current.send("JOKEREER");
-        };
-
-
-
-    });
-
-    useEffect(() => () => socket.current.close(), [socket]);
-
-
     const handleDrawerOpen = () => setOpen(true);
     const handleDrawerClose = () => setOpen(false);
     const handleMenuClose = () => setAnchorEl(null);

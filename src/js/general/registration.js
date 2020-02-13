@@ -6,6 +6,7 @@ import {useAuth} from "../context/auth";
 import {Link, Redirect} from "react-router-dom";
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
+import {API_HOST} from "../service/actService";
 
 
 const useStyles = makeStyles(theme => ({
@@ -43,7 +44,7 @@ export default function RegistrationFrom() {
     const classes = useStyles();
 
     function register() {
-        return fetch('http://localhost:8080/user', {
+        return fetch(`http://${API_HOST}:8080/user`, {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({

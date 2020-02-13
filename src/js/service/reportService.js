@@ -1,4 +1,5 @@
 import {extendedFetcher} from "../rest/fetcher";
+import {API_HOST} from "./actService";
 
 export const reportService = {
     getReports,
@@ -9,20 +10,20 @@ export const reportService = {
 
 function getReports() {
     return extendedFetcher
-        .getRequest("http://localhost:8080/reports");
+        .getRequest(`http://${API_HOST}:8080/reports`);
 }
 
 function putReport(body) {
     return extendedFetcher
-        .putRequest("http://localhost:8080/reports/" + body.id, body);
+        .putRequest(`http://${API_HOST}:8080/reports/` + body.id, body);
 }
 
 function postReport(body) {
     return extendedFetcher
-        .postRequest("http://localhost:8080/reports", body);
+        .postRequest(`http://${API_HOST}:8080/reports`, body);
 }
 
 function deleteReport(body) {
     return extendedFetcher
-        .deleteRequest("http://localhost:8080/reports/" + body.id);
+        .deleteRequest(`http://${API_HOST}:8080/reports/` + body.id);
 }

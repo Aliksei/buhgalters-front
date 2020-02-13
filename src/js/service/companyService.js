@@ -1,4 +1,5 @@
 import {extendedFetcher} from "../rest/fetcher";
+import {API_HOST} from "./actService";
 
 export const companyService = {
     getUsersByCompanyId
@@ -6,5 +7,5 @@ export const companyService = {
 
 function getUsersByCompanyId(id) {
     return extendedFetcher
-        .getRequest("http://localhost:8080/company/" + id + "/users");
+        .getRequest(`http://${API_HOST}:8080/company/` + id + "/users");
 }
