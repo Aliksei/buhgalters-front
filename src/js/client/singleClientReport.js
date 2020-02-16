@@ -64,34 +64,37 @@ const ClientsReport = ({owner, reportList, update}) => {
                 localization={localization}
                 editable={{
                     onRowAdd: newData => new Promise((resolve, reject) => {
-                        setTimeout(() => {
-                            {
-                                if (validateReport(newData)) {
-                                    this.setState({loader: true});
+                        if (validateReport(newData)) {
+                            setTimeout(() => {
+                                {
+                                    setLoader(true);
                                     newData.clientId = owner.id;
                                     reportService.postReport(newData)
                                         .then(res => update(res));
-                                } else {
-                                    alert("Данные введены неверно")
                                 }
-                            }
-                            resolve()
-                        }, 50)
+                                resolve()
+                            }, 50)
+                        } else {
+                            window.alert("Данные введены неверно");
+                            reject();
+                        }
                     }),
                     onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
-                        setTimeout(() => {
-                            {
-                                if (validateReport(newData)) {
+                        if (validateReport(newData)) {
+                            setTimeout(() => {
+                                {
                                     setLoader(true);
                                     newData.clientId = owner.id;
                                     reportService.putReport(newData)
                                         .then(res => update(res))
-                                } else {
-                                    alert("Данные введены неверно")
                                 }
-                            }
-                            resolve()
-                        }, 50)
+                                resolve()
+                            }, 50)
+                        } else {
+                            window.alert("Данные введены неверно");
+                            reject();
+                        }
+
                     }),
                     onRowDelete: oldData => new Promise((resolve, reject) => {
                         setTimeout(() => {
@@ -111,27 +114,21 @@ const ClientsReport = ({owner, reportList, update}) => {
 export default ClientsReport;
 
 const validateReport = (report) => {
-    if (Object.keys(report).length === 0) {
-        return false;
+    console.log(report);
+    if (validateField(report.reportName) &&
+        validateField(report.reportType) &&
+        validateField(report.status) &&
+        validateField(report.deadLine) &&
+        validateField(report.reportDate)) {
+        return true;
     } else {
-        if (report.reportName === "") {
-            return false;
-        } else if (report.reportType === "") {
-            return false;
-        } else if (report.status === "") {
-            return false;
-        } else if (report.deadLine === null) {
-            return false;
-        }
-        else if (report.reportDate === null) {
-            return false;
-        } else if (report.status === "") {
-            return false;
-        } else if (report.month === "") {
-            return false;
-        }
+        return false;
     }
-    return true;
+};
+
+const validateField = (field) => {
+    let result = field === '' || field === null || field === undefined;
+    return  !result;
 };
 
 const localization = {

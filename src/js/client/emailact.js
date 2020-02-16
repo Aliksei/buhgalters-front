@@ -22,7 +22,6 @@ import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import {actService, API_HOST} from "../service/actService";
 import {extendedFetcher} from "../rest/fetcher";
-// import { Document, Page } from 'react-pdf';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -66,8 +65,8 @@ const Shablons = ({acts, client}) => {
     return (
         <div className={classes.root}>
             <Typography>Шаблоны отправки документа</Typography>
-            <Template header={"Шаблон 1"} seconHeader={"SECon header 1"} acts={acts} client={client}/>
-            <Template header={"Шаблон 2"} seconHeader={"SECon header 2"} acts={acts} client={client}/>
+            <Template header={"Шаблон 1"} seconHeader={"Отправка акта клииенту"} acts={acts} client={client}/>
+            {/*<Template header={"Шаблон 2"} seconHeader={"SECon header 2"} acts={acts} client={client}/>*/}
         </div>
     );
 };
@@ -99,8 +98,8 @@ const Template = ({header, seconHeader, acts, client}) => {
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
                 <Typography>
-                    Nulla facilisi. Phasellus sollicitudin nulla et quam mattis feugiat. Aliquam eget
-                    maximus est, id dignissim quam.
+                    Шаблон документа, в который вставляются и правятся данные по клиенту,
+                    информация по акту, и отправляетется на почту клиента.
                 </Typography>
             </ExpansionPanelDetails>
             <ExpansionPanelActions>
@@ -174,7 +173,8 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                 actService.downlaod(p)
                     .then(e => setSrc(e))
             }
-        }, [act, perechen]);
+        }, [act]);
+        // }, [act, perechen]);
 
 
         const applyData = () => {
@@ -270,10 +270,12 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                             </Typography>
                             <Button variant="contained" size={"small"}
                                     style={{backgroundColor: 'white'}}
+                                    disabled
                                     onClick={sendMessage}
                             >Отправить Документ</Button>
                             <Button variant="contained" size={"small"}
                                     onClick={applyData}
+                                    disabled
                                     style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}
                             >Применить данные</Button>
                         </Toolbar>

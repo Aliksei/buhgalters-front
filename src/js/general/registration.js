@@ -89,6 +89,7 @@ export default function RegistrationFrom() {
                 <Box className={classes.box}>
                     <Box className={classes.box}>
                         <TextField id="outlined-basic"
+                                   size={"small"}
                                    label="Логин"
                                    variant="outlined"
                                    onChange={handleUserName}
@@ -97,6 +98,7 @@ export default function RegistrationFrom() {
                     </Box>
                     <Box className={classes.box}>
                         <TextField
+                            size={"small"}
                             id="email-input"
                             label="Почта"
                             type="email"
@@ -108,6 +110,7 @@ export default function RegistrationFrom() {
                     </Box>
                     <Box className={classes.box}>
                         <TextField
+                            size={"small"}
                             id="filled-password-input"
                             label="Пароль"
                             type="password"
@@ -121,6 +124,7 @@ export default function RegistrationFrom() {
                         <TextField
                             id="secondPassword"
                             label="Повторите Пароль"
+                            size={"small"}
                             type="password"
                             onChange={handleSecondPassword}
                             autoComplete="current-password"
@@ -129,11 +133,11 @@ export default function RegistrationFrom() {
                         />
                     </Box>
                     <Box className={classes.box}>
-                        <Button variant="outlined" color="primary" onClick={register} style={{margin: 7}}>
+                        <Button variant="outlined" color="primary" size={"small"} onClick={register} style={{margin: 7}}>
                             Создать
                         </Button>
 
-                        <Button variant="outlined" color="primary" component={Link} to={'/login'}>
+                        <Button variant="outlined" color="primary" size={"small"} component={Link} to={'/login'}>
                             Назад
                         </Button>
                     </Box>

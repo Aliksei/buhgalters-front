@@ -174,6 +174,7 @@ const NewTaskDialog = ({updateView, userList}) => {
                                helperText={getHelperText(titleError)}
                                onChange={handleTitle}
                                onBlur={handleTitle}
+                               size={"small"}
                     >
                     </TextField>
                 </MuiDialogTitle>
@@ -184,6 +185,7 @@ const NewTaskDialog = ({updateView, userList}) => {
                             onChange={handleText}
                             onBlur={handleText}
                             value={text}
+                            size={'small'}
                             placeholder="Подробное описание"
                             helperText={getHelperText(textError)}
                             fullWidth

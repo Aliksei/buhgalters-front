@@ -63,34 +63,34 @@ const ClientsAct = ({owner, actList, update}) => {
                 localization={localization}
                 editable={{
                     onRowAdd: newData => new Promise((resolve, reject) => {
-                        setTimeout(() => {
-                            {
-                                if (validateAct(newData)) {
-                                    newData.clientId = owner.id;
-                                    setLoader(true);
-                                    actService.postAct(newData)
-                                        .then(res => update(res));
-                                } else {
-                                    alert("Данные введены неверно");
-                                }
-                            }
-                            resolve()
-                        }, 50)
+                        if (validateAct(newData)) {
+                            setTimeout(() => {
+                                {
+                                        newData.clientId = owner.id;
+                                        setLoader(true);
+                                        actService.postAct(newData)
+                                            .then(res => update(res));
+                                }resolve()}, 50)
+                        } else {
+                            window.alert("Данные введены неверно");
+                            reject();
+                        }
                     }),
                     onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
-                        setTimeout(() => {
-                            {
-                                if (validateAct(newData)) {
-                                    setLoader(true);
-                                    newData.clientId = owner.id;
-                                    actService.putAct(newData)
-                                        .then(res => update(res))
-                                } else {
-                                    alert("Данные введены неверно");
+                        if (validateAct(newData)) {
+                            setTimeout(() => {
+                                {
+                                        setLoader(true);
+                                        newData.clientId = owner.id;
+                                        actService.putAct(newData)
+                                            .then(res => update(res))
                                 }
-                            }
-                            resolve()
-                        }, 50)
+                                resolve()
+                            }, 50)
+                        } else {
+                            window.alert("Данные введены неверно");
+                            reject();
+                        }
                     }),
                     onRowDelete: oldData =>
                         new Promise((resolve, reject) => {
@@ -110,23 +110,22 @@ const ClientsAct = ({owner, actList, update}) => {
 
 ;
 
-const validateAct = (act) => {
-    if (Object.keys(act).length === 0) {
-        return false;
+const validateAct = (report) => {
+    console.log(report);
+    if (validateField(report.actNumber) &&
+        validateField(report.month) &&
+        validateField(report.summ) &&
+        validateField(report.actDate) &&
+        validateField(report.status)) {
+        return true;
     } else {
-        if (act.actNumber === "") {
-            return false;
-        } else if (act.summ === "") {
-            return false;
-        } else if (act.actDate === null) {
-            return false;
-        } else if (act.status === "") {
-            return false;
-        } else if (act.month === "") {
-            return false;
-        }
+        return false;
     }
-    return true;
+};
+
+const validateField = (field) => {
+    let result = field === '' || field === null || field === undefined;
+    return  !result;
 };
 
 export default ClientsAct;

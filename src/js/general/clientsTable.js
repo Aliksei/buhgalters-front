@@ -61,24 +61,34 @@ const Clients = (props) => {
                 ]}
                 editable={{
                     onRowAdd: newData => new Promise((resolve, reject) => {
-                        setTimeout(() => {
-                            {
-                                setLoader(true);
-                                clientService.postClient(newData)
-                                    .then(res => triggerUpdate(res));
-                            }
-                            resolve()
-                        }, 50)
+                        if (validateData(newData)) {
+                            setTimeout(() => {
+                                {
+                                    setLoader(true);
+                                    clientService.postClient(newData)
+                                        .then(res => triggerUpdate(res));
+                                }
+                                resolve()
+                            }, 50)
+                        } else {
+                            window.alert("Данные введены неверно");
+                            reject();
+                        }
                     }),
                     onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
-                        setTimeout(() => {
-                            {
-                                setLoader(true);
-                                clientService.putClient(newData)
-                                    .then(res => triggerUpdate(res));
-                            }
-                            resolve()
-                        }, 50)
+                        if (validateData(newData)) {
+                            setTimeout(() => {
+                                {
+                                    setLoader(true);
+                                    clientService.putClient(newData)
+                                        .then(res => triggerUpdate(res));
+                                }
+                                resolve()
+                            }, 50)
+                        } else {
+                            window.alert("Данные введены неверно");
+                            reject();
+                        }
                     }),
                     onRowDelete: oldData => new Promise((resolve, reject) => {
                         setTimeout(() => {
@@ -94,6 +104,29 @@ const Clients = (props) => {
             />
         </Fragment>
     )
+};
+
+const validateData = (fdata) => {
+
+    if (isPresent(fdata.ynp) &&
+        isPresent(fdata.name) &&
+        isPresent(fdata.email) &&
+        isPresent(fdata.director) &&
+        isPresent(fdata.fond) &&
+        isPresent(fdata.address) &&
+        isPresent(fdata.imns) &&
+        isPresent(fdata.okpo) &&
+        isPresent(fdata.fszn)
+    ) {
+        return true
+    } else {
+        return false;
+    }
+};
+
+const isPresent = (field) => {
+    let result = field === null || field === '' || field === undefined;
+    return !result;
 };
 
 export default Clients;

@@ -205,6 +205,7 @@ const EditDialog = ({opened, handleClose, client, update}) => {
                                variant="outlined">
                     </TextField>
                     <TextField className={classes.textField}
+                               size={"small"}
                                onChange={handleEmail}
                                error={emailError}
                                value={email}
@@ -217,6 +218,7 @@ const EditDialog = ({opened, handleClose, client, update}) => {
                 <Box className={classes.box}>
                     <TextField className={classes.textField}
                                onChange={handleFszn}
+                               size={"small"}
                                error={fsznError}
                                value={fszn}
                                label={"ФСЗН"}
@@ -226,6 +228,7 @@ const EditDialog = ({opened, handleClose, client, update}) => {
                     <TextField className={classes.textField}
                                onChange={handleDirector}
                                error={directorError}
+                               size={"small"}
                                value={director}
                                label={"Директор"}
                                helperText={getHelperText(directorError)}
@@ -236,6 +239,7 @@ const EditDialog = ({opened, handleClose, client, update}) => {
                 <Box className={classes.box}>
                     <TextField className={classes.textField}
                                onChange={handleFond}
+                               size={"small"}
                                type={"number"}
                                error={fondError}
                                value={fond}
@@ -245,6 +249,7 @@ const EditDialog = ({opened, handleClose, client, update}) => {
                     </TextField>
                     <TextField className={classes.textField}
                                onChange={handleAddress}
+                               size={"small"}
                                error={addressError}
                                value={address}
                                label={"Адрес"}
@@ -256,6 +261,7 @@ const EditDialog = ({opened, handleClose, client, update}) => {
                 <Box className={classes.box}>
                     <TextField className={classes.textField}
                                onChange={handleImns}
+                               size={"small"}
                                error={imnsError}
                                value={imns}
                                label={"Имнс"}
@@ -264,6 +270,7 @@ const EditDialog = ({opened, handleClose, client, update}) => {
                     </TextField>
                     <TextField className={classes.textField}
                                onChange={handleOkpo}
+                               size={"small"}
                                error={okpoError}
                                value={okpo}
                                label={"ОКПО"}
@@ -275,6 +282,7 @@ const EditDialog = ({opened, handleClose, client, update}) => {
                 <Box className={classes.box}>
                     <TextField className={classes.textField}
                                onChange={handleYnp}
+                               size={"small"}
                                type={"number"}
                                error={ynpError}
                                value={ynp}

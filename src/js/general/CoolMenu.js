@@ -39,6 +39,7 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import RegistrationFrom from "./registration";
 import Tooltip from "@material-ui/core/Tooltip";
 import useSocket from "use-socket.io-client";
+import Profile from "./profile";
 
 
 const drawerWidth = 185;
@@ -198,7 +199,7 @@ export default function MiniDrawer() {
                         <PrivateRoute path='/tasks' component={MediaCard}/>
                         <Route path='/login' component={Login}/>
                         <Route path='/registration' component={RegistrationFrom}/>
-                        <PrivateRoute path='/profile' component={Acts}/>
+                        <PrivateRoute path='/profile' component={Profile}/>
                     </AnimatedSwitch>
                 </main>
             </AuthContext.Provider>

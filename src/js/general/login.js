@@ -88,6 +88,7 @@ export default function LoginForm() {
                         <TextField id="outlined-basic"
                                    error={error}
                                    label="Логин"
+                                   size={"small"}
                                    helperText={getHelperText()}
                                    variant="outlined"
                                    onChange={handleUserName}
@@ -101,6 +102,7 @@ export default function LoginForm() {
                             helperText={getHelperText()}
                             label="Пароль"
                             type="password"
+                            size={"small"}
                             autoComplete="current-password"
                             variant="outlined"
                             onChange={handlePassword}
@@ -108,8 +110,8 @@ export default function LoginForm() {
                         />
                     </Box>
                     <Box className={classes.box}>
-                        <Button variant="outlined" color="primary" onClick={postLogin} style={{margin:7}}>Войти</Button>
-                        <Button variant="outlined" color="primary" component={Link} to={'/registration'}>Регистрация</Button>
+                        <Button variant="outlined" size={"small"} color="primary" onClick={postLogin} style={{margin:7}}>Войти</Button>
+                        {/*<Button variant="outlined" size={"small"} color="primary" component={Link} to={'/registration'}>Регистрация</Button>*/}
                     </Box>
                 </Box>
             </Card>
