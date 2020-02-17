@@ -70,7 +70,7 @@ export default function RegistrationFrom() {
                 }
             ).then(res => {
                 console.log("Create" );
-                console.log(res );
+                console.log(res) ;
                if (res.ok) {
                    setCreated(true);
                }
