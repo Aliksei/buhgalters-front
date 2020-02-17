@@ -1,17 +1,11 @@
 import {extendedFetcher} from "../rest/fetcher";
 import {API_HOST} from "./actService";
 
-export const employeeService = {
-    getAllEmployees,
-    getUserById
+export const userService = {
+    createUser,
 };
 
-function getAllEmployees() {
+function createUser(body) {
     return extendedFetcher
-        .getRequest(`http://${API_HOST}:8080/employees`);
-}
-
-function getUserById(id) {
-    return extendedFetcher
-        .getRequest(`http://${API_HOST}:8080/employees/` + id);
+        .postRequest(`http://${API_HOST}:8080/user/`, body);
 }

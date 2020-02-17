@@ -6,12 +6,14 @@ import {useAuth} from "../context/auth";
 import {Link, Redirect} from "react-router-dom";
 import Box from "@material-ui/core/Box";
 import {API_HOST} from "../service/actService";
+import CardHeader from "@material-ui/core/CardHeader";
 
 
 const useStyles = makeStyles(theme => ({
     card: {
         minWidth: "30%",
         minHeight: "30%",
+        maxWidth:"32%",
         textAlign: 'center'
     },
     box: {
@@ -83,6 +85,7 @@ export default function LoginForm() {
     return (
         <Grid container align="center" justify="center">
             <Card className={classes.card}>
+                <CardHeader subheader={"Добро пожаловать в систему учета Клиентов!"}/>
                 <Box className={classes.box}>
                     <Box className={classes.box}>
                         <TextField id="outlined-basic"
@@ -111,7 +114,7 @@ export default function LoginForm() {
                     </Box>
                     <Box className={classes.box}>
                         <Button variant="outlined" size={"small"} color="primary" onClick={postLogin} style={{margin:7}}>Войти</Button>
-                        {/*<Button variant="outlined" size={"small"} color="primary" component={Link} to={'/registration'}>Регистрация</Button>*/}
+                        <Button variant="outlined" size={"small"} color="primary" component={Link} to={'/registration'}>Регистрация</Button>
                     </Box>
                 </Box>
             </Card>

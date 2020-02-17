@@ -7,6 +7,8 @@ import {Link, Redirect} from "react-router-dom";
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import {API_HOST} from "../service/actService";
+import {userService} from "../service/userService";
+import CardHeader from "@material-ui/core/CardHeader";
 
 
 const useStyles = makeStyles(theme => ({
@@ -35,7 +37,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function RegistrationFrom() {
 
-    const [isLoggedIn, setLoggedIn] = useState(false);
+    const [isCreated, setCreated] = useState(false);
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
@@ -43,27 +45,58 @@ export default function RegistrationFrom() {
     const {setAuthTokens} = useAuth();
     const classes = useStyles();
 
+
+    const [passwordError, setPassowrdError] = React.useState(false);
+
+    const checkPassword = () => {
+        if (password === secondPassword) {
+            return true;
+        } else {
+            setPassowrdError(true);
+        }
+    };
+
+    const getHelperText= () => {
+        return  passwordError ? 'Введенные пароли не совпадают' : null
+    };
+
     function register() {
-        return fetch(`http://${API_HOST}:8080/user`, {
-            method: 'post',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                name: userName,
-                email: email,
-                password: password,
-                company: 'Татьяна'
-            })
-        })
-            .then(res => {
-                if (res.ok) {
-                    res.json();
-                    return <Redirect to="/login"/>;
+        if (checkPassword()) {
+            userService.createUser({
+                    name: userName,
+                    email: email,
+                    password: password,
+                    company: 'Татьяна'
                 }
+            ).then(res => {
+                console.log("Create" );
+                console.log(res );
+               if (res.ok) {
+                   setCreated(true);
+               }
             });
+        }
     }
 
-    if (isLoggedIn) {
-        return <Redirect to="/clients"/>;
+    if (isCreated) {
+        return (
+            <Grid container align="center" justify="center">
+                <Card className={classes.card}>
+                    <CardHeader subheader="Регистрация прошла успешно"/>
+                    <Box className={classes.box}>
+                        <Box className={classes.box}>
+                            <Button variant="outlined"
+                                    color="primary"
+                                    size={"small"}
+                                    component={Link}
+                                    to={'/login'}>
+                                Войти в систему
+                            </Button>
+                        </Box>
+                    </Box>
+                </Card>
+            </Grid>
+        );
     }
 
     const handlePassword = (event) => {
@@ -85,7 +118,7 @@ export default function RegistrationFrom() {
     return (
         <Grid container align="center" justify="center">
             <Card className={classes.card}>
-                <Typography>Начните регистрацию</Typography>
+                <CardHeader subheader={"Начните регистрацию"}/>
                 <Box className={classes.box}>
                     <Box className={classes.box}>
                         <TextField id="outlined-basic"
@@ -116,6 +149,8 @@ export default function RegistrationFrom() {
                             type="password"
                             autoComplete="current-password"
                             variant="outlined"
+                            error={passwordError}
+                            helperText={getHelperText()}
                             onChange={handlePassword}
                             style={{display: "flex"}}
                         />
@@ -125,6 +160,8 @@ export default function RegistrationFrom() {
                             id="secondPassword"
                             label="Повторите Пароль"
                             size={"small"}
+                            helperText={getHelperText()}
+                            error={passwordError}
                             type="password"
                             onChange={handleSecondPassword}
                             autoComplete="current-password"
@@ -133,11 +170,19 @@ export default function RegistrationFrom() {
                         />
                     </Box>
                     <Box className={classes.box}>
-                        <Button variant="outlined" color="primary" size={"small"} onClick={register} style={{margin: 7}}>
+                        <Button variant="outlined"
+                                color="primary"
+                                size={"small"}
+                                onClick={register}
+                                style={{margin: 7}}>
                             Создать
                         </Button>
 
-                        <Button variant="outlined" color="primary" size={"small"} component={Link} to={'/login'}>
+                        <Button variant="outlined"
+                                color="primary"
+                                size={"small"}
+                                component={Link}
+                                to={'/login'}>
                             Назад
                         </Button>
                     </Box>
