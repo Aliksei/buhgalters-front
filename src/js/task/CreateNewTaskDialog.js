@@ -143,8 +143,11 @@ const NewTaskDialog = ({updateView, userList}) => {
 
 
     const saveBtn = () => {
-        let saveEnabled = titleError || textError || assigneeError || assignee === null;
-        let saveStyle = saveEnabled ? {
+        let hasError = titleError || textError || assigneeError;
+        let result = !hasError && assignee !== "" && title !== "" && text !== "";
+
+        console.log("hasError", hasError);
+        let saveStyle = !result ? {
             color: "black"
         } : {
             backgroundColor: "rgba(0,69,147,0.52)", color: "white"
@@ -154,7 +157,7 @@ const NewTaskDialog = ({updateView, userList}) => {
                 size={"small"}
                 variant="contained"
                 onClick={handleSave}
-                disabled={saveEnabled}
+                disabled={!result}
                 style={saveStyle}>
                 Сохранить
             </Button>
