@@ -152,7 +152,6 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
 
         useEffect(() => {
             if (opened === true && act != null) {
-                console.log(perechen);
                 let p = {
                     actNumber: act.actNumber,
                     clientName: client.name,
@@ -169,7 +168,6 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                     perechen: perechen
                 };
 
-                console.log(p);
                 actService.downlaod(p)
                     .then(e => setSrc(e))
             }
@@ -194,7 +192,6 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                 perechen: perechen
             };
 
-            console.log(p);
             actService.downlaod(p)
                 .then(e => setSrc(e))
         };

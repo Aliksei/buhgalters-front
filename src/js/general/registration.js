@@ -5,8 +5,6 @@ import TextField from "@material-ui/core/TextField";
 import {useAuth} from "../context/auth";
 import {Link, Redirect} from "react-router-dom";
 import Box from "@material-ui/core/Box";
-import Typography from "@material-ui/core/Typography";
-import {API_HOST} from "../service/actService";
 import {userService} from "../service/userService";
 import CardHeader from "@material-ui/core/CardHeader";
 
@@ -15,6 +13,7 @@ const useStyles = makeStyles(theme => ({
     card: {
         minWidth: "30%",
         minHeight: "30%",
+        maxWidth:"34%",
         textAlign: 'center'
     },
     box: {
@@ -50,6 +49,7 @@ export default function RegistrationFrom() {
 
     const checkPassword = () => {
         if (password === secondPassword) {
+            setPassowrdError(false);
             return true;
         } else {
             setPassowrdError(true);
@@ -69,9 +69,8 @@ export default function RegistrationFrom() {
                     company: 'Татьяна'
                 }
             ).then(res => {
-                console.log("Create" );
-                console.log(res) ;
-               if (res.ok) {
+
+               if (res.name === userName) {
                    setCreated(true);
                }
             });
@@ -82,13 +81,17 @@ export default function RegistrationFrom() {
         return (
             <Grid container align="center" justify="center">
                 <Card className={classes.card}>
-                    <CardHeader subheader="Регистрация прошла успешно"/>
+                    <CardHeader
+                        title="Регистрация прошла успешно"
+                        subheader="Данные вашего пользователя отправлленны на указанную вами почту"
+                    />
                     <Box className={classes.box}>
                         <Box className={classes.box}>
                             <Button variant="outlined"
                                     color="primary"
                                     size={"small"}
                                     component={Link}
+                                    style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}
                                     to={'/login'}>
                                 Войти в систему
                             </Button>
@@ -99,21 +102,10 @@ export default function RegistrationFrom() {
         );
     }
 
-    const handlePassword = (event) => {
-        setPassword(event.target.value);
-    };
-
-    const handleSecondPassword = (event) => {
-        setSecondPassword(event.target.value);
-    };
-
-    const handleEmail = (event) => {
-        setEmail(event.target.value);
-    };
-
-    const handleUserName = (event) => {
-        setUserName(event.target.value);
-    };
+    const handlePassword = ({target}) => setPassword(target.value);
+    const handleSecondPassword = ({target}) => setSecondPassword(target.value);
+    const handleEmail = ({target}) => setEmail(target.value);
+    const handleUserName = ({target}) => setUserName(target.value);
 
     return (
         <Grid container align="center" justify="center">
@@ -173,17 +165,16 @@ export default function RegistrationFrom() {
                         <Button variant="outlined"
                                 color="primary"
                                 size={"small"}
-                                onClick={register}
-                                style={{margin: 7}}>
-                            Создать
-                        </Button>
-
-                        <Button variant="outlined"
-                                color="primary"
-                                size={"small"}
                                 component={Link}
                                 to={'/login'}>
                             Назад
+                        </Button>
+                        <Button variant="outlined"
+                                color="primary"
+                                size={"small"}
+                                onClick={register}
+                                style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white", margin: 7}}>
+                            Зарегестрировать
                         </Button>
                     </Box>
                 </Box>

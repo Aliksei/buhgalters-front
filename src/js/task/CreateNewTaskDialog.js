@@ -71,7 +71,7 @@ const NewTaskDialog = ({updateView, userList}) => {
     const [text, setText] = React.useState("");
     const [type, setType] = React.useState(0);
     const [month, setMonth] = React.useState(new Date().getMonth() + 1);
-    const [assignee, setAssignee] = React.useState(null);
+    const [assignee, setAssignee] = React.useState("");
 
     const [titleError, setTitleError] = React.useState(false);
     const [textError, setTextError] = React.useState(false);
@@ -130,7 +130,7 @@ const NewTaskDialog = ({updateView, userList}) => {
         setText("");
         setTitle("");
         setType("0");
-        setAssignee(null);
+        setAssignee("");
         setOpenNew(false);
         setTextError(false);
         setTitleError(false);
@@ -149,7 +149,6 @@ const NewTaskDialog = ({updateView, userList}) => {
         } : {
             backgroundColor: "rgba(0,69,147,0.52)", color: "white"
         };
-
         return (
             <Button
                 size={"small"}

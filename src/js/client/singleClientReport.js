@@ -114,7 +114,6 @@ const ClientsReport = ({owner, reportList, update}) => {
 export default ClientsReport;
 
 const validateReport = (report) => {
-    console.log(report);
     if (validateField(report.reportName) &&
         validateField(report.reportType) &&
         validateField(report.status) &&

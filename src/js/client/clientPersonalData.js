@@ -133,7 +133,6 @@ const EditDialog = ({opened, handleClose, client, update}) => {
     };
 
     useEffect(() => {
-        console.log("Сетаем");
         setName(client.name);
         setYnp(client.ynp);
         setEmal(client.email);
@@ -166,7 +165,6 @@ const EditDialog = ({opened, handleClose, client, update}) => {
         setEmalError(false);
         setNameError(false);
         setYnpError(false);
-        console.log("Closim");
         handleClose();
     };
 

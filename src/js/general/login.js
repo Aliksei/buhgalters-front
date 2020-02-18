@@ -58,7 +58,6 @@ export default function LoginForm() {
                 if (res.status === 200) {
                     return res.json();
                 } else {
-                    console.log("Setting error true");
                     setError(true);
                     return "";
                 }
@@ -113,7 +112,7 @@ export default function LoginForm() {
                         />
                     </Box>
                     <Box className={classes.box}>
-                        <Button variant="outlined" size={"small"} color="primary" onClick={postLogin} style={{margin:7}}>Войти</Button>
+                        <Button variant="outlined" size={"small"} color="primary" onClick={postLogin} style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white", margin: 7}}>Войти</Button>
                         <Button variant="outlined" size={"small"} color="primary" component={Link} to={'/registration'}>Регистрация</Button>
                     </Box>
                 </Box>

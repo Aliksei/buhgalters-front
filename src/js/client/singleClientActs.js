@@ -111,7 +111,6 @@ const ClientsAct = ({owner, actList, update}) => {
 ;
 
 const validateAct = (report) => {
-    console.log(report);
     if (validateField(report.actNumber) &&
         validateField(report.month) &&
         validateField(report.summ) &&

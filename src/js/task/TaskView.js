@@ -111,10 +111,8 @@ export default function MediaCard() {
     };
 
     if (Object.keys(tasks).length === 0 && Object.keys(users).length === 0) {
-        console.log("Не рисуем");
         return <div></div>;
     } else {
-        console.log("Рисуем", low, medium, critical);
         return (
             <Grid>
                 <TaskFilter updateView={setUpdate}
