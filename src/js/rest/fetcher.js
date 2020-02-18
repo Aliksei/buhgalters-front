@@ -3,7 +3,9 @@ export const extendedFetcher = {
     postRequest,
     getRequest,
     deleteRequest,
-    downloadRequest
+    downloadRequest,
+    executeRequest,
+    executeRequestNoHandling
 };
 
 function putRequest(url, body) {
@@ -74,6 +76,11 @@ function executeRequest(url, requestOptions) {
     return fetch(url, requestOptions)
         .then(handleResponse);
 }
+
+function executeRequestNoHandling(url, requestOptions) {
+    return fetch(url, requestOptions);
+}
+
 
 function handleResponse(response) {
     return response.text()

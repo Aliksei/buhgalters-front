@@ -6,6 +6,13 @@ export const userService = {
 };
 
 function createUser(body) {
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body)
+    };
     return extendedFetcher
-        .postRequest(`http://${API_HOST}:8080/user/`, body);
+        .executeRequestNoHandling(`http://${API_HOST}:8080/user/`, requestOptions);
 }

@@ -7,6 +7,7 @@ import {Link, Redirect} from "react-router-dom";
 import Box from "@material-ui/core/Box";
 import {userService} from "../service/userService";
 import CardHeader from "@material-ui/core/CardHeader";
+import LoaderCircle from "./loading";
 
 
 const useStyles = makeStyles(theme => ({
@@ -41,6 +42,7 @@ export default function RegistrationFrom() {
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
     const [secondPassword, setSecondPassword] = useState("");
+    const [loading, setLoading] = React.useState(false);
     const {setAuthTokens} = useAuth();
     const classes = useStyles();
 
@@ -60,8 +62,10 @@ export default function RegistrationFrom() {
         return  passwordError ? 'Введенные пароли не совпадают' : null
     };
 
+
     function register() {
         if (checkPassword()) {
+            setLoading(true);
             userService.createUser({
                     name: userName,
                     email: email,
@@ -69,10 +73,17 @@ export default function RegistrationFrom() {
                     company: 'Татьяна'
                 }
             ).then(res => {
-
-               if (res.name === userName) {
-                   setCreated(true);
-               }
+                res.text()
+                    .then(text => {
+                        if (!res.ok) {
+                            const data = text && JSON.parse(text);
+                            const error = (data && data.message) || res.statusText;
+                            setLoading(false);
+                            window.alert(error);
+                        } else {
+                            setCreated(true);
+                        }
+                    });
             });
         }
     }
@@ -106,6 +117,14 @@ export default function RegistrationFrom() {
     const handleSecondPassword = ({target}) => setSecondPassword(target.value);
     const handleEmail = ({target}) => setEmail(target.value);
     const handleUserName = ({target}) => setUserName(target.value);
+
+    const drawLoader = () => {
+        if (loading) {
+            return (<LoaderCircle/>)
+        } else {
+            return undefined;
+        }
+    };
 
     return (
         <Grid container align="center" justify="center">
@@ -160,6 +179,9 @@ export default function RegistrationFrom() {
                             variant="outlined"
                             style={{display: "flex"}}
                         />
+                    </Box>
+                    <Box style={{paddingLeft: '41%'}}>
+                        {drawLoader()}
                     </Box>
                     <Box className={classes.box}>
                         <Button variant="outlined"
