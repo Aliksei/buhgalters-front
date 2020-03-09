@@ -141,7 +141,7 @@ const columns = [
     },
     {
         title: 'Статус', field: 'status',
-        lookup: {0: 'ОТПРАВЛЕН', 1: 'ПРИНЯТ', 2: 'ПРОСРОЧЕН'}
+        lookup: {0: 'ОТПРАВЛЕН', 1: 'ПРИНЯТ', 2: 'ПРОСРОЧЕН', 3 : 'СРОК НЕ НАСТУПИТ'}
     },
     {title: 'Дата отправки', field: 'reportDate', type: 'date',},
     {title: 'Дедлайн', field: 'deadLine', type: 'date',
