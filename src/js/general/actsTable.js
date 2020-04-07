@@ -27,6 +27,11 @@ const Acts = (props) => {
         });
     };
 
+    const onReject = (reason) => {
+        setLoader(false);
+        window.alert("Ошибка Запроса: " + reason);
+    };
+
     return (
         <MaterialTable
             style={{width: '99%'}}
@@ -45,7 +50,7 @@ const Acts = (props) => {
                         {
                             setLoader(true);
                             actService.putAct(newData)
-                                .then(res => triggerUpdate(res));
+                                .then(res => triggerUpdate(res), onReject);
                         }
                         resolve()
                     }, 50)
@@ -55,7 +60,7 @@ const Acts = (props) => {
                         {
                             setLoader(true);
                             actService.deleteAct(oldData)
-                                .then(res => triggerUpdate(new Date()));
+                                .then(res => triggerUpdate(new Date()), onReject);
                         }
                         resolve()
                     }, 50)

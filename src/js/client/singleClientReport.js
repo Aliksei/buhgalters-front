@@ -51,6 +51,11 @@ const ClientsReport = ({owner, reportList, update}) => {
         }
     }, [owner, reportList]);
 
+    const onReject = (reason) => {
+        setLoader(false);
+        window.alert("Ошибка Запроса: " + reason);
+    };
+
 
         return (
             <MaterialTable
@@ -70,7 +75,7 @@ const ClientsReport = ({owner, reportList, update}) => {
                                     setLoader(true);
                                     newData.clientId = owner.id;
                                     reportService.postReport(newData)
-                                        .then(res => update(res));
+                                        .then(res => update(res), onReject);
                                 }
                                 resolve()
                             }, 50)
@@ -86,7 +91,7 @@ const ClientsReport = ({owner, reportList, update}) => {
                                     setLoader(true);
                                     newData.clientId = owner.id;
                                     reportService.putReport(newData)
-                                        .then(res => update(res))
+                                        .then(res => update(res), onReject)
                                 }
                                 resolve()
                             }, 50)
@@ -101,7 +106,7 @@ const ClientsReport = ({owner, reportList, update}) => {
                             {
                                 setLoader(true);
                                 reportService.deleteReport(oldData)
-                                    .then(res => update(new Date()));
+                                    .then(res => update(new Date()), onReject);
                             }
                             resolve()
                         }, 50)

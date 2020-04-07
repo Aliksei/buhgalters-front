@@ -26,6 +26,11 @@ const ReportsTable = (props) => {
         });
     };
 
+    const onReject = (reason) => {
+        setLoader(false);
+        window.alert("Ошибка Запроса: " + reason);
+    };
+
     return (
         <Fragment>
             <MaterialTable
@@ -44,7 +49,7 @@ const ReportsTable = (props) => {
                                 {
                                     setLoader(true);
                                     reportService.putReport(newData)
-                                        .then(res => triggerUpdate(res))
+                                        .then(res => triggerUpdate(res), onReject)
                                 }
                                 resolve()
                             }, 50)
@@ -54,7 +59,7 @@ const ReportsTable = (props) => {
                                 {
                                     setLoader(true);
                                     reportService.deleteReport(oldData)
-                                        .then(res => triggerUpdate(res));
+                                        .then(res => triggerUpdate(res), onReject);
                                 }
                                 resolve()
                             }, 50)

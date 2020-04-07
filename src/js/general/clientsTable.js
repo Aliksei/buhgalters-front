@@ -29,6 +29,11 @@ const Clients = (props) => {
         });
     };
 
+    const onReject = (reason) => {
+        setLoader(false);
+        window.alert("Ошибка Запроса: " + reason);
+    };
+
     return (
         <Fragment>
             <Breadcrumbs aria-label="breadcrumb">
@@ -66,7 +71,7 @@ const Clients = (props) => {
                                 {
                                     setLoader(true);
                                     clientService.postClient(newData)
-                                        .then(res => triggerUpdate(res));
+                                        .then(res => triggerUpdate(res), onReject)
                                 }
                                 resolve()
                             }, 50)
@@ -81,7 +86,7 @@ const Clients = (props) => {
                                 {
                                     setLoader(true);
                                     clientService.putClient(newData)
-                                        .then(res => triggerUpdate(res));
+                                        .then(res => triggerUpdate(res), onReject);
                                 }
                                 resolve()
                             }, 50)
@@ -95,7 +100,7 @@ const Clients = (props) => {
                             {
                                 setLoader(true);
                                 clientService.deleteClient(oldData)
-                                    .then(resp => triggerUpdate(new Date()));
+                                    .then(resp => triggerUpdate(new Date()), onReject);
                             }
                             resolve()
                         }, 50)

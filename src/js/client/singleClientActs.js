@@ -51,6 +51,11 @@ const ClientsAct = ({owner, actList, update}) => {
             }
         }, [actList, owner]);
 
+    const onReject = (reason) => {
+        setLoader(false);
+        window.alert("Ошибка Запроса: " + reason);
+    };
+
         return (
             <MaterialTable
                 style={{width: '99%'}}
@@ -69,7 +74,7 @@ const ClientsAct = ({owner, actList, update}) => {
                                         newData.clientId = owner.id;
                                         setLoader(true);
                                         actService.postAct(newData)
-                                            .then(res => update(res));
+                                            .then(res => update(res), onReject);
                                 }resolve()}, 50)
                         } else {
                             window.alert("Данные введены неверно");
@@ -83,7 +88,7 @@ const ClientsAct = ({owner, actList, update}) => {
                                         setLoader(true);
                                         newData.clientId = owner.id;
                                         actService.putAct(newData)
-                                            .then(res => update(res))
+                                            .then(res => update(res), onReject)
                                 }
                                 resolve()
                             }, 50)
@@ -98,7 +103,7 @@ const ClientsAct = ({owner, actList, update}) => {
                                 {
                                     setLoader(true);
                                     actService.deleteAct(oldData)
-                                        .then(res => update(new Date()));
+                                        .then(res => update(new Date()), onReject);
                                 }
                                 resolve()
                             }, 50)
