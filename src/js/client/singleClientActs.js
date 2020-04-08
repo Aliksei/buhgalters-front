@@ -1,5 +1,5 @@
 import * as React from "react";
-import {forwardRef} from "react";
+import {forwardRef, useEffect} from "react";
 
 import AddBox from '@material-ui/icons/AddBox';
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
@@ -18,7 +18,6 @@ import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import MaterialTable from "material-table";
 import {actService} from "../service/actService";
-import {useEffect} from "react";
 
 
 const tableIcons = {
@@ -51,10 +50,16 @@ const ClientsAct = ({owner, actList, update}) => {
             }
         }, [actList, owner]);
 
-    const onReject = (reason) => {
-        setLoader(false);
-        window.alert("Ошибка Запроса: " + reason);
-    };
+        const onReject = (reason, reject) => {
+            window.alert("Ошибка Запроса: " + reason);
+            setLoader(false);
+            reject();
+        };
+
+        const onSuccess = (res, resolve) => {
+            update(res);
+            resolve();
+        };
 
         return (
             <MaterialTable
@@ -71,11 +76,12 @@ const ClientsAct = ({owner, actList, update}) => {
                         if (validateAct(newData)) {
                             setTimeout(() => {
                                 {
-                                        newData.clientId = owner.id;
-                                        setLoader(true);
-                                        actService.postAct(newData)
-                                            .then(res => update(res), onReject);
-                                }resolve()}, 50)
+                                    newData.clientId = owner.id;
+                                    setLoader(true);
+                                    actService.postAct(newData)
+                                        .then(res => onSuccess(res, resolve), (reason) => onReject(reason, reject));
+                                }
+                            }, 50)
                         } else {
                             window.alert("Данные введены неверно");
                             reject();
@@ -85,12 +91,11 @@ const ClientsAct = ({owner, actList, update}) => {
                         if (validateAct(newData)) {
                             setTimeout(() => {
                                 {
-                                        setLoader(true);
-                                        newData.clientId = owner.id;
-                                        actService.putAct(newData)
-                                            .then(res => update(res), onReject)
+                                    setLoader(true);
+                                    newData.clientId = owner.id;
+                                    actService.putAct(newData)
+                                        .then(res => onSuccess(res, resolve), (reason) => onReject(reason, reject))
                                 }
-                                resolve()
                             }, 50)
                         } else {
                             window.alert("Данные введены неверно");
@@ -103,17 +108,19 @@ const ClientsAct = ({owner, actList, update}) => {
                                 {
                                     setLoader(true);
                                     actService.deleteAct(oldData)
-                                        .then(res => update(new Date()), onReject);
+                                        .then(res => {
+                                            resolve();
+                                            update(new Date());
+                                        }, (reason) => onReject(reason, reject));
                                 }
-                                resolve()
+
                             }, 50)
                         }),
                 }}
             />
         )
-    }
+    };
 
-;
 
 const validateAct = (report) => {
     if (validateField(report.actNumber) &&
@@ -129,7 +136,7 @@ const validateAct = (report) => {
 
 const validateField = (field) => {
     let result = field === '' || field === null || field === undefined;
-    return  !result;
+    return !result;
 };
 
 export default ClientsAct;

@@ -8,6 +8,7 @@ import {Box} from "@material-ui/core";
 import TaskFilter from "./taskFilter";
 import {taskService} from "../service/taskService";
 import {companyService} from "../service/companyService";
+import {useAuth} from "../context/auth";
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -50,6 +51,7 @@ export default function MediaCard() {
     const [low, setLow] = React.useState(true);
     const [medium, setMedium] = React.useState(true);
     const [critical, setCritical] = React.useState(true);
+
 
     useEffect(() => {
         const fetchData = async () => {

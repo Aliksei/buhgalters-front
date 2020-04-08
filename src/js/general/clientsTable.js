@@ -1,26 +1,19 @@
 import * as React from "react";
-import {Fragment, useEffect} from "react";
+import {Fragment} from "react";
 import MaterialTable from "material-table";
 import Link from "@material-ui/core/Link";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import CachedIcon from '@material-ui/icons/Cached';
 import {clientService} from "../service/clientService";
 import tableIcons from "./common";
+import {useClients} from "../service/custom-hooks/custom-hookjs";
 
 
 const Clients = (props) => {
 
     const [loader, setLoader] = React.useState(true);
-    const [data, setData] = React.useState([]);
     const [update, triggerUpdate] = React.useState({});
-
-    useEffect(() => {
-        clientService.getClients()
-            .then(clients => {
-                setData(clients);
-                setLoader(false);
-            })
-    }, [update]);
+    const data = useClients(setLoader, update);
 
     const openClientView = (id) => {
         let {history} = props;
@@ -29,9 +22,15 @@ const Clients = (props) => {
         });
     };
 
-    const onReject = (reason) => {
-        setLoader(false);
+    const onReject = (reason, reject) => {
         window.alert("Ошибка Запроса: " + reason);
+        setLoader(false);
+        reject();
+    };
+
+    const onSuccess = (res, resolve) => {
+        triggerUpdate(res);
+        resolve();
     };
 
     return (
@@ -70,10 +69,10 @@ const Clients = (props) => {
                             setTimeout(() => {
                                 {
                                     setLoader(true);
-                                    clientService.postClient(newData)
-                                        .then(res => triggerUpdate(res), onReject)
+                                    clientService
+                                        .postClient(newData)
+                                        .then(res => onSuccess(res, resolve), (reason) => onReject(reason, reject))
                                 }
-                                resolve()
                             }, 50)
                         } else {
                             window.alert("Данные введены неверно");
@@ -86,9 +85,8 @@ const Clients = (props) => {
                                 {
                                     setLoader(true);
                                     clientService.putClient(newData)
-                                        .then(res => triggerUpdate(res), onReject);
+                                        .then(res => onSuccess(res, resolve), (reason) => onReject(reason, reject));
                                 }
-                                resolve()
                             }, 50)
                         } else {
                             window.alert("Данные введены неверно");
@@ -100,9 +98,11 @@ const Clients = (props) => {
                             {
                                 setLoader(true);
                                 clientService.deleteClient(oldData)
-                                    .then(resp => triggerUpdate(new Date()), onReject);
+                                    .then(resp => {
+                                        triggerUpdate(new Date());
+                                        resolve();
+                                    }, (reason) => onReject(reason, reject));
                             }
-                            resolve()
                         }, 50)
                     }),
                 }}
@@ -139,7 +139,7 @@ export default Clients;
 const options = {
     doubleHorizontalScroll: true,
     pageSizeOptions: [5, 10, 15],
-    pageSize: 10,
+    pageSize: 15,
     paginationType: 'stepped',
     exportButton: true,
     columnsButton: true,

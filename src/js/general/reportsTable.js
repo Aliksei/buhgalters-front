@@ -4,20 +4,13 @@ import MaterialTable from "material-table";
 import RefreshIcon from '@material-ui/icons/Refresh';
 import {reportService} from "../service/reportService";
 import tableIcons from "./common";
+import {useReports} from "../service/custom-hooks/custom-hookjs";
 
-const ReportsTable = (props) => {
+const Reports = (props) => {
 
-    const [data, setData] = React.useState([]);
-    const [loader, setLoader] = React.useState({});
+    const [loader, setLoader] = React.useState(true);
     const [update, triggerUpdate] = React.useState({});
-
-    useEffect(() => {
-        reportService.getReports()
-            .then(res => {
-                setLoader(false);
-                setData(res);
-            });
-    }, [update]);
+    const data = useReports(setLoader, update);
 
     const openClientView = (id) => {
         let {history} = props;
@@ -168,4 +161,4 @@ const columns = [
 ];
 
 
-export default ReportsTable;
+export default Reports;

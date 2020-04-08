@@ -27,13 +27,8 @@ const ClientData = ({client, update}) => {
 
     const [open, setOpen] = React.useState(false);
 
-    const handleOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
     return (
         <Fragment>
@@ -152,6 +147,8 @@ const EditDialog = ({opened, handleClose, client, update}) => {
             .then(res => {
                 update(res);
                 handleCloseDialog();
+            },  (reason) => {
+                window.alert("Ошибка Запроса: " + reason);
             })
     };
 

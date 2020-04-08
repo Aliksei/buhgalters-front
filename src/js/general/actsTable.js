@@ -1,24 +1,16 @@
 import * as React from "react";
-import {useEffect} from "react";
 import MaterialTable from "material-table";
 import RefreshIcon from '@material-ui/icons/Refresh';
 import {actService} from "../service/actService";
 import tableIcons from "./common";
+import {useActs} from "../service/custom-hooks/custom-hookjs";
 
 
 const Acts = (props) => {
 
-    const [acts, setActs] = React.useState([]);
     const [loader, setLoader] = React.useState(true);
     const [update, triggerUpdate] = React.useState({});
-
-    useEffect(() => {
-            actService.getActs().then(res => {
-                setLoader(false);
-                setActs(res);
-            })
-        }, [update]
-    );
+    const data = useActs(setLoader, update);
 
     const openClientView = (id) => {
         let {history} = props;
@@ -27,9 +19,15 @@ const Acts = (props) => {
         });
     };
 
-    const onReject = (reason) => {
-        setLoader(false);
+    const onReject = (reason, reject) => {
         window.alert("Ошибка Запроса: " + reason);
+        setLoader(false);
+        reject();
+    };
+
+    const onSuccess = (res, resolve) => {
+        triggerUpdate(res);
+        resolve();
     };
 
     return (
@@ -38,21 +36,19 @@ const Acts = (props) => {
             title={'Таблица Актов'}
             columns={columns}
             icons={tableIcons}
-            data={acts}
+            data={data}
             isLoading={loader}
             options={options}
             localization={localization}
             onRowClick={((evt, clickerRow) => openClientView(clickerRow.client.id))}
             editable={{
                 onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
-                    this.setState({loader: true});
                     setTimeout(() => {
                         {
                             setLoader(true);
                             actService.putAct(newData)
-                                .then(res => triggerUpdate(res), onReject);
+                                .then(res => onSuccess(res, resolve), (reason) => onReject(reason, reject));
                         }
-                        resolve()
                     }, 50)
                 }),
                 onRowDelete: oldData => new Promise((resolve, reject) => {

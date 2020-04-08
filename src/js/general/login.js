@@ -7,6 +7,7 @@ import {Link, Redirect} from "react-router-dom";
 import Box from "@material-ui/core/Box";
 import {API_HOST} from "../service/actService";
 import CardHeader from "@material-ui/core/CardHeader";
+import {userService} from "../service/userService";
 
 
 const useStyles = makeStyles(theme => ({
@@ -40,7 +41,7 @@ export default function LoginForm() {
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(false);
-    const {setAuthTokens} = useAuth();
+    const {setAuthTokens, setUser} = useAuth();
     const classes = useStyles();
 
     function postLogin() {
@@ -66,6 +67,12 @@ export default function LoginForm() {
                 if (res !== "") {
                     setAuthTokens(res.jwtToken);
                     setLoggedIn(true);
+
+                    userService.getCurrentUser()
+                        .then(user => {
+                            console.log(JSON.stringify(user));
+                            setUser(user);
+                        })
                 }
             });
     }

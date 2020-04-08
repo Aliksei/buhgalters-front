@@ -2,8 +2,7 @@ import React, {useState} from 'react'
 import Button from "@material-ui/core/Button";
 import {Card, Grid, makeStyles} from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
-import {useAuth} from "../context/auth";
-import {Link, Redirect} from "react-router-dom";
+import {Link} from "react-router-dom";
 import Box from "@material-ui/core/Box";
 import {userService} from "../service/userService";
 import CardHeader from "@material-ui/core/CardHeader";
@@ -43,7 +42,6 @@ export default function RegistrationFrom() {
     const [email, setEmail] = useState("");
     const [secondPassword, setSecondPassword] = useState("");
     const [loading, setLoading] = React.useState(false);
-    const {setAuthTokens} = useAuth();
     const classes = useStyles();
 
 
@@ -58,12 +56,10 @@ export default function RegistrationFrom() {
         }
     };
 
-    const getHelperText= () => {
-        return  passwordError ? 'Введенные пароли не совпадают' : null
-    };
+    const getHelperText= () => passwordError ? 'Введенные пароли не совпадают' : null;
 
 
-    function register() {
+    const register = () => {
         if (checkPassword()) {
             setLoading(true);
             userService.createUser({
@@ -86,7 +82,7 @@ export default function RegistrationFrom() {
                     });
             });
         }
-    }
+    };
 
     if (isCreated) {
         return (
@@ -113,11 +109,6 @@ export default function RegistrationFrom() {
         );
     }
 
-    const handlePassword = ({target}) => setPassword(target.value);
-    const handleSecondPassword = ({target}) => setSecondPassword(target.value);
-    const handleEmail = ({target}) => setEmail(target.value);
-    const handleUserName = ({target}) => setUserName(target.value);
-
     const drawLoader = () => {
         if (loading) {
             return (<LoaderCircle/>)
@@ -136,7 +127,7 @@ export default function RegistrationFrom() {
                                    size={"small"}
                                    label="Логин"
                                    variant="outlined"
-                                   onChange={handleUserName}
+                                   onChange={({target}) => setUserName(target.value)}
                                    style={{display: "flex"}}
                         />
                     </Box>
@@ -148,7 +139,7 @@ export default function RegistrationFrom() {
                             type="email"
                             autoComplete="current-password"
                             variant="outlined"
-                            onChange={handleEmail}
+                            onChange={({target}) => setEmail(target.value)}
                             style={{display: "flex"}}
                         />
                     </Box>
@@ -162,7 +153,7 @@ export default function RegistrationFrom() {
                             variant="outlined"
                             error={passwordError}
                             helperText={getHelperText()}
-                            onChange={handlePassword}
+                            onChange={({target}) => setPassword(target.value)}
                             style={{display: "flex"}}
                         />
                     </Box>
@@ -174,7 +165,7 @@ export default function RegistrationFrom() {
                             helperText={getHelperText()}
                             error={passwordError}
                             type="password"
-                            onChange={handleSecondPassword}
+                            onChange={({target}) => setSecondPassword(target.value)}
                             autoComplete="current-password"
                             variant="outlined"
                             style={{display: "flex"}}

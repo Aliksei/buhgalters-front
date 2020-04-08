@@ -38,7 +38,6 @@ import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import RegistrationFrom from "./registration";
 import Tooltip from "@material-ui/core/Tooltip";
-import useSocket from "use-socket.io-client";
 import Profile from "./profile";
 
 
@@ -113,16 +112,14 @@ export default function MiniDrawer() {
     const [anchorEl, setAnchorEl] = React.useState(null);
 
     const [authTokens, setAuthTokens] = React.useState();
+    const [currentUser, setUser] = React.useState();
+
     const setTokens = (data) => {
         localStorage.setItem("tokens", JSON.stringify(data));
         setAuthTokens(data);
     };
 
-    const handleDrawerOpen = () => setOpen(true);
-    const handleDrawerClose = () => setOpen(false);
     const handleMenuClose = () => setAnchorEl(null);
-    const handleProfileMenuOpen = event => setAnchorEl(event.currentTarget);
-
 
     function logOut() {
         setAuthTokens();
@@ -145,11 +142,11 @@ export default function MiniDrawer() {
 
     return (
         <div className={classes.root}>
-            <AuthContext.Provider value={{authTokens, setAuthTokens: setTokens}}>
+            <AuthContext.Provider value={{authTokens, setAuthTokens: setTokens, setUser, currentUser}}>
                 <CssBaseline/>
                 <AppBar position="fixed" className={clsx(classes.appBar, {[classes.appBarShift]: open,})}>
                     <Toolbar>
-                        <IconButton color="inherit" aria-label="open drawer" onClick={handleDrawerOpen} edge="start"
+                        <IconButton color="inherit" aria-label="open drawer" onClick={() => setOpen(true)} edge="start"
                                     className={clsx(classes.menuButton, {[classes.hide]: open,})}>
                             <MenuIcon/>
                         </IconButton>
@@ -167,7 +164,7 @@ export default function MiniDrawer() {
                             </Badge>
                         </IconButton>
                         <IconButton edge="end" aria-label="account of current user" aria-haspopup="true"
-                                    onClick={handleProfileMenuOpen} color="inherit">
+                                    onClick={(event) => setAnchorEl(event.currentTarget)} color="inherit">
                             <AccountCircle/>
                         </IconButton>
                     </Toolbar>
@@ -180,7 +177,7 @@ export default function MiniDrawer() {
                         open={open}
                 >
                     <div className={classes.toolbar}>
-                        <IconButton onClick={handleDrawerClose}>{theme.direction === 'rtl' ? <ChevronRightIcon/> :
+                        <IconButton onClick={() => setOpen(false)}>{theme.direction === 'rtl' ? <ChevronRightIcon/> :
                             <ChevronLeftIcon/>}</IconButton>
                     </div>
                     <MenuItems/>

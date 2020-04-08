@@ -1,5 +1,5 @@
 import * as React from "react";
-import {forwardRef} from "react";
+import {forwardRef, useEffect} from "react";
 
 import AddBox from '@material-ui/icons/AddBox';
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
@@ -18,7 +18,6 @@ import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import MaterialTable from "material-table";
 import {reportService} from "../service/reportService";
-import {useEffect} from "react";
 
 
 const tableIcons = {
@@ -46,74 +45,80 @@ const ClientsReport = ({owner, reportList, update}) => {
     const [loader, setLoader] = React.useState(true);
 
     useEffect(() => {
-        if (Object.keys(owner).length !== 0 ) {
+        if (Object.keys(owner).length !== 0) {
             setLoader(false);
         }
     }, [owner, reportList]);
 
-    const onReject = (reason) => {
-        setLoader(false);
+
+    const onReject = (reason, reject) => {
         window.alert("Ошибка Запроса: " + reason);
+        setLoader(false);
+        reject();
+    };
+
+    const onSuccess = (res, resolve) => {
+        update(res);
+        resolve();
     };
 
 
-        return (
-            <MaterialTable
-                style={{width: '99%'}}
-                title={'Таблица отчетов клиента : ' + owner.name}
-                columns={columns}
-                icons={tableIcons}
-                data={reportList}
-                isLoading={loader}
-                options={options}
-                localization={localization}
-                editable={{
-                    onRowAdd: newData => new Promise((resolve, reject) => {
-                        if (validateReport(newData)) {
-                            setTimeout(() => {
-                                {
-                                    setLoader(true);
-                                    newData.clientId = owner.id;
-                                    reportService.postReport(newData)
-                                        .then(res => update(res), onReject);
-                                }
-                                resolve()
-                            }, 50)
-                        } else {
-                            window.alert("Данные введены неверно");
-                            reject();
-                        }
-                    }),
-                    onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
-                        if (validateReport(newData)) {
-                            setTimeout(() => {
-                                {
-                                    setLoader(true);
-                                    newData.clientId = owner.id;
-                                    reportService.putReport(newData)
-                                        .then(res => update(res), onReject)
-                                }
-                                resolve()
-                            }, 50)
-                        } else {
-                            window.alert("Данные введены неверно");
-                            reject();
-                        }
-
-                    }),
-                    onRowDelete: oldData => new Promise((resolve, reject) => {
+    return (
+        <MaterialTable
+            style={{width: '99%'}}
+            title={'Таблица отчетов клиента : ' + owner.name}
+            columns={columns}
+            icons={tableIcons}
+            data={reportList}
+            isLoading={loader}
+            options={options}
+            localization={localization}
+            editable={{
+                onRowAdd: newData => new Promise((resolve, reject) => {
+                    if (validateReport(newData)) {
                         setTimeout(() => {
                             {
                                 setLoader(true);
-                                reportService.deleteReport(oldData)
-                                    .then(res => update(new Date()), onReject);
+                                newData.clientId = owner.id;
+                                reportService.postReport(newData)
+                                    .then(res => onSuccess(res, resolve), (reason) => onReject(reason, reject));
                             }
-                            resolve()
                         }, 50)
-                    }),
-                }}
-            />
-        )
+                    } else {
+                        window.alert("Данные введены неверно");
+                        reject();
+                    }
+                }),
+                onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
+                    if (validateReport(newData)) {
+                        setTimeout(() => {
+                            {
+                                setLoader(true);
+                                newData.clientId = owner.id;
+                                reportService.putReport(newData)
+                                    .then(res => onSuccess(res, resolve), (reason) => onReject(reason, reject))
+                            }
+                        }, 50)
+                    } else {
+                        window.alert("Данные введены неверно");
+                        reject();
+                    }
+                }),
+                onRowDelete: oldData => new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        {
+                            setLoader(true);
+                            reportService.deleteReport(oldData)
+                                .then(res => {
+                                    update(new Date());
+                                    resolve();
+                                }, (reason) => onReject(reason, reject));
+                        }
+                    }, 50)
+                }),
+            }}
+        />
+    )
 };
 
 export default ClientsReport;
@@ -132,7 +137,7 @@ const validateReport = (report) => {
 
 const validateField = (field) => {
     let result = field === '' || field === null || field === undefined;
-    return  !result;
+    return !result;
 };
 
 const localization = {
