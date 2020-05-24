@@ -1,14 +1,16 @@
 import {extendedFetcher} from "../rest/fetcher";
 
-export const API_HOST = process.env.REACT_APP_SPRING_BASE_URL;
-// export const API_HOST = "localhost";
+// export const API_HOST = process.env.REACT_APP_SPRING_BASE_URL;
+export const API_HOST = "localhost";
 
 export const actService = {
     getActs,
     putAct,
     postAct,
     deleteAct,
-    downlaod
+    downlaod,
+    downloadAsPdf,
+    downloadAsWord
 };
 
 function getActs() {
@@ -29,6 +31,13 @@ function postAct(body) {
 function deleteAct(body) {
     return extendedFetcher
         .deleteRequest(`http://${API_HOST}:8080/acts/` + body.id);
+}
+async function downloadAsPdf(body) {
+    return extendedFetcher.downloadRequest(`http://${API_HOST}:8080/acts/downloadAsPdf`, body);
+}
+
+async function downloadAsWord(body) {
+    return extendedFetcher.downloadRequest(`http://${API_HOST}:8080/acts/downloadAsWord`, body);
 }
 
 async function downlaod(body) {

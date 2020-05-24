@@ -121,15 +121,19 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
 
         const [act, setAct] = React.useState(null);
         const [actError, setActError] = React.useState(false);
-        const [perechen, setPerechen] = React.useState("");
+        const [perechen, setPerechen] = React.useState("Составление и сдача отчетности в ИМНС;\n" +
+            "Составление и сдача отчетности в ФСЗН;\n" +
+            "Составление и сдача отчетности в Белгосстрах;\n" +
+            "Составление и сдача отчетности в органы статистики;\n" +
+            "Ведение кадрового учета.");
+        const [bank, setBank] = React.useState("");
         const [directorSignature, setDirectorSignature] = React.useState("");
         const [cost, setCost] = React.useState("");
         const [dogovor, setDogovor] = React.useState("");
-        const [director, setDirector] = React.useState(client.director);
-
+        const [director, setDirector] = React.useState(null);
+        const [email, setEmail] = React.useState(null);
 
         const [objectUrl, setSrc] = React.useState(null);
-
 
         const [name, setName] = React.useState(client.name);
 
@@ -142,88 +146,83 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
             setActError(false);
             setPerechen("");
             setSrc(null);
+            setCost("");
             setDogovor("");
             handleClose();
         };
 
         useEffect(() => {
-            setDirector(client.director)
+            setDirector(client.director);
+            setEmail(client.email);
         }, [client]);
 
         useEffect(() => {
             if (opened === true && act != null) {
-                let p = {
-                    actNumber: act.actNumber,
-                    clientName: client.name,
-                    clientDirector: director,
-                    // date:
-                    actMonth: 'Ферфаль',
-                    actYear: '2019',
-                    ynp: client.ynp,
-                    dogovor: dogovor,
-                    date: "Xnj-nj",
-                    directorSignature: directorSignature,
-                    clientAddress: client.address,
-                    cost: cost,
-                    perechen: perechen
-                };
-
-                actService.downlaod(p)
+                setCost(act.summ);
+                actService.downlaod(buildBody())
                     .then(e => setSrc(e))
             }
         }, [act]);
         // }, [act, perechen]);
 
-
-        const applyData = () => {
-            let p = {
+        const buildBody = () => {
+            return {
                 actNumber: act.actNumber,
                 clientName: client.name,
                 clientDirector: director,
-                // date:
-                actMonth: 'Ферфаль',
+                actMonth: act.month,
                 actYear: '2019',
                 ynp: client.ynp,
                 dogovor: dogovor,
-                date: "Xnj-nj",
+                date: act.actDate,
                 directorSignature: directorSignature,
                 clientAddress: client.address,
                 cost: cost,
-                perechen: perechen
-            };
+                perechen: perechen,
+                bank: bank
+            }
+        };
 
-            actService.downlaod(p)
+        const downloadDataWord = () => {
+            actService.downloadAsWord(buildBody())
+                .then(response => {
+                    var element = document.createElement('a');
+                    element.setAttribute('href', response);
+                    element.setAttribute('download', `${act.actNumber}.docx`);
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                })
+        };
+        const downloadDataPDF = () => {
+        actService.downloadAsPdf(buildBody())
+            .then(response => {
+                var element = document.createElement('a');
+                element.setAttribute('href', response);
+                element.setAttribute('download', `${act.actNumber}.pdf`);
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+            })
+    };
+
+        const applyData = () => {
+            actService.downlaod(buildBody())
                 .then(e => setSrc(e))
         };
 
         const sendMessage = () => {
-            let p = {
-                actNumber: act.actNumber,
-                clientName: client.name,
-                clientDirector: director,
-                // date:
-                actMonth: 'Ферфаль',
-                actYear: '2019',
-                ynp: client.ynp,
-                dogovor: dogovor,
-                date: "Xnj-nj",
-                directorSignature: directorSignature,
-                clientAddress: client.address,
-                cost: cost,
-                perechen: perechen
-            };
-
             let body = {
-                wordAct: p,
+                wordAct: buildBody(),
                 sendEmailRequest: {
                     from: "",
-                    to: "",
+                    to: email,
                     password: "",
-                    text: "Joker"
+                    subject: "Акт Выполненных Работ"
                 }
-            }
-
-
+            };
             extendedFetcher.postRequest(`http://${API_HOST}:8080/sendEmail`, body);
         };
 
@@ -239,8 +238,6 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
 
         const handlePerechen = ({target}) => setPerechen(target.value);
         const handleDogovor = ({target}) => setDogovor(target.value);
-        const handleCost = ({target}) => setCost(target.value);
-        const handleDirector = ({target}) => setDirector(target.value);
 
 
         const drawIframe = () => {
@@ -267,14 +264,20 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                             </Typography>
                             <Button variant="contained" size={"small"}
                                     style={{backgroundColor: 'white'}}
-                                    disabled
                                     onClick={sendMessage}
                             >Отправить Документ</Button>
                             <Button variant="contained" size={"small"}
                                     onClick={applyData}
-                                    disabled
                                     style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}
                             >Применить данные</Button>
+                            <Button variant="contained" size={"small"}
+                                    onClick={downloadDataPDF}
+                                    style={{backgroundColor: 'rgba(147,107,40,0.52)', color: "white"}}
+                            >Скачать PDF</Button>
+                            <Button variant="contained" size={"small"}
+                                    onClick={downloadDataWord}
+                                    style={{backgroundColor: 'rgba(147,107,40,0.52)', color: "white"}}
+                            >Скачать WORD</Button>
                         </Toolbar>
                     </AppBar>
                     <Grid container>
@@ -298,7 +301,11 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                             </Paper>
                             <Paper className={classes.propsPanelPaper}>
                                 <Typography className={classes.secondaryHeading}>Почта : </Typography>
-                                <Typography className={classes.heading}>{client.email}</Typography>
+                                <TextField
+                                    onChange={({target}) => setEmail(target.value) }
+                                    value={email}
+                                    fullWidth>
+                                </TextField>
                             </Paper>
                             <Paper className={classes.propsPanelPaper}>
                                 <Typography className={classes.secondaryHeading}>УНП : </Typography>
@@ -311,8 +318,8 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                             <Paper className={classes.propsPanelPaper}>
                                 <Typography className={classes.secondaryHeading}>Сумма акта : </Typography>
                                 <TextField
-                                    onChange={handleCost}
-                                    value={`${act === null ? "" : act.summ} ${cost}`}
+                                    onChange={({target}) => setCost(target.value)}
+                                    value={cost}
                                     placeholder="Сумма"
                                     fullWidth>
                                 </TextField>
@@ -320,7 +327,7 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                             <Paper className={classes.propsPanelPaper}>
                                 <Typography className={classes.secondaryHeading}>Директор : </Typography>
                                 <TextField
-                                    onChange={handleDirector}
+                                    onChange={({target}) => setDirector(target.value) }
                                     value={director}
                                     placeholder="Директор"
                                     fullWidth>
@@ -342,6 +349,32 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                                     onChange={handlePerechen}
                                     value={perechen}
                                     placeholder="Перечень документов"
+                                    fullWidth
+                                    multiline={true}
+                                    rows={6}
+                                    rowsMax={8}
+                                    style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
+                                >
+                                </TextField>
+                            </Paper>
+                            <Paper className={classes.propsPanelPaper}>
+                                <Typography className={classes.secondaryHeading}>Рекивзиты Банка : </Typography>
+                                <TextField
+                                    onChange={({target}) => setBank(target.value)}
+                                    value={bank}
+                                    fullWidth
+                                    multiline={true}
+                                    rows={6}
+                                    rowsMax={8}
+                                    style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
+                                >
+                                </TextField>
+                            </Paper>
+                            <Paper className={classes.propsPanelPaper}>
+                                <Typography className={classes.secondaryHeading}>Фамилия Инициалы</Typography>
+                                <TextField
+                                    onChange={({target}) => setDirectorSignature(target.value)}
+                                    value={directorSignature}
                                     fullWidth
                                     multiline={true}
                                     rows={6}
