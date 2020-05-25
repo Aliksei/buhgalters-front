@@ -22,6 +22,9 @@ import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import {actService, API_HOST} from "../service/actService";
 import {extendedFetcher} from "../rest/fetcher";
+import LoaderCircle from "../general/loading";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogContent from "@material-ui/core/DialogContent";
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -134,12 +137,11 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
         const [email, setEmail] = React.useState(null);
 
         const [objectUrl, setSrc] = React.useState(null);
+        const [sendEnabled, setSendEnabled] = React.useState(false);
 
-        const [name, setName] = React.useState(client.name);
-
-        const updateIframe = () => {
-
-        };
+        const [loading, setLoading] = React.useState(false);
+        const [otpravlen, setOtpravlen] = React.useState(false);
+        const [hasError, setHasError] = React.useState(false);
 
         const close = () => {
             setAct(null);
@@ -159,6 +161,7 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
         useEffect(() => {
             if (opened === true && act != null) {
                 setCost(act.summ);
+                setSendEnabled(true);
                 actService.downlaod(buildBody())
                     .then(e => setSrc(e))
             }
@@ -195,18 +198,6 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                     document.body.removeChild(element);
                 })
         };
-        const downloadDataPDF = () => {
-        actService.downloadAsPdf(buildBody())
-            .then(response => {
-                var element = document.createElement('a');
-                element.setAttribute('href', response);
-                element.setAttribute('download', `${act.actNumber}.pdf`);
-                element.style.display = 'none';
-                document.body.appendChild(element);
-                element.click();
-                document.body.removeChild(element);
-            })
-    };
 
         const applyData = () => {
             actService.downlaod(buildBody())
@@ -223,7 +214,16 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                     subject: "Акт Выполненных Работ"
                 }
             };
-            extendedFetcher.postRequest(`http://${API_HOST}:8080/sendEmail`, body);
+            extendedFetcher.postRequest(`http://${API_HOST}:8080/sendEmail`, body)
+                .then(r => {
+                    console.log("Успех");
+                }, reason => {
+                    console.log("Ошибка");
+                    setHasError(true);
+                })
+                .then(r => {
+                    setOtpravlen(true);
+                })
         };
 
         const handleAct = ({target}) => {
@@ -244,11 +244,32 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
             if (objectUrl === null) {
                 return null;
             } else {
-                return <iframe src={objectUrl} width={"100%"}
-                               height={"100%"}>
-
-                </iframe>
+                if (loading) {
+                    return (
+                        <div>
+                            <LoaderCircle/>
+                            {/*<iframe src={objectUrl} width={"100%"} height={"100%"}/>*/}
+                        </div>
+                    )
+                } else {
+                   return (<iframe src={objectUrl} width={"100%"} height={"100%"}/>)
+                }
             }
+        };
+
+        const drawPopup = (hasError) => {
+            let messae;
+            messae = !hasError ? "Документ успешно отправлен" : "Не удалось отправить документ";
+            return (
+                <Dialog open={otpravlen} onClose={() => {
+                    setOtpravlen(false);
+                    setHasError(false);
+                }}>
+                    <DialogContent>
+                        <DialogContentText>{messae}</DialogContentText>
+                    </DialogContent>
+                </Dialog>
+            )
         };
 
         return (
@@ -265,15 +286,12 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                             <Button variant="contained" size={"small"}
                                     style={{backgroundColor: 'white'}}
                                     onClick={sendMessage}
+                                    disabled={!sendEnabled}
                             >Отправить Документ</Button>
                             <Button variant="contained" size={"small"}
                                     onClick={applyData}
                                     style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}
                             >Применить данные</Button>
-                            <Button variant="contained" size={"small"}
-                                    onClick={downloadDataPDF}
-                                    style={{backgroundColor: 'rgba(147,107,40,0.52)', color: "white"}}
-                            >Скачать PDF</Button>
                             <Button variant="contained" size={"small"}
                                     onClick={downloadDataWord}
                                     style={{backgroundColor: 'rgba(147,107,40,0.52)', color: "white"}}
@@ -386,6 +404,7 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                         </div>
                         <div className={classes.docView}>
                             {drawIframe()}
+                            {drawPopup(hasError)}
                         </div>
                     </Grid>
                 </Dialog>
