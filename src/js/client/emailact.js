@@ -25,6 +25,7 @@ import {extendedFetcher} from "../rest/fetcher";
 import LoaderCircle from "../general/loading";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogContent from "@material-ui/core/DialogContent";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -55,9 +56,21 @@ const useStyles = makeStyles(theme => ({
         width: '25%',
         height: '100vh',
     },
+    wrapper: {
+        margin: theme.spacing(1),
+        position: 'relative',
+    },
     propsPanelPaper: {
         margin: theme.spacing(2),
         padding: theme.spacing(1)
+    },
+    buttonProgress: {
+        color: "grey",
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        marginTop: -12,
+        marginLeft: -12,
     }
 }));
 
@@ -214,6 +227,7 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                     subject: "Акт Выполненных Работ"
                 }
             };
+            setLoading(true);
             extendedFetcher.postRequest(`http://${API_HOST}:8080/sendEmail`, body)
                 .then(r => {
                     console.log("Успех");
@@ -222,6 +236,7 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                     setHasError(true);
                 })
                 .then(r => {
+                    setLoading(false);
                     setOtpravlen(true);
                 })
         };
@@ -239,21 +254,11 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
         const handlePerechen = ({target}) => setPerechen(target.value);
         const handleDogovor = ({target}) => setDogovor(target.value);
 
-
         const drawIframe = () => {
             if (objectUrl === null) {
                 return null;
             } else {
-                if (loading) {
-                    return (
-                        <div>
-                            <LoaderCircle/>
-                            {/*<iframe src={objectUrl} width={"100%"} height={"100%"}/>*/}
-                        </div>
-                    )
-                } else {
-                   return (<iframe src={objectUrl} width={"100%"} height={"100%"}/>)
-                }
+                return (<iframe src={objectUrl} width={"100%"} height={"100%"}/>);
             }
         };
 
@@ -283,11 +288,15 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                             <Typography variant="h6" className={classes.title}>
                                 Отмена
                             </Typography>
-                            <Button variant="contained" size={"small"}
-                                    style={{backgroundColor: 'white'}}
-                                    onClick={sendMessage}
-                                    disabled={!sendEnabled}
-                            >Отправить Документ</Button>
+                            <div className={classes.wrapper}>
+                                <Button variant="contained" size={"small"}
+                                        style={{backgroundColor: 'white'}}
+                                        onClick={sendMessage}
+                                        disabled={!sendEnabled}
+                                >Отправить Документ</Button>
+                                {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
+                            </div>
+
                             <Button variant="contained" size={"small"}
                                     onClick={applyData}
                                     style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}
