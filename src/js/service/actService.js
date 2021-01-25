@@ -1,7 +1,6 @@
 import {extendedFetcher} from "../rest/fetcher";
 
 export const API_HOST = process.env.REACT_APP_SPRING_BASE_URL;
-// export const API_HOST = "localhost";
 
 
 export const getActs = async (signal) => {
