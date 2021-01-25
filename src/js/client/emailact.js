@@ -342,7 +342,8 @@ export const ActView = ({opened, handleClose, act, client, forEdit}) => {
                     setSaveDataState({
                         sohranenu: false,
                         saveWithError: false,
-                    })
+                    });
+                    close()
                 }}>
                     <DialogTitle>{message}</DialogTitle>
                 </Dialog>
@@ -414,6 +415,7 @@ export const ActView = ({opened, handleClose, act, client, forEdit}) => {
                                 <TextField
                                     select
                                     size={'small'}
+                                    error={hasError('actMonth')}
                                     onChange={handleChange}
                                     value={state.values.actMonth}
                                     helperText={getHelperText('actMonth')}
