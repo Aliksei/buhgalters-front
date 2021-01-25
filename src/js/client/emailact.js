@@ -1,11 +1,6 @@
 import React, {useEffect} from "react";
 import makeStyles from "@material-ui/core/styles/makeStyles";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import Typography from "@material-ui/core/Typography";
-import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ExpansionPanelActions from "@material-ui/core/ExpansionPanelActions";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import IconButton from "@material-ui/core/IconButton";
@@ -14,22 +9,27 @@ import CloseIcon from '@material-ui/icons/Close';
 import AppBar from "@material-ui/core/AppBar";
 import Slide from "@material-ui/core/Slide";
 import Grid from "@material-ui/core/Grid";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
 import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
-import {actService, API_HOST} from "../service/actService";
-import {extendedFetcher} from "../rest/fetcher";
-import LoaderCircle from "../general/loading";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogContent from "@material-ui/core/DialogContent";
+import ButtonGroup from "@material-ui/core/ButtonGroup";
+import MenuItem from "@material-ui/core/MenuItem";
+import {downlaod, downloadAsWord} from "../service/actService";
+import {postAct, putAct, sendEmail} from "../service/clientService";
+import DialogTitle from "@material-ui/core/DialogTitle";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
 const useStyles = makeStyles(theme => ({
     root: {
         width: '100%',
+    },
+    progress: {
+        display: 'flex'
+    },
+    box: {
+        padding: theme.spacing(2),
+        flexDirection: "column"
     },
     heading: {
         fontSize: theme.typography.pxToRem(13),
@@ -41,7 +41,9 @@ const useStyles = makeStyles(theme => ({
         color: theme.palette.text.secondary,
     },
     appBar: {
+        backgroundColor: 'rgba(0,69,147,0.60)',
         position: 'relative',
+
     },
     title: {
         marginLeft: theme.spacing(2),
@@ -74,137 +76,137 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const Shablons = ({acts, client}) => {
-
-    const classes = useStyles();
-
-    return (
-        <div className={classes.root}>
-            <Typography>Шаблоны отправки документа</Typography>
-            <Template header={"Шаблон 1"} seconHeader={"Отправка акта клииенту"} acts={acts} client={client}/>
-            {/*<Template header={"Шаблон 2"} seconHeader={"SECon header 2"} acts={acts} client={client}/>*/}
-        </div>
-    );
-};
-
-export default Shablons;
-
-const Template = ({header, seconHeader, acts, client}) => {
-
-    const classes = useStyles();
-    const [expanded, setExpanded] = React.useState(false);
-    const [opened, setOpened] = React.useState(false);
-
-    const handleChange = panel => (event, isExpanded) => {
-        setExpanded(isExpanded ? panel : false);
-    };
-
-    const handleClick = () => setOpened(true);
-    const handleClose = () => setOpened(false);
-
-    return (
-        <ExpansionPanel expanded={expanded === `${header}`} onChange={handleChange(`${header}`)}>
-            <ExpansionPanelSummary
-                expandIcon={<ExpandMoreIcon/>}
-                aria-controls="panel1bh-content"
-                id="panel1bh-header"
-            >
-                <Typography className={classes.heading}>{header}</Typography>
-                <Typography className={classes.secondaryHeading}>{seconHeader}</Typography>
-            </ExpansionPanelSummary>
-            <ExpansionPanelDetails>
-                <Typography>
-                    Шаблон документа, в который вставляются и правятся данные по клиенту,
-                    информация по акту, и отправляетется на почту клиента.
-                </Typography>
-            </ExpansionPanelDetails>
-            <ExpansionPanelActions>
-                <Button variant="contained" size={"small"}
-                        style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}
-                        onClick={handleClick}>Заполнить</Button>
-            </ExpansionPanelActions>
-            <FullScreenDialog opened={opened} handleClose={handleClose} acts={acts} client={client}/>
-        </ExpansionPanel>
-    )
-};
-
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const FullScreenDialog = ({opened, handleClose, acts, client}) => {
+const DocIframe = ({buildBody, pdfSrc, setPdfSrc}) => {
+
+    useEffect(() => {
+        const abortController = new AbortController();
+        downlaod(buildBody(), abortController.signal)
+            .then(e => {
+                setPdfSrc(e);
+            });
+        return () => abortController.abort();
+
+    }, []);
+
+    return <iframe title={'documentView'} src={pdfSrc} width={"100%"} height={"100%"}/>
+};
+
+
+export const ActView = ({opened, handleClose, act, client, forEdit}) => {
         const classes = useStyles();
+        const [state, setState] = React.useState({
+            values: {},
+            errors: new Map(),
+        });
 
-        const [act, setAct] = React.useState(null);
-        const [actError, setActError] = React.useState(false);
-        const [perechen, setPerechen] = React.useState("Составление и сдача отчетности в ИМНС;\n" +
-            "Составление и сдача отчетности в ФСЗН;\n" +
-            "Составление и сдача отчетности в Белгосстрах;\n" +
-            "Составление и сдача отчетности в органы статистики;\n" +
-            "Ведение кадрового учета.");
-        const [bank, setBank] = React.useState("");
-        const [directorSignature, setDirectorSignature] = React.useState("");
-        const [cost, setCost] = React.useState("");
-        const [dogovor, setDogovor] = React.useState("");
-        const [director, setDirector] = React.useState(null);
-        const [email, setEmail] = React.useState(null);
+        const [pdfSrc, setPdfSrc] = React.useState(null);
 
-        const [objectUrl, setSrc] = React.useState(null);
-        const [sendEnabled, setSendEnabled] = React.useState(false);
+        const [emailState, setEmailState] = React.useState({
+            otpravlen: false,
+            withError: false,
+            inProgress: false
+        });
 
-        const [loading, setLoading] = React.useState(false);
-        const [otpravlen, setOtpravlen] = React.useState(false);
-        const [hasError, setHasError] = React.useState(false);
-
-        const close = () => {
-            setAct(null);
-            setActError(false);
-            setPerechen("");
-            setSrc(null);
-            setCost("");
-            setDogovor("");
-            handleClose();
-        };
-
-        useEffect(() => {
-            setDirector(client.director);
-            setEmail(client.email);
-        }, [client]);
-
-        useEffect(() => {
-            if (opened === true && act != null) {
-                setCost(act.summ);
-                setSendEnabled(true);
-                actService.downlaod(buildBody())
-                    .then(e => setSrc(e))
-            }
-        }, [act]);
-        // }, [act, perechen]);
+        const [saveDataState, setSaveDataState] = React.useState({
+            sohranenu: false,
+            saveWithError: false,
+        });
 
         const buildBody = () => {
             return {
-                actNumber: act.actNumber,
-                clientName: client.name,
-                clientDirector: director,
-                actMonth: act.month,
-                actYear: '2019',
-                ynp: client.ynp,
-                dogovor: dogovor,
-                date: act.actDate,
-                directorSignature: directorSignature,
-                clientAddress: client.address,
-                cost: cost,
-                perechen: perechen,
-                bank: bank
+                id: state.values.id,
+                actNumber: state.values.actNumber,
+                clientName: state.values.name,
+                clientDirector: state.values.director,
+                actMonth: state.values.actMonth,
+                actYear: '2020',
+                ynp: state.values.ynp,
+                contractId: state.values.contractId,
+                actDate: state.values.actDate,
+                directorSignature: state.values.directorSignature,
+                clientAddress: state.values.address,
+                summ: state.values.summ,
+                perechen: state.values.perechen,
+                bankInfo: state.values.bankInfo,
+                status: state.values.status
             }
         };
 
+        useEffect(() => {
+            setState(prevState => {
+                const fields = [
+                    {name: 'actNumber'},
+                    {name: 'actMonth'},
+                    {name: 'actDate'},
+                    {name: 'status'},
+                    {name: 'summ'},
+                    {name: 'director'},
+                    {name: 'contractId'},
+                    {name: 'perechen'},
+                    {name: 'bankInfo'},
+                    {name: 'directorSignature'},
+                ];
+                let newState = {
+                    values: {...client, ...act},
+                    errors: new Map()
+                };
+                fields.forEach(field => {
+                    if (newState.values[field.name] === undefined || newState.values[field.name] === '' || newState.values[field.name] === null) {
+                        newState.values[field.name] = '';
+                        newState.errors.set(field.name, true)
+                    } else {
+                        newState.errors.delete(field.name);
+                    }
+                });
+                return newState;
+            });
+
+        }, [act, client, opened]);
+
+
+        if (act === null || act === undefined || act === {}) {
+            return null
+        }
+
+        const handleChange = ({target}) => {
+            let {name, value} = target;
+            if (value === '') {
+                setState(prevState => {
+                    return {
+                        values: {...prevState.values, [name]: value},
+                        errors: prevState.errors.set(name, true)
+                    }
+                })
+            } else {
+                setState(prevState => {
+                    prevState.errors.delete(name);
+                    return {
+                        values: {...prevState.values, [name]: value},
+                        errors: prevState.errors
+                    }
+                })
+            }
+        };
+
+        const close = () => {
+            setState({
+                values: {},
+                errors: new Map()
+            });
+            handleClose();
+        };
+
         const downloadDataWord = () => {
-            actService.downloadAsWord(buildBody())
+
+            downloadAsWord(buildBody())
                 .then(response => {
-                    var element = document.createElement('a');
+                    let element = document.createElement('a');
                     element.setAttribute('href', response);
-                    element.setAttribute('download', `${act.actNumber}.docx`);
+                    element.setAttribute('download', `Акт_${state.values.name}'_'${act.actNumber}.docx`);
                     element.style.display = 'none';
                     document.body.appendChild(element);
                     element.click();
@@ -212,9 +214,54 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                 })
         };
 
+        const updateAct = () => {
+            putAct(buildBody(), client.id)
+                .then(res => {
+                    setSaveDataState({
+                        sohranenu: true,
+                        saveWithError: false,
+                    })
+                }, error => {
+                    setSaveDataState({
+                        sohranenu: true,
+                        saveWithError: true,
+                    })
+                });
+        };
+
+        const createAct = () => {
+            postAct(buildBody(), client.id)
+                .then(res => {
+                    setSaveDataState({
+                        sohranenu: true,
+                        saveWithError: false,
+                    });
+                    // close()
+                }, error => {
+                    setSaveDataState({
+                        sohranenu: true,
+                        saveWithError: true,
+                    })
+                });
+        };
+
         const applyData = () => {
-            actService.downlaod(buildBody())
-                .then(e => setSrc(e))
+            downlaod(buildBody())
+                .then(e => setPdfSrc(e))
+        };
+
+        const drawSaveOrUpdate = () => {
+            if (forEdit) {
+                return (<Button variant="contained"
+                                size={"small"}
+                                disabled={state.errors.size > 0}
+                                onClick={updateAct}>Сохранить Изменения</Button>)
+            } else {
+                return (<Button variant="contained"
+                                size={"small"}
+                                disabled={state.errors.size > 0}
+                                onClick={createAct}>Сохранить Данные</Button>)
+            }
         };
 
         const sendMessage = () => {
@@ -222,57 +269,82 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                 wordAct: buildBody(),
                 sendEmailRequest: {
                     from: "",
-                    to: email,
+                    to: state.values.email,
                     password: "",
                     subject: "Акт Выполненных Работ"
                 }
             };
-            setLoading(true);
-            extendedFetcher.postRequest(`http://${API_HOST}:8080/sendEmail`, body)
+            setEmailState({
+                otpravlen: false,
+                withError: false,
+                inProgress: true,
+            });
+            sendEmail(body)
                 .then(r => {
-                    console.log("Успех");
-                }, reason => {
-                    console.log("Ошибка");
-                    setHasError(true);
-                })
-                .then(r => {
-                    setLoading(false);
-                    setOtpravlen(true);
+                    setEmailState({
+                        otpravlen: true,
+                        withError: false,
+                        inProgress: false,
+                    });
+                }, error => {
+                    setEmailState({
+                        otpravlen: true,
+                        withError: true,
+                        inProgress: false,
+                    });
                 })
         };
 
-        const handleAct = ({target}) => {
-            if (target.value === undefined) {
-                setActError(true);
-            } else {
-                setActError(false);
-            }
-            let actObject = acts.filter(a => a.id === target.value)[0];
-            setAct(actObject);
-        };
-
-        const handlePerechen = ({target}) => setPerechen(target.value);
-        const handleDogovor = ({target}) => setDogovor(target.value);
+        const hasError = (name) => state.errors.has(name);
+        const getHelperText = (name) => hasError(name) ? 'Поле не может быть пустым' : '';
 
         const drawIframe = () => {
-            if (objectUrl === null) {
-                return null;
+            if (state.values.id) {
+                return <DocIframe buildBody={buildBody} setPdfSrc={setPdfSrc} pdfSrc={pdfSrc}/>;
             } else {
-                return (<iframe src={objectUrl} width={"100%"} height={"100%"}/>);
+                return null;
             }
         };
 
-        const drawPopup = (hasError) => {
-            let messae;
-            messae = !hasError ? "Документ успешно отправлен" : "Не удалось отправить документ";
+
+        const drawLoader = () => {
+            if (emailState.inProgress) {
+                return (<div className={classes.progress}>
+                    <CircularProgress size={'1rem'} color={'black'}/>
+                </div>)
+            } else {
+                return null;
+            }
+
+        };
+
+        const drawAfterEmailSendPopup = () => {
+            let message = emailState.withError ? "Не удалось отправить документ на почту : " : "Документ успешно отправлен на почту : ";
+            let toClient = message + state.values.email;
             return (
-                <Dialog open={otpravlen} onClose={() => {
-                    setOtpravlen(false);
-                    setHasError(false);
+                <Dialog open={emailState.otpravlen} onClose={() => {
+                    setEmailState({
+                        otpravlen: false,
+                        withError: false
+                    })
                 }}>
                     <DialogContent>
-                        <DialogContentText>{messae}</DialogContentText>
+                        <DialogContentText>{toClient}</DialogContentText>
                     </DialogContent>
+                </Dialog>
+            )
+        };
+
+        const drawAfterDataSavedPopup = () => {
+            let message = emailState.saveWithError ? "Не удалось сохранить Акт" : "Акт успешно сохранен";
+            return (
+                <Dialog aria-labelledby="simple-dialog-title" open={saveDataState.sohranenu} onClose={() => {
+                    setSaveDataState({
+                        sohranenu: false,
+                        saveWithError: false,
+                    })
+                }}>
+                    <DialogTitle>{message}</DialogTitle>
                 </Dialog>
             )
         };
@@ -285,99 +357,172 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                             <IconButton edge="start" color="inherit" onClick={close} aria-label="close">
                                 <CloseIcon/>
                             </IconButton>
-                            <Typography variant="h6" className={classes.title}>
-                                Отмена
+                            <Typography variant="subtitle1" className={classes.title}>
+                                Закрыть
                             </Typography>
-                            <div className={classes.wrapper}>
+                            <Typography variant="subtitle1" className={classes.title}>
+                                Клиент: {state.values.name}
+                            </Typography>
+                            <ButtonGroup color={'primary'} aria-label="large outlined primary button group">
                                 <Button variant="contained" size={"small"}
-                                        style={{backgroundColor: 'white'}}
                                         onClick={sendMessage}
-                                        disabled={!sendEnabled}
-                                >Отправить Документ</Button>
-                                {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
-                            </div>
+                                        color={'primary'}
+                                        disabled={state.errors.size > 0}>Отправить по Email
+                                    {drawLoader()}
+                                </Button>
+                                <Button variant="contained" size={"small"}
+                                        onClick={applyData}
+                                >Применить данные</Button>
+                                <Button variant="contained" size={"small"}
+                                        onClick={downloadDataWord}
+                                >Скачать WORD</Button>
 
-                            <Button variant="contained" size={"small"}
-                                    onClick={applyData}
-                                    style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}
-                            >Применить данные</Button>
-                            <Button variant="contained" size={"small"}
-                                    onClick={downloadDataWord}
-                                    style={{backgroundColor: 'rgba(147,107,40,0.52)', color: "white"}}
-                            >Скачать WORD</Button>
+                                {drawSaveOrUpdate()}
+                            </ButtonGroup>
                         </Toolbar>
                     </AppBar>
                     <Grid container>
                         <div className={classes.propsPanel} style={{overflowY: 'scroll'}}>
                             <Paper className={classes.propsPanelPaper}>
-                                <FormControl className={classes.formControl} error={actError} style={{width: "140px"}}>
-                                    <InputLabel>Выбранный Акт</InputLabel>
-                                    <Select fullWidth
-                                            value={act}
-                                            onChange={handleAct}
-                                    >
-                                        {acts.map(u => {
-                                            return <MenuItem dense value={u.id}>{u.actNumber}</MenuItem>
-                                        })}
-                                    </Select>
-                                </FormControl>
-                            </Paper>
-                            <Paper className={classes.propsPanelPaper}>
-                                <Typography className={classes.secondaryHeading}>Получатель : </Typography>
-                                <Typography className={classes.heading}>{client.name}</Typography>
-                            </Paper>
-                            <Paper className={classes.propsPanelPaper}>
-                                <Typography className={classes.secondaryHeading}>Почта : </Typography>
                                 <TextField
-                                    onChange={({target}) => setEmail(target.value) }
-                                    value={email}
+                                    size={'small'}
+                                    onChange={handleChange}
+                                    value={state.values.email}
+                                    type={'email'}
+                                    label={'Почта'}
+                                    style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
+                                    variant={'outlined'}
+                                    name={'email'}
                                     fullWidth>
                                 </TextField>
                             </Paper>
                             <Paper className={classes.propsPanelPaper}>
-                                <Typography className={classes.secondaryHeading}>УНП : </Typography>
-                                <Typography className={classes.heading}>{client.ynp}</Typography>
-                            </Paper>
-                            <Paper className={classes.propsPanelPaper}>
-                                <Typography className={classes.secondaryHeading}>Адресс : </Typography>
-                                <Typography className={classes.heading}>{client.address}</Typography>
-                            </Paper>
-                            <Paper className={classes.propsPanelPaper}>
-                                <Typography className={classes.secondaryHeading}>Сумма акта : </Typography>
                                 <TextField
-                                    onChange={({target}) => setCost(target.value)}
-                                    value={cost}
-                                    placeholder="Сумма"
+                                    size={'small'}
+                                    onChange={handleChange}
+                                    error={hasError('actNumber')}
+                                    helperText={getHelperText('actNumber')}
+                                    value={state.values.actNumber}
+                                    name={'actNumber'}
+                                    label={'Номер Акта'}
+                                    style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
+                                    variant={'outlined'}
                                     fullWidth>
                                 </TextField>
                             </Paper>
                             <Paper className={classes.propsPanelPaper}>
-                                <Typography className={classes.secondaryHeading}>Директор : </Typography>
                                 <TextField
-                                    onChange={({target}) => setDirector(target.value) }
-                                    value={director}
-                                    placeholder="Директор"
+                                    select
+                                    size={'small'}
+                                    onChange={handleChange}
+                                    value={state.values.actMonth}
+                                    helperText={getHelperText('actMonth')}
+                                    name={'actMonth'}
+                                    style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
+                                    label={'Месяц'}
+                                    variant={'outlined'}
+                                    fullWidth>
+                                    <MenuItem key={1} value={1}>Январь</MenuItem>
+                                    <MenuItem key={2} value={2}>Февраль</MenuItem>
+                                    <MenuItem key={3} value={3}>Март</MenuItem>
+                                    <MenuItem key={4} value={4}>Апрель</MenuItem>
+                                    <MenuItem key={5} value={5}>Май</MenuItem>
+                                    <MenuItem key={6} value={6}>Июнь</MenuItem>
+                                    <MenuItem key={7} value={7}>Июль</MenuItem>
+                                    <MenuItem key={8} value={8}>Август</MenuItem>
+                                    <MenuItem key={9} value={9}>Сентябрь</MenuItem>
+                                    <MenuItem key={10} value={10}>Октябрь</MenuItem>
+                                    <MenuItem key={11} value={11}>Ноябрь</MenuItem>
+                                    <MenuItem key={12} value={12}>Декабрь</MenuItem>
+                                </TextField>
+                            </Paper>
+                            <Paper className={classes.propsPanelPaper}>
+                                <TextField
+                                    select
+                                    size={'small'}
+                                    onChange={handleChange}
+                                    error={hasError('status')}
+                                    helperText={getHelperText('status')}
+                                    value={state.values.status}
+                                    name={'status'}
+                                    style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
+                                    label={'Статус'}
+                                    variant={'outlined'}
+                                    fullWidth>
+                                    <MenuItem key={1} value={1}>Выставлен</MenuItem>
+                                    <MenuItem key={2} value={2}>Оплачен</MenuItem>
+                                </TextField>
+                            </Paper>
+                            <Paper className={classes.propsPanelPaper}>
+                                <TextField
+                                    onChange={handleChange}
+                                    value={state.values.summ}
+                                    error={hasError('summ')}
+                                    helperText={getHelperText('summ')}
+                                    name={'summ'}
+                                    size={'small'}
+                                    label={'Сумма Акта'}
+                                    variant={'outlined'}
+                                    style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
                                     fullWidth>
                                 </TextField>
                             </Paper>
                             <Paper className={classes.propsPanelPaper}>
-                                <Typography className={classes.secondaryHeading}>Заключенный договор : </Typography>
                                 <TextField
-                                    onChange={handleDogovor}
-                                    value={dogovor}
-                                    placeholder="Информация по договору"
-                                    fullWidth
-                                >
+                                    onChange={handleChange}
+                                    value={state.values.actDate}
+                                    name={'actDate'}
+                                    type={'date'}
+                                    error={hasError('actDate')}
+                                    helperText={getHelperText('actDate')}
+                                    size={'small'}
+                                    label={'Дата Акта'}
+                                    variant={'outlined'}
+                                    style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
+                                    fullWidth>
                                 </TextField>
                             </Paper>
                             <Paper className={classes.propsPanelPaper}>
-                                <Typography className={classes.secondaryHeading}>Документы : </Typography>
                                 <TextField
-                                    onChange={handlePerechen}
-                                    value={perechen}
-                                    placeholder="Перечень документов"
+                                    onChange={handleChange}
+                                    value={state.values.director}
+                                    name={'director'}
+                                    size={'small'}
+                                    error={hasError('director')}
+                                    helperText={getHelperText('director')}
+                                    label={'Директор'}
+                                    style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
+                                    variant={'outlined'}
+                                    fullWidth>
+                                </TextField>
+                            </Paper>
+                            <Paper className={classes.propsPanelPaper}>
+                                <TextField
+                                    disabled={true}
+                                    // onChange={handleChange}
+                                    value={state.values.contractId}
+                                    name={'contractId'}
+                                    label={'Номер договора'}
+                                    error={hasError('contractId')}
+                                    helperText={getHelperText('contractId')}
+                                    variant={'outlined'}
+                                    size={'small'}
+                                    style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
+                                    fullWidth>
+                                </TextField>
+                            </Paper>
+                            <Paper className={classes.propsPanelPaper}>
+                                <TextField
+                                    onChange={handleChange}
+                                    value={state.values.perechen}
+                                    name={'perechen'}
                                     fullWidth
                                     multiline={true}
+                                    error={hasError('perechen')}
+                                    helperText={getHelperText('perechen')}
+                                    label={'Перечень услуг'}
+                                    variant={'outlined'}
+                                    size={'small'}
                                     rows={6}
                                     rowsMax={8}
                                     style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
@@ -385,12 +530,18 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                                 </TextField>
                             </Paper>
                             <Paper className={classes.propsPanelPaper}>
-                                <Typography className={classes.secondaryHeading}>Рекивзиты Банка : </Typography>
                                 <TextField
-                                    onChange={({target}) => setBank(target.value)}
-                                    value={bank}
+                                    disabled={true}
+                                    // onChange={handleChange}
+                                    value={state.values.bankInfo}
+                                    name={'bankInfo'}
                                     fullWidth
                                     multiline={true}
+                                    label={'Банковские реквизиты'}
+                                    variant={'outlined'}
+                                    error={hasError('bankInfo')}
+                                    helperText={getHelperText('bankInfo')}
+                                    size={'small'}
                                     rows={6}
                                     rowsMax={8}
                                     style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
@@ -398,22 +549,25 @@ const FullScreenDialog = ({opened, handleClose, acts, client}) => {
                                 </TextField>
                             </Paper>
                             <Paper className={classes.propsPanelPaper}>
-                                <Typography className={classes.secondaryHeading}>Фамилия Инициалы</Typography>
                                 <TextField
-                                    onChange={({target}) => setDirectorSignature(target.value)}
-                                    value={directorSignature}
-                                    fullWidth
-                                    multiline={true}
-                                    rows={6}
-                                    rowsMax={8}
+                                    onChange={handleChange}
                                     style={{backgroundColor: "rgb(241, 241, 241)", borderRadius: '5px'}}
+                                    value={state.values.directorSignature}
+                                    name={'directorSignature'}
+                                    label={'Инициалы директора'}
+                                    error={hasError('directorSignature')}
+                                    helperText={getHelperText('directorSignature')}
+                                    variant={'outlined'}
+                                    fullWidth
+                                    size={'small'}
                                 >
                                 </TextField>
                             </Paper>
                         </div>
                         <div className={classes.docView}>
                             {drawIframe()}
-                            {drawPopup(hasError)}
+                            {drawAfterEmailSendPopup()}
+                            {drawAfterDataSavedPopup()}
                         </div>
                     </Grid>
                 </Dialog>

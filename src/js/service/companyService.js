@@ -5,7 +5,7 @@ export const companyService = {
     getUsersByCompanyId
 };
 
-function getUsersByCompanyId(id) {
+function getUsersByCompanyId(id, signal) {
     return extendedFetcher
-        .getRequest(`http://${API_HOST}:8080/company/` + id + "/users");
+        .getRequest(`http://${API_HOST}:8080/company/` + id + "/users", signal);
 }

@@ -1,11 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import {BrowserRouter, Link, Route, Switch} from "react-router-dom";
-import MenuItem from "@material-ui/core/MenuItem";
-import {Drawer} from "@material-ui/core";
+import {BrowserRouter} from "react-router-dom";
 import MiniDrawer from "./js/general/CoolMenu";
-import {AuthContext} from "./js/context/auth";
 
 
 const App = () => (

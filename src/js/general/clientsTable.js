@@ -4,22 +4,91 @@ import MaterialTable from "material-table";
 import Link from "@material-ui/core/Link";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import CachedIcon from '@material-ui/icons/Cached';
-import {clientService} from "../service/clientService";
+import AddBoxOutlinedIcon from '@material-ui/icons/AddBoxOutlined';
 import tableIcons from "./common";
-import {useClients} from "../service/custom-hooks/custom-hookjs";
+import {deleteClient, getClients, postClient} from "../service/clientService";
+import {useTableData} from "../service/custom-hooks/custom-hookjs";
+import {EditClientDialog} from "../client/clientPersonalData";
 
 
-const Clients = (props) => {
+const Clients = ({history}) => {
 
     const [loader, setLoader] = React.useState(true);
     const [update, triggerUpdate] = React.useState({});
-    const data = useClients(setLoader, update);
+    const data = useTableData(getClients, setLoader, update);
+    const [opened, setOpened] = React.useState(false);
 
     const openClientView = (id) => {
-        let {history} = props;
         history.push({
             pathname: '/clients/' + id,
         });
+    };
+
+    const options = {
+        doubleHorizontalScroll: true,
+        pageSizeOptions: [5, 10, 15],
+        pageSize: 15,
+        paginationType: 'stepped',
+        exportButton: true,
+        columnsButton: true,
+        exportAllData: true,
+        grouping: true,
+        showFirstLastPageButtons: true,
+        toolbar: true,
+        draggable: true,
+        padding: 'dense',
+        headerStyle: {
+            backgroundColor: 'rgba(0,69,147,0.52)',
+            color: "white",
+            padding: "1px 2px 3px 3px",
+            fontSize: 12,
+            fontWeight: 'bolder'
+        },
+    };
+
+    const columns = [
+        {
+            title: 'Имя', field: 'name',
+            // cellStyle: { whiteSpace: "nowrap" }
+        },
+        {title: 'УНП', field: 'ynp', type: 'numeric'},
+        {title: 'Директор', field: 'director'},
+        {title: 'Фонд $', field: 'fond', type: 'numeric'},
+        {title: 'Юр. Адрес', field: 'address'},
+        {title: 'Имнс', field: 'imns'},
+        {title: 'Почта', field: 'email'},
+        {title: 'ОКПО', field: 'okpo'},
+        {title: 'ФСЗН', field: 'fszn'},
+        {title: 'Номер контракта', field: 'contractId'},
+    ];
+
+    const localization = {
+        body: {
+            emptyDataSourceMessage: 'Данные отсутствуют',
+            addTooltip: 'Добавить Клиента',
+            deleteTooltip: 'Удалить Клиента',
+            editTooltip: 'Редактировать',
+            editRow: {
+                deleteText: 'Удалить выбранного клиента?',
+                saveTooltip: 'Сохранить',
+                cancelTooltip: 'Отменить',
+            }
+        },
+        toolbar: {
+            searchPlaceholder: 'Поиск',
+            searchTooltip: 'Поиск',
+            addRemoveColumns: 'Поля для отображения',
+            showColumnsTitle: 'Настройки колонок',
+            exportTitle: 'Выгрузка в CSV файл'
+        },
+        pagination: {
+            labelRowsSelect: 'элементов на странице',
+            labelDisplayedRows: '{count} страница {from}-{to} старниц',
+            firstTooltip: 'В начало',
+            previousTooltip: 'Назад',
+            nextTooltip: 'Вперед',
+            lastTooltip: 'В Конец'
+        },
     };
 
     const onReject = (reason, reject) => {
@@ -28,9 +97,9 @@ const Clients = (props) => {
         reject();
     };
 
-    const onSuccess = (res, resolve) => {
-        triggerUpdate(res);
-        resolve();
+    const isPresent = (field) => {
+        let result = field === null || field === '' || field === undefined;
+        return !result;
     };
 
     return (
@@ -40,6 +109,12 @@ const Clients = (props) => {
                     Клиенты
                 </Link>
             </Breadcrumbs>
+            <EditClientDialog opened={opened} client={{id: ''}}
+                              apiCall={postClient}
+                              handleClose={() => setOpened(false)}
+                              update={triggerUpdate}
+                              title={'Создание нового клиента'}
+            />
             <MaterialTable
                 title="Таблица Клиенты"
                 columns={columns}
@@ -48,62 +123,34 @@ const Clients = (props) => {
                 data={data}
                 options={options}
                 onRowClick={(evt, clickedClient) => openClientView(clickedClient.id)}
-                style={{width: '100%'}}
                 localization={localization}
                 actions={[
                     {
-                        icon: () => {
-                            return (<CachedIcon/>)
-                        },
+                        icon: () => <CachedIcon/>,
                         tooltip: 'Обновить данные в таблице',
                         isFreeAction: true,
                         onClick: () => {
                             setLoader(true);
                             triggerUpdate(new Date());
                         },
+                    },
+                    {
+                        icon: () => <AddBoxOutlinedIcon/>,
+                        tooltip: 'Добавить нового клиента',
+                        isFreeAction: true,
+                        onClick: () => {
+                            setOpened(true)
+                        }
                     }
                 ]}
                 editable={{
-                    onRowAdd: newData => new Promise((resolve, reject) => {
-                        if (validateData(newData)) {
-                            setTimeout(() => {
-                                {
-                                    setLoader(true);
-                                    clientService
-                                        .postClient(newData)
-                                        .then(res => onSuccess(res, resolve), (reason) => onReject(reason, reject))
-                                }
-                            }, 50)
-                        } else {
-                            window.alert("Данные введены неверно");
-                            reject();
-                        }
-                    }),
-                    onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
-                        if (validateData(newData)) {
-                            setTimeout(() => {
-                                {
-                                    setLoader(true);
-                                    clientService.putClient(newData)
-                                        .then(res => onSuccess(res, resolve), (reason) => onReject(reason, reject));
-                                }
-                            }, 50)
-                        } else {
-                            window.alert("Данные введены неверно");
-                            reject();
-                        }
-                    }),
                     onRowDelete: oldData => new Promise((resolve, reject) => {
-                        setTimeout(() => {
-                            {
-                                setLoader(true);
-                                clientService.deleteClient(oldData)
-                                    .then(resp => {
-                                        triggerUpdate(new Date());
-                                        resolve();
-                                    }, (reason) => onReject(reason, reject));
-                            }
-                        }, 50)
+                        setLoader(true);
+                        deleteClient(oldData)
+                            .then(resp => {
+                                triggerUpdate(new Date());
+                                resolve();
+                            }, (reason) => onReject(reason, reject));
                     }),
                 }}
             />
@@ -111,92 +158,7 @@ const Clients = (props) => {
     )
 };
 
-const validateData = (fdata) => {
-
-    if (isPresent(fdata.ynp) &&
-        isPresent(fdata.name) &&
-        isPresent(fdata.email) &&
-        isPresent(fdata.director) &&
-        isPresent(fdata.fond) &&
-        isPresent(fdata.address) &&
-        isPresent(fdata.imns) &&
-        isPresent(fdata.okpo) &&
-        isPresent(fdata.fszn)
-    ) {
-        return true
-    } else {
-        return false;
-    }
-};
-
-const isPresent = (field) => {
-    let result = field === null || field === '' || field === undefined;
-    return !result;
-};
 
 export default Clients;
 
-const options = {
-    doubleHorizontalScroll: true,
-    pageSizeOptions: [5, 10, 15],
-    pageSize: 15,
-    paginationType: 'stepped',
-    exportButton: true,
-    columnsButton: true,
-    exportAllData: true,
-    grouping: true,
-    showFirstLastPageButtons: true,
-    toolbar: true,
-    draggable: true,
-    padding: 'dense',
-    headerStyle: {
-        backgroundColor: 'rgba(0,69,147,0.52)',
-        color: "white",
-        padding: "1px 2px 3px 3px",
-        fontSize: 12,
-        fontWeight: 'bolder'
-    },
-};
 
-const columns = [
-    {
-        title: 'Имя', field: 'name',
-    },
-    {title: 'УНП', field: 'ynp', type: 'numeric'},
-    {title: 'Директор', field: 'director'},
-    {title: 'Фонд $', field: 'fond', type: 'numeric'},
-    {title: 'Юр. Адрес', field: 'address'},
-    {title: 'Имнс', field: 'imns'},
-    {title: 'Почта', field: 'email'},
-    {title: 'ОКПО', field: 'okpo'},
-    {title: 'ФСЗН', field: 'fszn'},
-];
-
-const localization = {
-    body: {
-        emptyDataSourceMessage: 'Поиск не дал результатов',
-        addTooltip: 'Добавить Клиента',
-        deleteTooltip: 'Удалить Клиента',
-        editTooltip: 'Редактировать',
-        editRow: {
-            deleteText: 'Удалить выбранного клиента?',
-            saveTooltip: 'Сохранить',
-            cancelTooltip: 'Отменить',
-        }
-    },
-    toolbar: {
-        searchPlaceholder: 'Поиск',
-        searchTooltip: 'Поиск',
-        addRemoveColumns: 'Поля для отображения',
-        showColumnsTitle: 'Настройки колонок',
-        exportTitle: 'Выгрузка в CSV файл'
-    },
-    pagination: {
-        labelRowsSelect: 'элементов на странице',
-        labelDisplayedRows: '{count} страница {from}-{to} старниц',
-        firstTooltip: 'В начало',
-        previousTooltip: 'Назад',
-        nextTooltip: 'Вперед',
-        lastTooltip: 'В Конец'
-    },
-};

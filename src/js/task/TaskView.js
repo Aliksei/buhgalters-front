@@ -8,7 +8,6 @@ import {Box} from "@material-ui/core";
 import TaskFilter from "./taskFilter";
 import {taskService} from "../service/taskService";
 import {companyService} from "../service/companyService";
-import {useAuth} from "../context/auth";
 
 const useStyles = makeStyles(theme => ({
     card: {

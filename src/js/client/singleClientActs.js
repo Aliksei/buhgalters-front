@@ -1,228 +1,204 @@
 import * as React from "react";
-import {forwardRef, useEffect} from "react";
 
-import AddBox from '@material-ui/icons/AddBox';
-import ArrowUpward from '@material-ui/icons/ArrowUpward';
-import Check from '@material-ui/icons/Check';
-import ChevronLeft from '@material-ui/icons/ChevronLeft';
-import ChevronRight from '@material-ui/icons/ChevronRight';
-import Clear from '@material-ui/icons/Clear';
-import DeleteOutline from '@material-ui/icons/DeleteOutline';
-import Edit from '@material-ui/icons/Edit';
-import FilterList from '@material-ui/icons/FilterList';
-import FirstPage from '@material-ui/icons/FirstPage';
-import LastPage from '@material-ui/icons/LastPage';
-import Remove from '@material-ui/icons/Remove';
-import SaveAlt from '@material-ui/icons/SaveAlt';
-import Search from '@material-ui/icons/Search';
-import ViewColumn from '@material-ui/icons/ViewColumn';
 import MaterialTable from "material-table";
-import {actService} from "../service/actService";
-
-
-const tableIcons = {
-    Add: forwardRef((props, ref) => <AddBox {...props} ref={ref}/>),
-    Check: forwardRef((props, ref) => <Check {...props} ref={ref}/>),
-    Clear: forwardRef((props, ref) => <Clear {...props} ref={ref}/>),
-    Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref}/>),
-    DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref}/>),
-    Edit: forwardRef((props, ref) => <Edit {...props} ref={ref}/>),
-    Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref}/>),
-    Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref}/>),
-    FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref}/>),
-    LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref}/>),
-    NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref}/>),
-    PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref}/>),
-    ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref}/>),
-    Search: forwardRef((props, ref) => <Search {...props} ref={ref}/>),
-    SortArrow: forwardRef((props, ref) => <ArrowUpward {...props} ref={ref}/>),
-    ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref}/>),
-    ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref}/>)
-};
+import tableIcons from "../general/common";
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import {ActView} from "./emailact";
+import {deleteAct} from "../service/actService";
+import AddBoxIcon from '@material-ui/icons/AddBox';
+import Chip from "@material-ui/core/Chip";
+import AccessTimeOutlinedIcon from '@material-ui/icons/AccessTimeOutlined';
+import CheckOutlinedIcon from '@material-ui/icons/CheckOutlined';
 
 const ClientsAct = ({owner, actList, update}) => {
 
-        const [loader, setLoader] = React.useState(true);
+    const [state, setState] = React.useState({
+        act: {},
+        forEdit: true,
+        opened: false,
+    });
 
-        useEffect(() => {
-            if (Object.keys(owner).length !== 0) {
-                setLoader(false);
+    const columns = [
+        {title: 'Номер Акта', field: 'actNumber'},
+        {
+            title: 'Клиент', field: 'clientId',
+            hidden: true
+        }
+        ,
+        {
+            title: 'Статус',
+            field: 'status',
+            render: (rowData) => {
+                    if (rowData.status === 1) {
+                        return (<Chip size="small" label={'ВЫСТАВЛЕН'} style={{backgroundColor: 'rgb(248,242,121, 0.39)'}}
+                                      variant={"outlined"} icon={<AccessTimeOutlinedIcon/>}/>);
+                    }
+                    if (rowData.status === 2) {
+                        return (<Chip size="small" label={'ОПЛАЧЕН'} style={{backgroundColor: 'rgba(136,255,136,0.32)'}}
+                                      variant={"outlined"} icon={<CheckOutlinedIcon/>}/>);
+                    }
             }
-        }, [actList, owner]);
+        },
+        {
+            title: 'Сумма',
+            field: 'summ',
+            type: 'numeric'
+        },
+        {
+            title: 'Дата отправки',
+            field: 'actDate',
+            type: 'date',
+            // render: (data, type) => {
+            //     let moment = Moment(data);
+            //     moment.locale();
+            //     return (<div>{moment.format('YYYY-MM-DD')}</div>)
+            // }
+        },
+        {
+            title: 'Месяц',
+            field: 'actMonth',
+            lookup: {
+                1: 'Январь',
+                2: 'Февраль',
+                3: 'Март',
+                4: 'Апрель',
+                5: 'Май',
+                6: 'Июнь',
+                7: 'Июль',
+                8: 'Август',
+                9: 'Сентябрь',
+                10: 'Октябрь',
+                11: 'Ноябрь',
+                12: 'Декабрь',
+            },
+        }
+    ];
 
-        const onReject = (reason, reject) => {
-            window.alert("Ошибка Запроса: " + reason);
-            setLoader(false);
-            reject();
-        };
+    const options = {
+        pageSizeOptions: [10, 20, 30],
+        pageSize: 10,
+        paginationType: 'stepped',
+        padding: 'dense',
+        showFirstLastPageButtons: true,
+        headerStyle: {
+            backgroundColor: 'rgba(0,69,147,0.52)',
+            color: "white",
+            fontSize: 12,
+            fontWeight: 'bolder'
+        }
+    };
 
-        const onSuccess = (res, resolve) => {
-            update(res);
-            resolve();
-        };
+    const localization = {
+        body: {
+            emptyDataSourceMessage: 'Данные отсутствуют',
+            addTooltip: 'Добавить Акт',
+            deleteTooltip: 'Удалить Акт',
+            editTooltip: 'Редактировать Акт',
+            editRow: {
+                deleteText: 'Удалить выбранный акт?',
+                saveTooltip: 'Сохранить',
+                cancelTooltip: 'Отменить',
+            }
+        },
+        toolbar: {
+            searchPlaceholder: 'Поиск'
+        },
+        pagination: {
+            labelRowsSelect: 'элементов',
+            labelDisplayedRows: '{count} страница {from}-{to} старниц',
+            firstTooltip: 'В начало',
+            previousTooltip: 'Назад',
+            nextTooltip: 'Вперед',
+            lastTooltip: 'В Конец'
+        },
+    };
 
-        return (
+    const onReject = (reason, reject) => {
+        window.alert("Ошибка Запроса: " + reason);
+        setState(prevState => {
+            return {...prevState}
+        });
+        reject();
+    };
+
+    const ActEditor = () => {
+        if (state.opened === false) {
+            return null
+        } else {
+            console.log("RENDER");
+            function Response() {
+                return (
+                    <ActView opened={state.opened} client={owner} act={state.act} forEdit={state.forEdit}
+                             handleClose={() => {
+                                 setState(() => {
+                                     return {
+                                         act: {},
+                                         opened: false,
+                                         forEdit: false,
+                                     }
+                                 });
+                                 update(new Date);
+                             }}/>
+                )
+            }
+            return <Response/>;
+        }
+    };
+
+    return (
+        <div>
+            <ActEditor/>
             <MaterialTable
                 style={{width: '99%'}}
                 title={'Таблица aктов клиента :  ' + owner.name}
                 columns={columns}
                 icons={tableIcons}
                 data={actList}
-                isLoading={loader}
                 options={options}
                 localization={localization}
+                onRowClick={() => {}}
+                actions={[
+                    {
+                        icon: () => <VisibilityIcon/>,
+                        tooltip: 'Просмотр актa',
+                        onClick: (event, rowData) => {
+                            console.log(rowData);
+                            setState({
+                                act: {...rowData},
+                                forEdit: true,
+                                opened: true
+                            })
+                        }
+                    },
+                    {
+                        icon: () => <AddBoxIcon/>,
+                        tooltip: 'Добавить новый акт',
+                        isFreeAction: true,
+                        onClick: () => {
+                            setState({
+                                act: {},
+                                forEdit: false,
+                                opened: true,
+                            })
+                        },
+                    }
+                ]}
                 editable={{
-                    onRowAdd: newData => new Promise((resolve, reject) => {
-                        if (validateAct(newData)) {
-                            setTimeout(() => {
-                                {
-                                    newData.clientId = owner.id;
-                                    setLoader(true);
-                                    actService.postAct(newData)
-                                        .then(res => onSuccess(res, resolve), (reason) => onReject(reason, reject));
-                                }
-                            }, 50)
-                        } else {
-                            window.alert("Данные введены неверно");
-                            reject();
-                        }
-                    }),
-                    onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
-                        if (validateAct(newData)) {
-                            setTimeout(() => {
-                                {
-                                    setLoader(true);
-                                    newData.clientId = owner.id;
-                                    actService.putAct(newData)
-                                        .then(res => onSuccess(res, resolve), (reason) => onReject(reason, reject))
-                                }
-                            }, 50)
-                        } else {
-                            window.alert("Данные введены неверно");
-                            reject();
-                        }
-                    }),
-                    onRowDelete: oldData =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                {
-                                    setLoader(true);
-                                    actService.deleteAct(oldData)
-                                        .then(res => {
-                                            resolve();
-                                            update(new Date());
-                                        }, (reason) => onReject(reason, reject));
-                                }
-
-                            }, 50)
-                        }),
+                    onRowDelete: oldData => {
+                        return new Promise((resolve, reject) => {
+                            deleteAct(oldData)
+                                .then(res => {
+                                    resolve();
+                                    update(new Date());
+                                }, (reason) => onReject(reason, reject));
+                        })
+                    }
+,
                 }}
             />
-        )
-    };
+        </div>
 
-
-const validateAct = (report) => {
-    if (validateField(report.actNumber) &&
-        validateField(report.month) &&
-        validateField(report.summ) &&
-        validateField(report.actDate) &&
-        validateField(report.status)) {
-        return true;
-    } else {
-        return false;
-    }
-};
-
-const validateField = (field) => {
-    let result = field === '' || field === null || field === undefined;
-    return !result;
+    )
 };
 
 export default ClientsAct;
-
-const columns = [
-    {title: 'Номер Акта', field: 'actNumber'},
-    {
-        title: 'Клиент', field: 'clientId',
-        hidden: true
-    }
-    ,
-    {
-        title: 'Статус',
-        field: 'status',
-        lookup: {0: 'ВЫСТАВЛЕН', 1: 'ОПЛАЧЕН'}
-    },
-    {
-        title: 'Сумма',
-        field: 'summ',
-        type: 'numeric'
-    },
-    {
-        title: 'Дата отправки',
-        field: 'actDate',
-        type: 'date',
-        // render: (data, type) => {
-        //     let moment = Moment(data);
-        //     moment.locale();
-        //     return (<div>{moment.format('YYYY-MM-DD')}</div>)
-        // }
-    },
-    {
-        title: 'Месяц',
-        field: 'month',
-        lookup: {
-            1: 'Январь',
-            2: 'Февраль',
-            3: 'Март',
-            4: 'Апрель',
-            5: 'Май',
-            6: 'Июнь',
-            7: 'Июль',
-            8: 'Август',
-            9: 'Сентябрь',
-            10: 'Октябрь',
-            11: 'Ноябрь',
-            12: 'Декабрь',
-        },
-    }
-];
-
-const options = {
-    pageSizeOptions: [10, 20, 30],
-    pageSize: 10,
-    paginationType: 'stepped',
-    padding: 'dense',
-    showFirstLastPageButtons: true,
-    headerStyle: {
-        backgroundColor: 'rgba(0,69,147,0.52)',
-        color: "white",
-        fontSize: 12,
-        fontWeight: 'bolder'
-    }
-};
-
-const localization = {
-    body: {
-        emptyDataSourceMessage: 'Поиск не дал результатов',
-        addTooltip: 'Добавить Акт',
-        deleteTooltip: 'Удалить Акт',
-        editTooltip: 'Редактировать Акт',
-        editRow: {
-            deleteText: 'Удалить выбранный акт?',
-            saveTooltip: 'Сохранить',
-            cancelTooltip: 'Отменить',
-        }
-    },
-    toolbar: {
-        searchPlaceholder: 'Поиск'
-    },
-    pagination: {
-        labelRowsSelect: 'элементов',
-        labelDisplayedRows: '{count} страница {from}-{to} старниц',
-        firstTooltip: 'В начало',
-        previousTooltip: 'Назад',
-        nextTooltip: 'Вперед',
-        lastTooltip: 'В Конец'
-    },
-};

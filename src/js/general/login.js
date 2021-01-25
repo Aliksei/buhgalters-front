@@ -49,7 +49,6 @@ export default function LoginForm() {
         return fetch(`http://${API_HOST}:8080/authenticate`, {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
-            // credentials: "include",
             body: JSON.stringify({
                 userName: btoa(userName),
                 password: btoa(password),
@@ -70,7 +69,6 @@ export default function LoginForm() {
 
                     userService.getCurrentUser()
                         .then(user => {
-                            console.log(JSON.stringify(user));
                             setUser(user);
                         })
                 }

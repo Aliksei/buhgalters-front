@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import {makeStyles, useTheme} from '@material-ui/core/styles';
+import {makeStyles} from '@material-ui/core/styles';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -9,20 +10,16 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import StorageIcon from '@material-ui/icons/Storage';
 import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 import ForumIcon from '@material-ui/icons/Forum';
 import Clients from "./clientsTable";
-import {Link, Route} from "react-router-dom";
-import {AnimatedSwitch} from 'react-router-transition';
-import React, {Fragment, useEffect, useRef} from "react";
+import {Link, Route, Switch} from "react-router-dom";
+import React, {Fragment} from "react";
 import Acts from "./actsTable";
 import Reports from "./reportsTable";
 import MediaCard from "../task/TaskView";
@@ -38,7 +35,6 @@ import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import RegistrationFrom from "./registration";
 import Tooltip from "@material-ui/core/Tooltip";
-import Profile from "./profile";
 
 
 const drawerWidth = 185;
@@ -102,14 +98,13 @@ const useStyles = makeStyles(theme => ({
         flexGrow: 1,
         padding: theme.spacing(3),
     },
+    direction: theme.direction
 }));
 
 
 export default function MiniDrawer() {
     const classes = useStyles();
-    const theme = useTheme();
     const [open, setOpen] = React.useState(false);
-    const [anchorEl, setAnchorEl] = React.useState(null);
 
     const [authTokens, setAuthTokens] = React.useState();
     const [currentUser, setUser] = React.useState();
@@ -119,203 +114,144 @@ export default function MiniDrawer() {
         setAuthTokens(data);
     };
 
-    const handleMenuClose = () => setAnchorEl(null);
+    const TopMenu = () => {
+        const [anchorEl, setAnchorEl] = React.useState(null);
 
-    function logOut() {
-        setAuthTokens();
-        handleMenuClose();
-    }
+        const handleMenuClose = () => setAnchorEl(null);
+        const logOut = () => {
+            setAuthTokens();
+            handleMenuClose();
+        };
 
-    const renderMenu = (
-        <Menu
-            anchorEl={anchorEl}
-            anchorOrigin={{vertical: 'top', horizontal: 'right'}}
-            keepMounted
-            transformOrigin={{vertical: 'top', horizontal: 'right'}}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-        >
-            <MenuItem dense component={Link} to={'/profile'} onClick={handleMenuClose}>Профиль</MenuItem>
-            <MenuItem dense onClick={logOut}>Выйти</MenuItem>
-        </Menu>
+        const showTopButtons = () => {
+            if (!authTokens) {
+                return null;
+            }
+            return (
+                <Fragment>
+                    <IconButton
+                        // component={Link} to={'/tasks'}
+                        aria-label="show 4 new mails" color="inherit">
+                        <Badge color="secondary">
+                            <MailIcon/>
+                        </Badge>
+                    </IconButton>
+                    <IconButton aria-label="show 17 new notifications" color="inherit">
+                        <Badge color="secondary">
+                            <NotificationsIcon/>
+                        </Badge>
+                    </IconButton>
+                    <IconButton edge="end" aria-label="account of current user" aria-haspopup="true"
+                                onClick={(event) => {
+                                    setAnchorEl(event.currentTarget);
+                                }} color="inherit">
+                        <AccountCircle/>
+                    </IconButton>
+                    <Menu
+                        anchorEl={anchorEl}
+                        anchorOrigin={{vertical: 'top', horizontal: 'right'}}
+                        keepMounted
+                        transformOrigin={{vertical: 'top', horizontal: 'right'}}
+                        open={Boolean(anchorEl)}
+                        onClose={() => setAnchorEl(null)}
+                    >
+                        {/*<MenuItem dense component={Link} to={'/profile'} onClick={handleMenuClose}>Профиль</MenuItem>*/}
+                        <MenuItem dense onClick={logOut}>Выйти</MenuItem>
+                    </Menu>
+                </Fragment>
+            )
+        };
+
+        return (
+            <AppBar position="fixed" className={clsx(classes.appBar, {[classes.appBarShift]: open,})}>
+                <Toolbar>
+                    <IconButton color="inherit" aria-label="open drawer" onClick={() => setOpen(true)} edge="start"
+                                className={clsx(classes.menuButton, {[classes.hide]: open,})}>
+                        <MenuIcon/>
+                    </IconButton>
+                    <Typography variant="h6" noWrap>
+                        Программа учета Клиентов
+                    </Typography>
+                    {showTopButtons()}
+                </Toolbar>
+
+            </AppBar>);
+    };
+
+    const LeftMenu = () => (
+        <Drawer variant="permanent"
+                className={clsx(classes.drawer, {[classes.drawerOpen]: open, [classes.drawerClose]: !open,})}
+                classes={{paper: clsx({[classes.drawerOpen]: open, [classes.drawerClose]: !open,}),}}
+                open={open}>
+            <div className={classes.toolbar}>
+                <IconButton onClick={() => setOpen(false)}><ChevronLeftIcon/></IconButton>
+            </div>
+            <LeftMenuItems authorized={authTokens}/>
+        </Drawer>
     );
 
     return (
         <div className={classes.root}>
             <AuthContext.Provider value={{authTokens, setAuthTokens: setTokens, setUser, currentUser}}>
                 <CssBaseline/>
-                <AppBar position="fixed" className={clsx(classes.appBar, {[classes.appBarShift]: open,})}>
-                    <Toolbar>
-                        <IconButton color="inherit" aria-label="open drawer" onClick={() => setOpen(true)} edge="start"
-                                    className={clsx(classes.menuButton, {[classes.hide]: open,})}>
-                            <MenuIcon/>
-                        </IconButton>
-                        <Typography variant="h6" noWrap>
-                            Программа учета Клиентов
-                        </Typography>
-                        <IconButton component={Link} to={'/tasks'} aria-label="show 4 new mails" color="inherit">
-                            <Badge badgeContent={4} color="secondary">
-                                <MailIcon/>
-                            </Badge>
-                        </IconButton>
-                        <IconButton aria-label="show 17 new notifications" color="inherit">
-                            <Badge badgeContent={17} color="secondary">
-                                <NotificationsIcon/>
-                            </Badge>
-                        </IconButton>
-                        <IconButton edge="end" aria-label="account of current user" aria-haspopup="true"
-                                    onClick={(event) => setAnchorEl(event.currentTarget)} color="inherit">
-                            <AccountCircle/>
-                        </IconButton>
-                    </Toolbar>
-                    {renderMenu}
-                </AppBar>
-
-                <Drawer variant="permanent"
-                        className={clsx(classes.drawer, {[classes.drawerOpen]: open, [classes.drawerClose]: !open,})}
-                        classes={{paper: clsx({[classes.drawerOpen]: open, [classes.drawerClose]: !open,}),}}
-                        open={open}
-                >
-                    <div className={classes.toolbar}>
-                        <IconButton onClick={() => setOpen(false)}>{theme.direction === 'rtl' ? <ChevronRightIcon/> :
-                            <ChevronLeftIcon/>}</IconButton>
-                    </div>
-                    <MenuItems/>
-                </Drawer>
-
+                <TopMenu/>
+                <LeftMenu/>
                 <main className={classes.content}>
                     <div className={classes.toolbar}/>
-                    <AnimatedSwitch
-                        // atEnter={{opacity: 0.9}}
-                        // atLeave={{opacity: 1}}
-                        // atActive={{opacity: 1}}
-                    >
+                    <Switch>
                         <PrivateRoute path='/clients' component={ClientsRouting}/>
                         <PrivateRoute path='/acts' component={Acts}/>
                         <PrivateRoute path='/reports' component={Reports}/>
                         <PrivateRoute path='/tasks' component={MediaCard}/>
-                        <Route path='/login' component={Login}/>
-                        <Route path='/registration' component={RegistrationFrom}/>
-                        <PrivateRoute path='/profile' component={Profile}/>
-                    </AnimatedSwitch>
+                        <Route path='/login' render={() => <Login/>}/>
+                        <Route path='/registration' render={() => <RegistrationFrom/>}/>
+                        {/*<PrivateRoute path='/profile' component={Profile}/>*/}
+                    </Switch>
                 </main>
             </AuthContext.Provider>
         </div>
     );
-
 }
 
-
-const MenuItems = () => {
-
-    const [clientsSelected, setClientsSelected ] = React.useState(false);
-    const [reportsSelected, setReportsSelected] = React.useState(false);
-    const [actsSelected, setActsSelected] = React.useState(false);
-    const [taskstsSelected, setTaskstsSelected] = React.useState(false);
-    const [profileSelected, setProfileSelected] = React.useState(false);
-
-    const handleClientClick =() => {
-      setClientsSelected(true);
-
-      setActsSelected(false);
-      setTaskstsSelected(false);
-      setReportsSelected(false);
-      setProfileSelected(false);
-    };
-
-    const handleTasksClick =() => {
-        setTaskstsSelected(true);
-
-        setClientsSelected(false);
-        setActsSelected(false);
-        setReportsSelected(false);
-        setProfileSelected(false);
-    };
-
-    const handleReportsClick =() => {
-        setReportsSelected(true);
-
-        setProfileSelected(false);
-        setClientsSelected(false);
-        setActsSelected(false);
-        setTaskstsSelected(false);
-    };
-
-    const handleActsClick =() => {
-        setActsSelected(true);
-
-        setProfileSelected(false);
-        setClientsSelected(false);
-        setReportsSelected(false);
-        setTaskstsSelected(false);
-    };
-
-    const handleProfileClick =() => {
-        setProfileSelected(true);
-
-        setActsSelected(false);
-        setClientsSelected(false);
-        setReportsSelected(false);
-        setTaskstsSelected(false);
-    };
-
-    return (<Fragment>
-        <Divider/>
-        <List>
-            <div onClick={handleClientClick}>
-                <ListItem component={Link} to={'/clients'} button key='Клиенты' selected={clientsSelected}>
-                    <Tooltip title="Клиенты">
-                        <ListItemIcon><PeopleAltIcon/></ListItemIcon>
-                    </Tooltip>
-                    <ListItemText primary='Клиенты'/>
-                </ListItem>
-            </div>
-            <div onClick={handleActsClick}>
-                <ListItem component={Link} to={'/acts'} button key='Акты' selected={actsSelected}>
-                    <Tooltip title="Акты">
-                        <ListItemIcon><StorageIcon/></ListItemIcon>
-                    </Tooltip>
-                    <ListItemText primary='Акты'/>
-                </ListItem>
-            </div>
-            <div onClick={handleReportsClick}>
-                <ListItem component={Link} to={'/reports'} button key='Отчетности' selected={reportsSelected}>
-                    <Tooltip title="Отчетности">
-                        <ListItemIcon><InboxIcon/></ListItemIcon>
-                    </Tooltip>
-                    <ListItemText primary='Отчетности'/>
-                </ListItem>
-            </div>
-        </List>
-        <Divider/>
-        <List>
-            <div onClick={handleTasksClick}>
-                <ListItem component={Link} to={'/tasks'} button key='Задания' selected={taskstsSelected}>
-                    <Tooltip title="Задания">
-                        <ListItemIcon><ForumIcon/></ListItemIcon>
-                    </Tooltip>
-                    <ListItemText primary='Задания'/>
-                </ListItem>
-            </div>
-            <div onClick={handleProfileClick}>
-                <ListItem component={Link} to={'/profile'} button key='Профиль' selected={profileSelected}>
-                    <Tooltip title="Профиль">
-                        <ListItemIcon><AccountCircleIcon/></ListItemIcon>
-                    </Tooltip>
-                    <ListItemText primary='Профиль'/>
-                </ListItem>
-            </div>
-        </List>
-    </Fragment>)
-};
-
 const ClientsRouting = () => (
-    <AnimatedSwitch
-        // atEnter={{opacity: 1}}
-        // atLeave={{opacity: 1}}
-        // atActive={{opacity: 1}}
-    >
+    <Switch>
         <Route exact path='/clients' component={Clients}/>
         <Route path='/clients/:id' component={SingleClient}/>
-    </AnimatedSwitch>
+    </Switch>
 );
+
+const MyListMenuItem = ({onClick, to, name, component: SomeIcon}) => {
+    return (
+        <div onClick={onClick}>
+            <ListItem component={Link} to={to} button key={name}>
+                <Tooltip title={name}>
+                    <ListItemIcon><SomeIcon/></ListItemIcon>
+                </Tooltip>
+                <ListItemText primary={name}/>
+            </ListItem>
+        </div>
+    )
+};
+
+const LeftMenuItems = ({authorized}) => {
+
+    if (!authorized) {
+        return null;
+    }
+
+    return (
+        <Fragment>
+            <Divider/>
+            <List>
+                <MyListMenuItem to={'/clients'} name={'Клиенты'} component={PeopleAltIcon}/>
+                <MyListMenuItem to={'/acts'} name={'Акты'} component={StorageIcon}/>
+                <MyListMenuItem to={'/reports'} name={'Отчетности'} component={InboxIcon}/>
+            </List>
+            <Divider/>
+            <List>
+                <MyListMenuItem to={'/tasks'} name={'Задания'} component={ForumIcon}/>
+                {/*<MyListMenuItem to={'/profile'} name={'Профиль'} component={AccountCircleIcon}/>*/}
+            </List>
+        </Fragment>
+    )
+};

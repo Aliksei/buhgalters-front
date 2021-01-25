@@ -8,7 +8,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
-import React, {useEffect} from "react";
+import React from "react";
 import {red} from "@material-ui/core/colors";
 import {taskService} from "../service/taskService";
 import MenuItem from "@material-ui/core/MenuItem";

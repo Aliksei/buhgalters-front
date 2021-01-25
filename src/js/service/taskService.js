@@ -9,28 +9,28 @@ export const taskService = {
     getTaskById
 };
 
-function getTasks(monthId) {
+function getTasks(monthId, signal) {
     let query  = monthId === null || monthId === undefined || monthId === -1 ? '' : `?monthId=${monthId}`;
     return extendedFetcher
-        .getRequest(`http://${API_HOST}:8080/tasks${query}`);
+        .getRequest(`http://${API_HOST}:8080/tasks${query}`, signal);
 }
 
-function putTask(body) {
+function putTask(body, signal) {
     return extendedFetcher
-        .putRequest(`http://${API_HOST}:8080/tasks/` + body.id, body);
+        .putRequest(`http://${API_HOST}:8080/tasks/` + body.id, body, signal);
 }
 
-function postTask(body) {
+function postTask(body, signal) {
     return extendedFetcher
-        .postRequest(`http://${API_HOST}:8080/tasks`, body);
+        .postRequest(`http://${API_HOST}:8080/tasks`, body, signal);
 }
 
-function deleteTask(id) {
+function deleteTask(id, signal) {
     return extendedFetcher
-        .deleteRequest(`http://${API_HOST}:8080/tasks/` + id);
+        .deleteRequest(`http://${API_HOST}:8080/tasks/` + id, signal);
 }
 
-function getTaskById(id) {
+function getTaskById(id, signal) {
     return extendedFetcher
-        .getRequest("http://${API_HOST}:8080/tasks/" + id);
+        .getRequest("http://${API_HOST}:8080/tasks/" + id, signal);
 }

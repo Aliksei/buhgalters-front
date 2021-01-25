@@ -8,65 +8,70 @@ export const extendedFetcher = {
     executeRequestNoHandling
 };
 
-function putRequest(url, body) {
+function putRequest(url, body, signal) {
     const requestOptions = {
+        signal,
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            Authorization : 'Bearer '  + localStorage.getItem('tokens').replace('"', '').replace('"', '')
+            Authorization: 'Bearer ' + localStorage.getItem('tokens').replace('"', '').replace('"', '')
         },
         body: JSON.stringify(body)
     };
     return executeRequest(url, requestOptions);
 }
 
-function postRequest(url, body) {
+function postRequest(url, body, signal) {
     const requestOptions = {
+        signal,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            Authorization : 'Bearer '  + localStorage.getItem('tokens').replace('"', '').replace('"', '')
+            Authorization: 'Bearer ' + localStorage.getItem('tokens').replace('"', '').replace('"', '')
         },
         body: JSON.stringify(body)
     };
     return executeRequest(url, requestOptions);
 }
 
-function getRequest(url) {
+function getRequest(url, signal) {
     const requestOptions = {
+        signal,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Authorization : 'Bearer '  + localStorage.getItem('tokens').replace('"', '').replace('"', '')
+            Authorization: 'Bearer ' + localStorage.getItem('tokens').replace('"', '').replace('"', '')
         }
     };
     return executeRequest(url, requestOptions);
 }
 
-function downloadRequest(url, body) {
+function downloadRequest(url, body, signal) {
     const requestOptions = {
+        signal,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/pdf',
-            Authorization : 'Bearer '  + localStorage.getItem('tokens').replace('"', '').replace('"', '')
+            Authorization: 'Bearer ' + localStorage.getItem('tokens').replace('"', '').replace('"', '')
         },
         body: JSON.stringify(body)
     };
     return fetch(url, requestOptions)
         .then(res => res.blob())
         .then(blob => {
-            let b = new Blob([blob],  {type: "application/pdf"});
+            let b = new Blob([blob], {type: "application/pdf"});
             return URL.createObjectURL(b);
         });
 }
 
-function deleteRequest(url) {
+function deleteRequest(url, signal) {
     const requestOptions = {
+        signal,
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            Authorization : 'Bearer '  + localStorage.getItem('tokens').replace('"', '').replace('"', '')
+            Authorization: 'Bearer ' + localStorage.getItem('tokens').replace('"', '').replace('"', '')
         }
     };
     return executeRequest(url, requestOptions);

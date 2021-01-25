@@ -1,47 +1,51 @@
 import {extendedFetcher} from "../rest/fetcher";
 import {API_HOST} from "./actService";
 
-export const clientService = {
-    getClients,
-    putClient,
-    postClient,
-    deleteClient,
-    getClientById,
-    getClientActs,
-    getClientReports
+export const getClients = async (signal) => {
+    return extendedFetcher
+        .getRequest(`http://${API_HOST}:8080/clients`, signal);
 };
 
-function getClients() {
+export const putClient = async (body, signal) => {
     return extendedFetcher
-        .getRequest(`http://${API_HOST}:8080/clients`);
-}
+        .putRequest(`http://${API_HOST}:8080/clients/` + body.id, body, signal);
+};
 
-function putClient(body) {
+export const postClient = async (body, signal) => {
     return extendedFetcher
-        .putRequest(`http://${API_HOST}:8080/clients/` + body.id, body);
-}
+        .postRequest(`http://${API_HOST}:8080/clients`, body, signal);
+};
 
-function postClient(body) {
+export const deleteClient = async (body, signal) => {
     return extendedFetcher
-        .postRequest(`http://${API_HOST}:8080/clients`, body);
-}
+        .deleteRequest(`http://${API_HOST}:8080/clients/` + body.id, signal);
+};
 
-function deleteClient(body) {
+export const getClientById = async (id, signal) => {
     return extendedFetcher
-        .deleteRequest(`http://${API_HOST}:8080/clients/` + body.id);
-}
+        .getRequest(`http://${API_HOST}:8080/clients/` + id, signal);
+};
 
-function getClientById(id) {
+export const getClientActs = async (id, signal) => {
     return extendedFetcher
-        .getRequest(`http://${API_HOST}:8080/clients/` + id);
-}
+        .getRequest(`http://${API_HOST}:8080/clients/` + id + "/acts", signal);
+};
 
-function getClientActs(id) {
+export const getClientReports = async (id, signal) => {
     return extendedFetcher
-        .getRequest(`http://${API_HOST}:8080/clients/` + id + "/acts");
-}
+        .getRequest(`http://${API_HOST}:8080/clients/` + id + "/reports", signal);
+};
 
-function getClientReports(id) {
+export const postAct = async (body, clientId, signal) => {
     return extendedFetcher
-        .getRequest(`http://${API_HOST}:8080/clients/` + id + "/reports");
-}
+        .postRequest(`http://${API_HOST}:8080/clients/` + clientId + `/acts`, body, signal);
+};
+
+export const putAct = async (body, clientId, signal) => {
+    return extendedFetcher
+        .putRequest(`http://${API_HOST}:8080/clients/` + clientId + `/acts/` + body.id, body, signal);
+};
+
+export const sendEmail = async (body, signal) => {
+    return extendedFetcher.postRequest(`http://${API_HOST}:8080/sendEmail`, body)
+};

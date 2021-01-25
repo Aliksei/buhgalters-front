@@ -6,18 +6,19 @@ export const userService = {
     getCurrentUser,
 };
 
-function getCurrentUser() {
+function getCurrentUser(signal) {
     return extendedFetcher
-        .getRequest(`http://${API_HOST}:8080/user`);
+        .getRequest(`http://${API_HOST}:8080/user`, signal);
 }
 
-function getUserTasks(id) {
+function getUserTasks(id, signal) {
     return extendedFetcher
-        .getRequest(`http://${API_HOST}:8080/user/${id}/tasks`);
+        .getRequest(`http://${API_HOST}:8080/user/${id}/tasks`, signal);
 }
 
-function createUser(body) {
+function createUser(body, signal) {
     const requestOptions = {
+        signal,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

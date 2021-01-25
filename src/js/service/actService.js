@@ -3,57 +3,25 @@ import {extendedFetcher} from "../rest/fetcher";
 export const API_HOST = process.env.REACT_APP_SPRING_BASE_URL;
 // export const API_HOST = "localhost";
 
-export const actService = {
-    getActs,
-    putAct,
-    postAct,
-    deleteAct,
-    downlaod,
-    downloadAsPdf,
-    downloadAsWord
+
+export const getActs = async (signal) => {
+    return extendedFetcher
+        .getRequest(`http://${API_HOST}:8080/acts`, signal);
 };
 
-function getActs() {
+export const deleteAct = async (body, signal) => {
     return extendedFetcher
-        .getRequest(`http://${API_HOST}:8080/acts`);
-}
+        .deleteRequest(`http://${API_HOST}:8080/acts/` + body.id, signal);
+};
 
-function putAct(body) {
-    return extendedFetcher
-        .putRequest(`http://${API_HOST}:8080/acts/` + body.id, body);
-}
+export const downloadAsPdf = async (body, signal) => {
+    return extendedFetcher.downloadRequest(`http://${API_HOST}:8080/acts/downloadAsPdf`, body, signal);
+};
 
-function postAct(body) {
-    return extendedFetcher
-        .postRequest(`http://${API_HOST}:8080/acts`, body);
-}
+export const downloadAsWord = (body, signal) => {
+    return extendedFetcher.downloadRequest(`http://${API_HOST}:8080/acts/downloadAsWord`, body, signal);
+};
 
-function deleteAct(body) {
-    return extendedFetcher
-        .deleteRequest(`http://${API_HOST}:8080/acts/` + body.id);
-}
-async function downloadAsPdf(body) {
-    return extendedFetcher.downloadRequest(`http://${API_HOST}:8080/acts/downloadAsPdf`, body);
-}
-
-async function downloadAsWord(body) {
-    return extendedFetcher.downloadRequest(`http://${API_HOST}:8080/acts/downloadAsWord`, body);
-}
-
-async function downlaod(body) {
-    return extendedFetcher.downloadRequest(`http://${API_HOST}:8080/acts/download`, body);
-
-
-    // let s = objectToQueryString(buildedParams);
-    // let url = `http://${API_HOST}:8080/acts/download?${s}`;
-    // let decoded = decodeURI(url).replace(/\s/g, "%20");
-    // console.log(decoded);
-    // return extendedFetcher
-    //     .downloadRequest(decoded);
-}
-
-function objectToQueryString(obj) {
-    return Object.keys(obj)
-        .map(key => key + '=' + decodeURIComponent(obj[key]))
-        .join('&');
-}
+export const downlaod = (body, signal) => {
+    return extendedFetcher.downloadRequest(`http://${API_HOST}:8080/acts/download`, body, signal);
+};

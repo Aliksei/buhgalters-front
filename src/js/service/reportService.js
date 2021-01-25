@@ -2,28 +2,27 @@ import {extendedFetcher} from "../rest/fetcher";
 import {API_HOST} from "./actService";
 
 export const reportService = {
-    getReports,
     putReport,
     postReport,
     deleteReport,
 };
 
-function getReports() {
+export const getReports = async (signal) => {
+    return await extendedFetcher
+        .getRequest(`http://${API_HOST}:8080/reports`, signal);
+};
+
+async function putReport(body, signal) {
     return extendedFetcher
-        .getRequest(`http://${API_HOST}:8080/reports`);
+        .putRequest(`http://${API_HOST}:8080/reports/` + body.id, body, signal);
 }
 
-function putReport(body) {
+async function postReport(body, signal) {
     return extendedFetcher
-        .putRequest(`http://${API_HOST}:8080/reports/` + body.id, body);
+        .postRequest(`http://${API_HOST}:8080/reports`, body, signal);
 }
 
-function postReport(body) {
+async function deleteReport(body, signal) {
     return extendedFetcher
-        .postRequest(`http://${API_HOST}:8080/reports`, body);
-}
-
-function deleteReport(body) {
-    return extendedFetcher
-        .deleteRequest(`http://${API_HOST}:8080/reports/` + body.id);
+        .deleteRequest(`http://${API_HOST}:8080/reports/` + body.id, signal);
 }

@@ -8,9 +8,9 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import TextField from "@material-ui/core/TextField";
 import Box from "@material-ui/core/Box";
-import {makeStyles} from "@material-ui/core";
-import {clientService} from "../service/clientService";
 import Typography from "@material-ui/core/Typography";
+import {putClient} from "../service/clientService";
+import makeStyles from "@material-ui/core/styles/makeStyles";
 
 
 const useStyles = makeStyles(theme => ({
@@ -20,6 +20,8 @@ const useStyles = makeStyles(theme => ({
     },
     textField: {
         padding: theme.spacing(1),
+        backgroundColor: 'rgba(0,109,255,0.07)',
+        borderRadius: '6px',
     }
 }));
 
@@ -27,273 +29,333 @@ const ClientData = ({client, update}) => {
 
     const [open, setOpen] = React.useState(false);
 
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
-
     return (
         <Fragment>
-                <Table size={"medium"} padding="checkbox">
-                    <PropRow name={"Имя :"} value={client.name}/>
-                    <PropRow name={"Почта :"} value={client.email}/>
-                    <PropRow name={"Директор :"} value={client.director}/>
-                    <PropRow name={"ФСЗН :"} value={client.fszn}/>
-                    <PropRow name={"Адрес :"} value={client.address}/>
-                    <PropRow name={"УНП :"} value={client.ynp}/>
-                    <PropRow name={"Фонд :"} value={client.fond}/>
-                    <PropRow name={"Имнс :"} value={client.imns}/>
-                    <PropRow name={"Окпо :"} value={client.okpo}/>
+                <Table size={"small"} padding="checkbox">
+                    <tbody>
+                        <ClientsPropertyRow name={"Имя :"} value={client.name}/>
+                        <ClientsPropertyRow name={"Почта :"} value={client.email}/>
+                        <ClientsPropertyRow name={"Телефон :"} value={client.phoneNumber}/>
+                        <ClientsPropertyRow name={"Директор :"} value={client.director}/>
+                        <ClientsPropertyRow name={"ФСЗН :"} value={client.fszn}/>
+                        <ClientsPropertyRow name={"Адрес :"} value={client.address}/>
+                        <ClientsPropertyRow name={"УНП :"} value={client.ynp}/>
+                        <ClientsPropertyRow name={"Фонд :"} value={client.fond}/>
+                        <ClientsPropertyRow name={"Имнс :"} value={client.imns}/>
+                        <ClientsPropertyRow name={"Окпо :"} value={client.okpo}/>
+                        <ClientsPropertyRow name={"Номер Договора :"} value={client.contractId}/>
+                        <ClientsPropertyRow name={"Договор заключен :"} value={client.contractFrom}/>
+                        <ClientsPropertyRow name={"Договор действителен до :"} value={client.contractTill}/>
+                        <ClientsPropertyRow name={"Ключ действителен до :"} value={client.keyLifeDate}/>
+                        <ClientsPropertyRow name={"Банковские реквизиты :"} value={client.bankInfo}/>
+                    </tbody>
                 </Table>
-                <EditDialog client={client}
-                            opened={open}
-                            handleClose={handleClose}
-                            update={update}
-                />
-                <Box>
-                    <Button variant="contained"
-                            color="inherit"
-                            size="small"
-                            onClick={handleOpen}
-                            style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}>
-                        Изменить
-                    </Button>
-                </Box>
-            </Fragment>
+            <EditClientDialog client={client} apiCall={putClient}
+                              opened={open} handleClose={() => setOpen(false)}
+                              title={'Редактирование Клиента'}
+                              update={update}/>
+            <Box>
+                <Button variant="contained" color="inherit" size="small" onClick={() => setOpen(true)}
+                        style={{backgroundColor: 'rgba(0,69,147,0.52)', color: "white"}}>
+                    Редактировать
+                </Button>
+            </Box>
+        </Fragment>
     )
 
 };
 
 export default ClientData;
 
-const PropRow = ({name, value}) => {
-
+const ClientsPropertyRow = ({name, value}) => {
     const style = {fontWeight: "bold", textAlign: "left"};
-
     return (
         <Fragment>
             <TableRow>
-                <td><Typography>{name}</Typography></td>
-                <td><Typography style={style}>{value}</Typography></td>
+                <td><div><Typography>{name}</Typography></div></td>
+                <td><div style={{textOverflow: "ellipsis"}}><Typography style={style}>{value}</Typography></div></td>
             </TableRow>
         </Fragment>
     )
 };
 
 
-const EditDialog = ({opened, handleClose, client, update}) => {
+export const EditClientDialog = ({title, opened, handleClose, client, update, apiCall}) => {
 
     const classes = useStyles();
-
-    const [ynp, setYnp] = React.useState(null);
-    const [name, setName] = React.useState(null);
-    const [email, setEmal] = React.useState(null);
-    const [director, setDirector] = React.useState(null);
-    const [fond, setFond] = React.useState(null);
-    const [address, setAddress] = React.useState(null);
-    const [imns, setImns] = React.useState(null);
-    const [okpo, setOkpo] = React.useState(null);
-    const [fszn, setFszn] = React.useState(null);
-
-    const [ynpError, setYnpError] = React.useState(false);
-    const [nameError, setNameError] = React.useState(false);
-    const [emailError, setEmalError] = React.useState(false);
-    const [directorError, setDirectorError] = React.useState(false);
-    const [fondError, setFondError] = React.useState(false);
-    const [addressError, setAddressError] = React.useState(false);
-    const [imnsError, setImnsError] = React.useState(false);
-    const [okpoError, setOkpoError] = React.useState(false);
-    const [fsznError, setFsznError] = React.useState(false);
-
-
-    const handleYnp = ({target}) => fieldStateHandler(setYnp, setYnpError, target);
-    const handleName = ({target}) => fieldStateHandler(setName, setNameError, target);
-    const handleEmail = ({target}) => fieldStateHandler(setEmal, setEmalError, target);
-    const handleDirector = ({target}) => fieldStateHandler(setDirector, setDirectorError, target);
-    const handleFond = ({target}) => fieldStateHandler(setFond, setFondError, target);
-    const handleAddress = ({target}) => fieldStateHandler(setAddress, setAddressError, target);
-    const handleImns = ({target}) => fieldStateHandler(setImns, setImnsError, target);
-    const handleOkpo = ({target}) => fieldStateHandler(setOkpo, setOkpoError, target);
-    const handleFszn = ({target}) => fieldStateHandler(setFszn, setFsznError, target);
-
-    const fieldStateHandler = (fieldSetter, errorSetter, target) => {
-        if (target.value === "") {
-            errorSetter(true);
-        } else {
-            errorSetter(false);
-        }
-        fieldSetter(target.value);
-    };
-
-    const getHelperText = (hasError) => {
-        return hasError ? 'Поле не может быть пустым' : null
-    };
+    const [state, setState] = React.useState({
+            values: {},
+            errors: new Map()
+        });
 
     useEffect(() => {
-        setName(client.name);
-        setYnp(client.ynp);
-        setEmal(client.email);
-        setDirector(client.director);
-        setFond(client.fond);
-        setAddress(client.address);
-        setImns(client.imns);
-        setOkpo(client.okpo);
-        setFszn(client.fszn);
-    }, [client, opened]);
+        setState(prevState => {
+
+            const fields = [
+                {name: 'email'},
+                {name: 'name'},
+                {name: 'fszn'},
+                {name: 'director'},
+                {name: 'fond'},
+                {name: 'keyLifeDate'},
+                {name: 'address'},
+                {name: 'imns'},
+                {name: 'okpo'},
+                {name: 'phoneNumber'},
+                {name: 'ynp'},
+                {name: 'contractId'},
+                {name: 'contractTill'},
+                {name: 'contractFrom'},
+                {name: 'bankInfo'},
+            ];
+
+            fields.forEach(field => {
+                if (client[field.name] === undefined || client[field.name] ==='') {
+                    prevState.errors.set(field.name, true)
+                }
+            });
+
+            return {values: {...client}, errors: prevState.errors}
+        })
+    }, [opened, client]);
+
+    const handleChange = ({target}) => {
+        let {name, value} = target;
+        if (value === '') {
+            setState(prevState => {
+                return {
+                    values: {...prevState.values, [name]: value},
+                    errors: prevState.errors.set(name, true)
+                }
+            })
+        } else {
+            setState(prevState => {
+                prevState.errors.delete(name);
+                return {
+                    values: {...prevState.values, [name]: value},
+                    errors: prevState.errors
+                }
+            })
+        }
+    };
 
     const handleSave = () => {
-        clientService.putClient({
-            id: client.id,
-            ynp, name, email, director, fond, address, imns, okpo, fszn,
+        apiCall({
+            id: client.id, ...state.values
         })
             .then(res => {
                 update(res);
                 handleCloseDialog();
-            },  (reason) => {
+            }, (reason) => {
                 window.alert("Ошибка Запроса: " + reason);
             })
     };
 
     const handleCloseDialog = () => {
-        setFsznError(false);
-        setOkpoError(false);
-        setImnsError(false);
-        setAddressError(false);
-        setFondError(false);
-        setDirectorError(false);
-        setEmalError(false);
-        setNameError(false);
-        setYnpError(false);
         handleClose();
     };
 
     const saveBtn = () => {
-        let saveEnabled = nameError || ynpError || emailError || directorError || fondError || addressError || imnsError || okpoError || fsznError;
+        let saveEnabled = state.errors.size > 0;
         let saveStyle = saveEnabled ? {
             color: "black"
         } : {
             backgroundColor: "rgba(0,69,147,0.52)", color: "white"
         };
-
-        return (
-            <Button
-                size={"small"}
-                variant="contained"
-                onClick={handleSave}
-                disabled={saveEnabled}
-                style={saveStyle}>
+        return (<Button size={"small"} variant="contained" onClick={handleSave} disabled={saveEnabled} style={saveStyle}>
                 Сохранить
             </Button>
         )
     };
 
+    const hasError = (name) => state.errors.has(name);
+
+    const getHelperText = (name) => hasError(name) ? 'Поле не может быть пустым' : '';
+
     return (
-        <Dialog open={opened}>
-            <DialogTitle>Редактирование клиента</DialogTitle>
+        <Dialog open={opened} fullWidth={true}>
+            <DialogTitle>{title}</DialogTitle>
             <DialogContent>
                 <Box className={classes.box}>
                     <TextField className={classes.textField}
-                               onChange={handleName}
-                               error={nameError}
-                               value={name}
+                               onChange={handleChange}
+                               error={hasError('name')}
+                               name={'name'}
+                               value={state.values.name}
                                size={"small"}
-                               label={"Имя Клиента"}
-                               helperText={getHelperText(nameError)}
+                               label={'Имя Клиента'}
+                               helperText={getHelperText('name')}
                                variant="outlined">
                     </TextField>
                     <TextField className={classes.textField}
+                               onChange={handleChange}
+                               error={hasError('director')}
+                               name={'director'}
+                               value={state.values.director}
                                size={"small"}
-                               onChange={handleEmail}
-                               error={emailError}
-                               value={email}
-                               type={"email"}
-                               label={"Почта"}
-                               helperText={getHelperText(emailError)}
+                               label={'Директор'}
+                               helperText={getHelperText('director')}
                                variant="outlined">
                     </TextField>
                 </Box>
                 <Box className={classes.box}>
                     <TextField className={classes.textField}
-                               onChange={handleFszn}
+                               onChange={handleChange}
+                               error={hasError('address')}
+                               name={'address'}
+                               value={state.values.address}
                                size={"small"}
-                               error={fsznError}
-                               value={fszn}
-                               label={"ФСЗН"}
-                               helperText={getHelperText(fsznError)}
+                               label={'Адрес'}
+                               helperText={getHelperText('address')}
                                variant="outlined">
                     </TextField>
                     <TextField className={classes.textField}
-                               onChange={handleDirector}
-                               error={directorError}
+                               onChange={handleChange}
+                               error={hasError('email')}
+                               name={'email'}
+                               value={state.values.email}
                                size={"small"}
-                               value={director}
-                               label={"Директор"}
-                               helperText={getHelperText(directorError)}
-                               variant="outlined">
-                    </TextField>
-                </Box>
-
-                <Box className={classes.box}>
-                    <TextField className={classes.textField}
-                               onChange={handleFond}
-                               size={"small"}
-                               type={"number"}
-                               error={fondError}
-                               value={fond}
-                               label={"Фонд"}
-                               helperText={getHelperText(fondError)}
-                               variant="outlined">
-                    </TextField>
-                    <TextField className={classes.textField}
-                               onChange={handleAddress}
-                               size={"small"}
-                               error={addressError}
-                               value={address}
-                               label={"Адрес"}
-                               helperText={getHelperText(addressError)}
+                               label={'Почта'}
+                               helperText={getHelperText('email')}
                                variant="outlined">
                     </TextField>
                 </Box>
-
                 <Box className={classes.box}>
                     <TextField className={classes.textField}
-                               onChange={handleImns}
+                               onChange={handleChange}
+                               error={hasError('fond')}
+                               name={'fond'}
+                               type={'number'}
+                               value={state.values.fond}
                                size={"small"}
-                               error={imnsError}
-                               value={imns}
-                               label={"Имнс"}
-                               helperText={getHelperText(imnsError)}
+                               label={'Фонд (рублей)'}
+                               helperText={getHelperText('fond')}
                                variant="outlined">
                     </TextField>
                     <TextField className={classes.textField}
-                               onChange={handleOkpo}
+                               onChange={handleChange}
+                               error={hasError('fszn')}
+                               name={'fszn'}
+                               value={state.values.fszn}
                                size={"small"}
-                               error={okpoError}
-                               value={okpo}
-                               label={"ОКПО"}
-                               helperText={getHelperText(okpoError)}
+                               label={'ФСЗН'}
+                               helperText={getHelperText('fszn')}
                                variant="outlined">
                     </TextField>
                 </Box>
 
                 <Box className={classes.box}>
                     <TextField className={classes.textField}
-                               onChange={handleYnp}
+                               onChange={handleChange}
+                               error={hasError('imns')}
+                               name={'imns'}
+                               value={state.values.imns}
                                size={"small"}
-                               type={"number"}
-                               error={ynpError}
-                               value={ynp}
-                               label={"УНП"}
-                               helperText={getHelperText(ynpError)}
+                               label={'Имнс'}
+                               helperText={getHelperText('imns')}
+                               variant="outlined">
+                    </TextField>
+                    <TextField className={classes.textField}
+                               onChange={handleChange}
+                               error={hasError('okpo')}
+                               name={'okpo'}
+                               value={state.values.okpo}
+                               size={"small"}
+                               label={'ОКПО'}
+                               helperText={getHelperText('okpo')}
+                               variant="outlined">
+                    </TextField>
+                </Box>
+
+                <Box className={classes.box}>
+                    <TextField className={classes.textField}
+                               onChange={handleChange}
+                               error={hasError('ynp')}
+                               name={'ynp'}
+                               value={state.values.ynp}
+                               type={'number'}
+                               size={"small"}
+                               label={'УНП'}
+                               helperText={getHelperText('ynp')}
+                               variant="outlined">
+                    </TextField>
+                    <TextField className={classes.textField}
+                               onChange={handleChange}
+                               error={hasError('phoneNumber')}
+                               name={'phoneNumber'}
+                               value={state.values.phoneNumber}
+                               size={"small"}
+                               label={'Телефон'}
+                               helperText={getHelperText('phoneNumber')}
+                               variant="outlined">
+                    </TextField>
+                </Box>
+
+                <Box className={classes.box}>
+                    <TextField className={classes.textField}
+                               onChange={handleChange}
+                               error={hasError('contractId')}
+                               name={'contractId'}
+                               value={state.values.contractId}
+                               size={"small"}
+                               label={'Номер договора'}
+                               helperText={getHelperText('contractId')}
+                               variant="outlined">
+                    </TextField>
+                    <TextField className={classes.textField}
+                               onChange={handleChange}
+                               type={'date'}
+                               error={hasError('keyLifeDate')}
+                               name={'keyLifeDate'}
+                               value={state.values.keyLifeDate}
+                               size={"small"}
+                               label={'Ключ действителен до'}
+                               helperText={getHelperText('keyLifeDate')}
+                               variant="outlined">
+                    </TextField>
+                </Box>
+                <Box className={classes.box}>
+                    <TextField className={classes.textField}
+                               onChange={handleChange}
+                               type={'date'}
+                               error={hasError('contractTill')}
+                               name={'contractTill'}
+                               value={state.values.contractTill}
+                               size={"small"}
+                               label={'Окончание договора'}
+                               helperText={getHelperText('contractTill')}
+                               variant="outlined">
+                    </TextField>
+                    <TextField className={classes.textField}
+                               onChange={handleChange}
+                               type={'date'}
+                               error={hasError('contractFrom')}
+                               name={'contractFrom'}
+                               value={state.values.contractFrom}
+                               size={"small"}
+                               label={'Договор заключен'}
+                               helperText={getHelperText('contractFrom')}
+                               variant="outlined">
+                    </TextField>
+                </Box>
+                <Box className={classes.box}>
+                    <TextField className={classes.textField}
+                               onChange={handleChange}
+                               name={'bankInfo'}
+                               error={hasError('bankInfo')}
+                               value={state.values.bankInfo}
+                               size={"small"}
+                               label={'Реквизиты Банка'}
+                               helperText={getHelperText('bankInfo')}
+                               multiline
+                               rows={8}
+                               fullWidth={true}
                                variant="outlined">
                     </TextField>
                 </Box>
             </DialogContent>
             <DialogActions>
-                <Button
-                    size={"small"}
-                    onClick={handleCloseDialog}
-                    variant="contained">
-                    Закрыть
-                </Button>
+                <Button size={"small"} onClick={handleCloseDialog} variant="contained">Закрыть</Button>
                 {saveBtn()}
             </DialogActions>
         </Dialog>
